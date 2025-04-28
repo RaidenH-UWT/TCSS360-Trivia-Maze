@@ -1,3 +1,9 @@
+# Raiden ignores
+/*.webp
+
+
+# JAVA DEFAULTS BELOW
+
 # Compiled class file
 *.class
 
