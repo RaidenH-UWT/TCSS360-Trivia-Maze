@@ -43,7 +43,7 @@ public class GameState {
 
     /**
      * Get the current position of the player.
-     * @returns Position the player is currently at
+     * @return Position the player is currently at
      */
     public Position getCurrentPosition() {
         return null;
@@ -59,7 +59,7 @@ public class GameState {
 
     /**
      * Get the maze object for this game.
-     * @returns Maze object with the data for this game
+     * @return Maze object with the data for this game
      */
     public Maze getMaze() {
         return null;
@@ -75,7 +75,7 @@ public class GameState {
 
     /**
      * Get how many questions the player has gotten correct.
-     * @returns int number of questions the player has answered correctly
+     * @return int number of questions the player has answered correctly
      */
     public int getQuestionsCorrect() {
         return 0;
@@ -105,7 +105,7 @@ public class GameState {
 
     /**
      * Get which rooms the player has visited.
-     * @returns List<Position> list of the positions of rooms the player has visited
+     * @return List<Position> list of the positions of rooms the player has visited
      */
     public List<Position> getVisitedRooms() {
         return null;

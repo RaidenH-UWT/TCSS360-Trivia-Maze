@@ -22,7 +22,7 @@ public class GameSaver {
     /**
      * Grabs save data from a save file.
      * @param theFilename the save file to read
-     * @returns GameState object containing the state of the game
+     * @return GameState object containing the state of the game
      * @throws FileNotFoundException if the given save file is not found
      */
     public GameState getSave(String theFilename) {

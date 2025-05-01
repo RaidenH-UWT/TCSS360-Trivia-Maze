@@ -32,7 +32,7 @@ public class Door {
 
     /**
      * Get the locked state of this door.
-     * @returns true if this door is locked, false otherwise
+     * @return true if this door is locked, false otherwise
      */
     public boolean isLocked() {
         return false;
@@ -40,7 +40,7 @@ public class Door {
 
     /**
      * Get the opened state of this door.
-     * @returns true if this door is open, false otherwise
+     * @return true if this door is open, false otherwise
      */
     public boolean isOpen() {
         return false;
@@ -62,7 +62,7 @@ public class Door {
 
     /**
      * Get the Question associated with this Door.
-     * @returns Question object associated with this door
+     * @return Question object associated with this door
      */
     public Question getQuestion() {
         return null;
@@ -71,7 +71,7 @@ public class Door {
     /**
      * Attempts to answer the question associated with this Door.
      * @param theAnswer the answer to attempt
-     * @returns true if the answer was correct, false otherwise
+     * @return true if the answer was correct, false otherwise
      */
     public boolean answerQuestion(String theAnswer) {
         return false;

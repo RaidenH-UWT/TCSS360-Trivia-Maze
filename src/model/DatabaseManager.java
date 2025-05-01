@@ -44,7 +44,7 @@ public class DatabaseManager {
     /**
      * Gets a question from the database by the questions ID.
      * @param theId int ID associated with the question
-     * @returns Question object from the given ID
+     * @return Question object from the given ID
      */
     public Question getQuestionById(int theId) {
         return null;
@@ -52,7 +52,7 @@ public class DatabaseManager {
 
     /**
      * Gets a random question from the database.
-     * @returns random Question object from the database
+     * @return random Question object from the database
      */
     public Question getRandomQuestion() {
         return null;
@@ -61,7 +61,7 @@ public class DatabaseManager {
     /**
      * Gets a random question by its associated QuestionType
      * @param type a QuestionType for the desired question
-     * @returns random Question object with the given type
+     * @return random Question object with the given type
      */
     public Question getRandomQuestionByType(QuestionType type) {
         return null;
@@ -71,7 +71,7 @@ public class DatabaseManager {
 
     /**
      * Gets all questions stored in the database.
-     * @returns List<Question> of every question in the database
+     * @return List<Question> of every question in the database
      */
     public List<Question> getAllQuestions() {
         return null;
