@@ -10,11 +10,32 @@ import java.util.Map;
 
 //TODO: IMPORTANT; Potentially merge controller into view, because of the PropertyChange API
 
+/**
+ * Acts as an interface between the model and the view, and updates both
+ * according to user input.
+ * @author Raiden H
+ * @version May 1, 2025
+ */
 public class GameController {
+    /**
+     * Instance of a GameState object from the model for this game.
+     */
     private GameState myState;
+
+    /**
+     * Instance of a GameView object from the view for this game.
+     */
     private GameView myView;
+
+    /**
+     * Instance of a DatabaseManager object from the model for modifying the database.
+     */
     private DatabaseManager myDbManager;
 
+    /**
+     * GameController constructor for setting up the game.
+     * @param theView the GameView object to use
+     */
     public GameController(GameView theView) {
         super();
 
