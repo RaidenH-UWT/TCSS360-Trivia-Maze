@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 /**
  * Manages the lock state and question for this direction of a room.

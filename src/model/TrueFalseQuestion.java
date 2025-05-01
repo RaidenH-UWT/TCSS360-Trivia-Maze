@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 public class TrueFalseQuestion extends Question {
     public TrueFalseQuestion(final int theId, final String theQuestion, final boolean theAnswer,

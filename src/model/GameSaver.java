@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 public class GameSaver {
     // Potentionally add a List<File> or List<String> of all saves?

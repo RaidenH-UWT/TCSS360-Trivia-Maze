@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 public class ShortAnswerQuestion extends Question {
     public ShortAnswerQuestion(final int theId, final String theQuestion, final String theAnswer,

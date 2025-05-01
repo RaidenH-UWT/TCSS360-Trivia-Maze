@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 /**
  * Enumeration of the four cardinal directions.

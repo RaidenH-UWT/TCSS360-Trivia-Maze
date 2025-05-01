@@ -1,13 +1,13 @@
-package view;
+package src.view;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
-import model.Maze;
-import model.Position;
-import model.Question;
-import model.Room;
+import src.model.Maze;
+import src.model.Position;
+import src.model.Question;
+import src.model.Room;
 
 public class GuiView implements GameView {
     private JFrame mainFrame;

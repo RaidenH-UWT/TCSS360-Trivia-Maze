@@ -1,10 +1,10 @@
-package view;
+package src.view;
 
 
-import model.Maze;
-import model.Position;
-import model.Question;
-import model.Room;
+import src.model.Maze;
+import src.model.Position;
+import src.model.Question;
+import src.model.Room;
 
 public interface GameView {
     public void displayMaze(Maze theMaze, Position theCurrentPosition);

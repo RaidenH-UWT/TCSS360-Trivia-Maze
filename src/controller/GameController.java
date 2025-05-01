@@ -1,10 +1,10 @@
-package controller;
+package src.controller;
 
-import model.GameState;
-import model.Room;
-import model.DatabaseManager;
-import model.Direction;
-import view.GameView;
+import src.model.DatabaseManager;
+import src.model.Direction;
+import src.model.GameState;
+import src.model.Room;
+import src.view.GameView;
 
 import java.util.Map;
 

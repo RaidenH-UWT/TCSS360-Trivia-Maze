@@ -1,4 +1,4 @@
-package model;
+package src.model;
 
 /**
  * Enumeration of the 3 question types.
