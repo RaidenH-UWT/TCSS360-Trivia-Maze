@@ -9,13 +9,40 @@ import src.model.Position;
 import src.model.Question;
 import src.model.Room;
 
+/**
+ * GUI implementation of the GameView interface.
+ * @author Raiden H
+ * @version May 1, 2025
+ */
 public class GuiView implements GameView {
+    /**
+     * Window frame
+     */
     private JFrame mainFrame;
+
+    /**
+     * Panel for the maze
+     */
     private JPanel mazePanel;
+
+    /**
+     * Panel for the room preview
+     */
     private JPanel roomPanel;
+
+    /**
+     * Panel for the question preview
+     */
     private JPanel questionPanel;
+
+    /**
+     * Menu bar for the window
+     */
     private JMenuBar menuBar;
 
+    /**
+     * Create a new GuiView object.
+     */
     public GuiView() {
         super();
     }
@@ -44,6 +71,10 @@ public class GuiView implements GameView {
         return null;
     }
 
+    /**
+     * Create a new menu bar for the window.
+     * @return JMenuBar with necessary elements
+     */
     private JMenuBar createMenuBar() {
         return null;
     }

@@ -5,6 +5,11 @@ import src.model.Position;
 import src.model.Question;
 import src.model.Room;
 
+/**
+ * Console implementation of the GameView interface.
+ * @author Raiden H
+ * @version May 1, 2025
+ */
 public class ConsoleView implements GameView {
     public void displayMaze(Maze theMaze, Position theCurrentPosition) {
         
@@ -18,6 +23,7 @@ public class ConsoleView implements GameView {
         
     }
 
+    // note in super
     public void displayMessage(String theMessage) {
 
     }
@@ -26,6 +32,7 @@ public class ConsoleView implements GameView {
         
     }
 
+    // note in super
     public String getAnswer() {
         return null;
     }
