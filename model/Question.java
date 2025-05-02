@@ -1,40 +1,46 @@
 package model;
 
 public abstract class Question {
-    protected int id;
-    protected String questionText;
-    protected String correctAnswer;
-    // should this be the QuestionType?
-    protected String category;
-    protected int difficulty;
 
-    // correctAnswer may need to be moved down cause it depends on the QuestionType
-    public Question(int theId, String theQuestion, String theAnswer,
-                    String theCategory, int theDifficulty) {
-        super();
+    protected int myId;
+    protected String myQuestionText;
+    protected String myCorrectAnswer;
+    protected String myCategory;
+    protected int myDifficulty;
+
+    public Question(int theId, String theQuestionText, String theCorrectAnswer,
+            String theCategory, int theDifficulty) {
+        if (theQuestionText == null || theCorrectAnswer == null || theCategory == null) {
+            throw new IllegalArgumentException("Question parameters cannot be null");
+        }
+        if (theDifficulty < 1 || theDifficulty > 5) {
+            throw new IllegalArgumentException("Difficulty must be between 1 and 5");
+        }
+
+        myId = theId;
+        myQuestionText = theQuestionText;
+        myCorrectAnswer = theCorrectAnswer;
+        myCategory = theCategory;
+        myDifficulty = theDifficulty;
     }
 
     public int getId() {
-        return 0;
+        return myId;
     }
 
-    public String getQuestion() {
-        return null;
+    public String getQuestionText() {
+        return myQuestionText;
     }
 
     public String getCategory() {
-        return null;
+        return myCategory;
     }
 
     public int getDifficulty() {
-        return 0;
+        return myDifficulty;
     }
 
-    public boolean checkAnswer(String theAnswer) {
-        return false;
-    }
+    public abstract boolean checkAnswer(String theAnswer);
 
-    public QuestionType getQuestionType() {
-        return null;
-    }
+    public abstract QuestionType getQuestionType();
 }
