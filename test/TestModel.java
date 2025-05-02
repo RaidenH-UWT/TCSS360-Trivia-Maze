@@ -1,8 +1,7 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
+// Using jUnit Jupiter testing framework, please import if you don't have it already.
+// This is available in VSC easily.
 
 /**
  * Class for testing classes and methods of the game model
