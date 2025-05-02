@@ -39,8 +39,6 @@ public class GameController {
     public GameController(GameView theView) {
         super();
 
-        //TODO: call GameState contructor
-        myState = null;
         myView = theView;
         //TODO: call DatabaseManager constructor
         myDbManager = null;
