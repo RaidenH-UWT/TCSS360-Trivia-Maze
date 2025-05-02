@@ -4,10 +4,10 @@ package test;
 // This is available in VSC easily.
 
 /**
- * Class for testing classes and methods of the game model
+ * Class for testing the SQLite database
  * @author Raiden H
  * @version May 1, 2025
  */
-public class TestModel {
+public class TestDatabase {
     //stub class to implement tests later
 }

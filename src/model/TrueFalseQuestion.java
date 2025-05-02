@@ -15,5 +15,6 @@ public class TrueFalseQuestion extends Question {
     public TrueFalseQuestion(final int theId, final String theQuestion, final boolean theAnswer,
                             final String theCategory, final int theDifficulty) {
         super(theId, theQuestion, "", theCategory, theDifficulty);
+        // the answer should probably be pulled down to the child classes because it depends on the QType
     }
 }

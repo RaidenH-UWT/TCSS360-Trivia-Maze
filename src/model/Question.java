@@ -49,6 +49,7 @@ public abstract class Question {
     public Question(int theId, String theQuestion, String theAnswer,
                     String theCategory, int theDifficulty) {
         super();
+        // add to database here?
     }
 
     /**
