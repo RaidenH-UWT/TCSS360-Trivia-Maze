@@ -34,7 +34,7 @@ public class Maze {
     /**
      * Tracks whether the maze is complete or not.
      */
-    private boolean isCompleted;
+    private boolean myCompleted;
 
     /**
      * Creates a new maze of the given dimensions.
@@ -43,6 +43,7 @@ public class Maze {
      */
     public Maze(int theWidth, int theHeight) {
         super();
+        // TODO: add option for random room generation?
     }
 
     /**
