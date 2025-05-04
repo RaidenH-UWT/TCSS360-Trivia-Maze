@@ -1,5 +1,6 @@
 package src.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +29,7 @@ public class GameState {
      */
     private int questionsCorrect;
 
+    // maybe List<Room> instead, cause rooms already store their position and we could access the data faster?
     /**
      * Stores the rooms the player has visited.
      */
@@ -35,10 +37,18 @@ public class GameState {
 
     /**
      * Initialize the state with the given maze.
-     * @param theMaze a Maze object for the game
+     * @param theWidth int width of the new maze
+     * @param theHeight int height of the new maze
+     * @param randomRooms boolean select random room generation or manual room generation
      */
-    public GameState(Maze theMaze) {
+    public GameState(int theWidth, int theHeight, boolean randomRooms) {
         super();
+
+        myMaze = new Maze(theWidth, theHeight, randomRooms);
+        currentPosition = myMaze.getEntrance();
+        questionsAnswered = 0;
+        questionsCorrect = 0;
+        visitedRooms = new ArrayList<Position>(theWidth * theHeight);
     }
 
     /**
@@ -46,7 +56,7 @@ public class GameState {
      * @return Position the player is currently at
      */
     public Position getCurrentPosition() {
-        return null;
+        return currentPosition;
     }
 
     /**
@@ -54,7 +64,10 @@ public class GameState {
      * @param thePosition Position for the player to be set to
      */
     public void setCurrentPosition(Position thePosition) {
-
+        // Make sure the passed position is within bounds
+        if (isWithinBounds(thePosition)) {
+            currentPosition = thePosition;
+        }
     }
 
     /**
@@ -62,7 +75,7 @@ public class GameState {
      * @return Maze object with the data for this game
      */
     public Maze getMaze() {
-        return null;
+        return myMaze;
     }
 
     /**
@@ -70,7 +83,7 @@ public class GameState {
      * @return int number of questions the player has answered
      */
     public int getQuestionsAnswered() {
-        return 0;
+        return questionsAnswered;
     }
 
     /**
@@ -78,21 +91,21 @@ public class GameState {
      * @return int number of questions the player has answered correctly
      */
     public int getQuestionsCorrect() {
-        return 0;
+        return questionsCorrect;
     }
 
     /**
      * Bumps up the number of questions the player has answered by 1.
      */
     public void incrementQuestionsAnswered() {
-
+        questionsAnswered++;
     }
 
     /**
      * Bumps up the number of questions the player has gotten correct by 1.
      */
     public void incrementQuestionsCorrect() {
-
+        questionsCorrect++;
     }
 
     /**
@@ -100,7 +113,10 @@ public class GameState {
      * @param thePosition Position of the room to be added
      */
     public void addVisitedRoom(Position thePosition) {
-
+        // make sure the room is within bounds and not already visited
+        if (isWithinBounds(thePosition) && !visitedRooms.contains(thePosition)) {
+            visitedRooms.add(thePosition);
+        }
     }
 
     /**
@@ -108,6 +124,16 @@ public class GameState {
      * @return List<Position> list of the positions of rooms the player has visited
      */
     public List<Position> getVisitedRooms() {
-        return null;
+        return visitedRooms;
+    }
+
+    /**
+     * Check whether the given position is within the bounds of the maze.
+     * @param thePosition position to check
+     * @return true if thePosition is within bounds, false otherwise
+     */
+    private boolean isWithinBounds(Position thePosition) {
+        return thePosition.getX() <= getMaze().getWidth() 
+            && thePosition.getY() <= getMaze().getHeight();
     }
 }
