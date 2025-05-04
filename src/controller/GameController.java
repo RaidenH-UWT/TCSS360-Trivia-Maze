@@ -2,10 +2,17 @@ package src.controller;
 
 import src.model.DatabaseManager;
 import src.model.Direction;
+import src.model.Door;
 import src.model.GameState;
+import src.model.Maze;
+import src.model.Position;
 import src.model.Room;
+import src.view.ConsoleView;
 import src.view.GameView;
+import src.view.GuiView;
 
+import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Map;
 
 //TODO: IMPORTANT; Potentially merge controller into view, because of the PropertyChange API
@@ -34,23 +41,49 @@ public class GameController {
 
     /**
      * GameController constructor for setting up the game.
-     * @param theView the GameView object to use
+     * @param theWidth int width of the maze
+     * @param theHeight int height of the maze
+     * @param theViewMode boolean selector for console or GUI view, true
+     * for GUI false for console
+     * @param theGenerationMode boolean selector for the room generation,
+     * true for random questions false for manual questions
+     * @param theDbPath String path to the SQLite database file (optional)
      */
-    public GameController(GameView theView) {
+    public GameController(int theWidth, int theHeight, boolean theViewMode, boolean theGenerationMode, String theDbPath) {
         super();
 
-        myView = theView;
-        //TODO: call DatabaseManager constructor
-        myDbManager = null;
+        myState = new GameState(theHeight, theWidth);
+
+        if (theGenerationMode) {
+            generateRandomRooms();
+        }
+
+        if (theViewMode) {
+            myView = new GuiView();
+        } else {
+            myView = new ConsoleView();
+        }
+
+        myDbManager = new DatabaseManager(theDbPath);
+    }
+
+    public GameController(int theWidth, int theHeight, boolean theViewMode, boolean theGenerationMode) {
+        this(theWidth, theHeight, theViewMode, theGenerationMode, "");
     }
 
     /**
-     * Sets up the model, including the GameState object and Maze object.
-     * @param theWidth integer width of the maze
-     * @param theHeight integer height of the maze
+     * Initialize the maze, creating new random rooms.
      */
-    public void initializeGame(int theWidth, int theHeight) {
-
+    private void generateRandomRooms() {
+        Maze mazeObj = myState.getMaze();
+        for (int i = 0; i < mazeObj.getHeight(); i++) {
+            for (int j = 0; j < mazeObj.getWidth(); j++) {
+                for (Direction dir : Direction.values()) {
+                    mazeObj.getRoom(j, i).addDoor(dir, 
+                        new Door(myDbManager.getRandomQuestion()));
+                }
+            }
+        }
     }
 
     /**
@@ -66,7 +99,8 @@ public class GameController {
      * @return a Room object corresponding to the room the player is currently in
      */
     public Room getCurrentRoom() {
-        return null;
+        return myState.getMaze().getRoom(myState.getCurrentPosition().getX(), 
+                                            myState.getCurrentPosition().getY());
     }
 
     /**
@@ -91,6 +125,7 @@ public class GameController {
      * @return true if the game is over, false otherwise
      */
     public boolean isGameOver() {
+        // use Maze.isPathAvailable()?
         return false;
     }
 
@@ -99,7 +134,7 @@ public class GameController {
      * @return true if the game is won, false otherwise
      */
     public boolean isGameWon() {
-        return false;
+        return myState.getMaze().isCompleted();
     }
 
     /**
@@ -107,15 +142,31 @@ public class GameController {
      * @return a Map<Direction, Room> of rooms adjacent to the player
      */
     public Map<Direction, Room> getAdjacentRooms() {
-        return null;
+        Map<Direction, Room> adjRooms = new HashMap<Direction, Room>(4);
+        Position currPosition = myState.getCurrentPosition();
+
+        adjRooms.put(Direction.NORTH, 
+            myState.getMaze().getRoom(currPosition.getX(), currPosition.getY() + 1));
+        adjRooms.put(Direction.EAST, 
+            myState.getMaze().getRoom(currPosition.getX() + 1, currPosition.getY()));
+        adjRooms.put(Direction.SOUTH, 
+            myState.getMaze().getRoom(currPosition.getX(), currPosition.getY() - 1));
+        adjRooms.put(Direction.WEST, 
+            myState.getMaze().getRoom(currPosition.getX() - 1, currPosition.getY()));
+
+        return adjRooms;
     }
 
     /**
-     * Attempts to answer the question in the current room with the given answer.
+     * Attempts to answer the question for the current door with the given answer.
+     * @param theDir Direction of the door being answered
      * @param theAnswer the String answer to attempt
      * @return true if the answer is correct, false otherwise
      */
-    public boolean attemptAnswer(String theAnswer) {
-        return false;
+    public boolean attemptAnswer(Direction theDir, String theAnswer) {
+        Position currPosition = myState.getCurrentPosition();
+        Room currRoom = myState.getMaze().getRoom(currPosition.getX(), currPosition.getY());
+        
+        return currRoom.getDoor(theDir).answerQuestion(theAnswer);
     }
 }
