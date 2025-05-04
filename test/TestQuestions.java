@@ -23,6 +23,7 @@ public class TestQuestions {
      * Make sure creating two questions with the same ID throws an exception.
      */
     @Test
+    @SuppressWarnings("unused")
     void testDupeId() {
         Question tfQuestion = new TrueFalseQuestion(0000, "dupeA", true, "test", 0);
         Question shortQuestion;
@@ -32,6 +33,7 @@ public class TestQuestions {
     /**
      * Private helper to create a question with a duplicate ID.
      */
+    @SuppressWarnings("unused")
     private void createDupe() {
         Question dupeQuestion = new ShortAnswerQuestion(0000, "dupeB", "dupeB", "test", 0);
     }
