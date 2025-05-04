@@ -39,12 +39,11 @@ public class GameState {
      * Initialize the state with the given maze.
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
-     * @param randomRooms boolean select random room generation or manual room generation
      */
-    public GameState(int theWidth, int theHeight, boolean randomRooms) {
+    public GameState(int theWidth, int theHeight) {
         super();
 
-        myMaze = new Maze(theWidth, theHeight, randomRooms);
+        myMaze = new Maze(theWidth, theHeight);
         currentPosition = myMaze.getEntrance();
         questionsAnswered = 0;
         questionsCorrect = 0;
