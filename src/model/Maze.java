@@ -43,14 +43,21 @@ public class Maze {
      */
     public Maze(int theWidth, int theHeight) {
         super();
+        myWidth = theWidth;
+        myHeight = theHeight;
+        generateEmptyRooms();
         // TODO: add option for random room generation?
     }
 
     /**
-     * Initialize the maze, creating new rooms.
+     * Initialize the maze, creating new empty rooms to be changed manually.
      */
-    public void initialize() {
-
+    private void generateEmptyRooms() {
+        for (int i = 0; i < myHeight; i++) {
+            for (int j = 0; j < myWidth; j++) {
+                myRooms[i][j] = new Room(j, i);
+            }
+        }
     }
 
     // TODO: consider replacing with a Position instead of X and Y?
@@ -63,7 +70,24 @@ public class Maze {
      * are not contained within this maze
      */
     public Room getRoom (int theX, int theY) {
-        return null;
+        if (theX > myWidth || theY > myHeight) {
+            throw new IndexOutOfBoundsException("Given coordinates are out of bounds");
+        }
+        return myRooms[theX][theY];
+    }
+
+    /**
+     * @return int width of this maze.
+     */
+    public int getWidth() {
+        return myWidth;
+    }
+
+    /**
+     * @return int height of this maze.
+     */
+    public int getHeight() {
+        return myHeight;
     }
 
     // TODO: Unsure what the intended purpose of this method is, please document.
@@ -72,17 +96,17 @@ public class Maze {
     }
 
     /**
-     * @return Position`of the entrance to this maze
+     * @return Position of the entrance to this maze
      */
     public Position getEntrance() {
-        return null;
+        return myEntrance;
     }
 
     /**
      * @return Position of the exit from this maze
      */
     public Position getExit() {
-        return null;
+        return myExit;
     }
 
     /**
@@ -90,6 +114,6 @@ public class Maze {
      * @return true if this maze is completed, false otherwise
      */
     public boolean isCompleted() {
-        return false;
+        return myCompleted;
     }
 }
