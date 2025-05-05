@@ -1,0 +1,89 @@
+package test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import src.model.Direction;
+import src.model.Door;
+import src.model.Question;
+import src.model.Room;
+import src.model.TrueFalseQuestion;
+
+/**
+ * Class for testing the Room object.
+ * @author Raiden H
+ * @version May 5, 2025
+ */
+public class TestRoom {
+    /**
+     * Objects to test on.
+     */
+    Question testQuestion;
+    Door testDoor;
+    Room testRoom;
+    
+    /**
+     * Setup fresh objects before each test.
+     */
+    @BeforeEach
+    void setup() {
+        testQuestion = new TrueFalseQuestion(0, "test", true, "test", 3);
+        testDoor = new Door(testQuestion);
+        testRoom = new Room(0, 0);
+    }
+
+    /**
+     * Test isVisited() and setVisited() methods
+     */
+    @Test
+    void testVisited() {
+        // flip em back and forth a few times to be sure.
+        assertFalse(testRoom.isVisited());
+
+        testRoom.setVisited(false);
+
+        assertFalse(testRoom.isVisited());
+
+        testRoom.setVisited(true);
+
+        assertTrue(testRoom.isVisited());
+
+        testRoom.setVisited(false);
+
+        assertFalse(testRoom.isVisited());
+    }
+
+    /**
+     * Test coordinate getters.
+     */
+    @Test
+    void testPosition() {
+        assertEquals(0, testRoom.getX());
+        assertEquals(0, testRoom.getY());
+
+        // reassigning to try different coordinates
+        testRoom = new Room(3, 5);
+
+        assertEquals(3, testRoom.getX());
+        assertEquals(5, testRoom.getY());
+    }
+
+    /**
+     * Test addDoor(), getDoor(), and hasDoor() methods.
+     */
+    @Test
+    void testDoors() {
+        for (Direction dir : Direction.values()) {
+            assertFalse(testRoom.hasDoor(dir));
+
+            testRoom.addDoor(dir, testDoor);
+
+            assertTrue(testRoom.hasDoor(dir));
+            assertEquals(testDoor, testRoom.getDoor(dir));
+        }
+    }
+}
