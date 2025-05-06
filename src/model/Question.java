@@ -95,4 +95,15 @@ public abstract class Question {
     public QuestionType getQuestionType() {
         return null;
     }
+
+    @Override
+    public boolean equals(Object question) {
+        // Make sure our casting works
+        if (!this.getClass().equals(question.getClass())) {
+            return false;
+        }
+
+        // If we have unique IDs (we should) all we need to do is check the ID
+        return getId() == ((Question) question).getId();
+    }
 }

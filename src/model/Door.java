@@ -76,4 +76,19 @@ public class Door {
     public boolean answerQuestion(String theAnswer) {
         return false;
     }
+
+    @Override
+    public boolean equals(Object door) {
+        // Make sure our casting works
+        if (!this.getClass().equals(door.getClass())) {
+            return false;
+        }
+
+        boolean val = 
+            isOpen() == ((Door) door).isOpen()
+            && isLocked() == ((Door) door).isLocked()
+            && getQuestion().equals(((Door) door).getQuestion());
+
+        return val;
+    }
 }

@@ -95,4 +95,23 @@ public class Room {
     public void setVisited(boolean theVisited) {
         
     }
+
+    @Override
+    public boolean equals(Object room) {
+        // Make sure our casting works
+        if (!this.getClass().equals(room.getClass())) {
+            return false;
+        }
+
+        boolean val = true;
+        for (Direction dir : Direction.values()) {
+            val = getDoor(dir).equals(((Room) room).getDoor(dir));
+            if (!val) {
+                return val;
+            }
+        }
+        val = (getX() == ((Room) room).getX()) && (getY() == ((Room) room).getY());
+
+        return val;
+    }
 }
