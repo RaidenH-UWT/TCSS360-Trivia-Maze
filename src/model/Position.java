@@ -31,14 +31,14 @@ public class Position {
      * @return int X coordinate of this position
      */
     public int getX() {
-        return 0;
+        return myX;
     }
 
     /**
      * @return int Y coordinate of this position
      */
     public int getY() {
-        return 0;
+        return myY;
     }
 
     /**
@@ -47,6 +47,9 @@ public class Position {
      * @return true if the two Positions have the same X and Y coordinates, false otherwise
      */
     public boolean equals(Position thePosition) {
-        return false;
+        if (thePosition == null) {
+            return false;
+        }
+        return this.myX == thePosition.myX && this.myY == thePosition.myY;
     }
 }
