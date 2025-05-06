@@ -11,7 +11,7 @@ public class Door {
      * Stores whether this door is permanantly locked or not.
      */
     private boolean myLocked;
-
+        
     /**
      * Stores whether this door is open or not.
      */
@@ -28,6 +28,9 @@ public class Door {
      */
     public Door(Question theQuestion) {
         super();
+        myQuestion = theQuestion
+        myLocked = false;
+        myOpened = false;
     }
 
     /**
@@ -35,7 +38,7 @@ public class Door {
      * @return true if this door is locked, false otherwise
      */
     public boolean isLocked() {
-        return false;
+        return myLocked;
     }
 
     /**
@@ -43,21 +46,23 @@ public class Door {
      * @return true if this door is open, false otherwise
      */
     public boolean isOpen() {
-        return false;
+        return myOpened;
     }
 
     /**
      * Locks this door permanantly
      */
     public void lock() {
-
+        myLocked = true;
+        myOpened = false;
     }
 
     /**
      * Opens this door permanantly
      */
     public void open() {
-
+        myOpened = true;
+        myLocked = false;
     }
 
     /**
@@ -65,7 +70,7 @@ public class Door {
      * @return Question object associated with this door
      */
     public Question getQuestion() {
-        return null;
+        return myQuestion;
     }
     // Should this behaviour be in the Question class instead?
     /**
@@ -74,7 +79,7 @@ public class Door {
      * @return true if the answer was correct, false otherwise
      */
     public boolean answerQuestion(String theAnswer) {
-        return false;
+        return myQuestion != null && myQuestion.isCorrectAnswer(theAnswer);
     }
 
     @Override
