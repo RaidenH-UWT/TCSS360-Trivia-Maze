@@ -76,6 +76,21 @@ public class GuiView implements GameView {
      * @return JMenuBar with necessary elements
      */
     private JMenuBar createMenuBar() {
-        return null;
+        JMenuBar bar = new JMenuBar();
+        
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(new JMenuItem("Save Game"));
+        fileMenu.add(new JMenuItem("Load Game"));
+        fileMenu.addSeparator();
+        fileMenu.add(new JMenuItem("Exit"));
+
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(new JMenuItem("About"));
+        helpMenu.add(new JMenuItem("Game Play Instructions"));
+
+        bar.add(fileMenu);
+        bar.add(helpMenu);
+
+        return bar;
     }
 }
