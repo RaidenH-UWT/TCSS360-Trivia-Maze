@@ -43,6 +43,10 @@ public class Maze {
      */
     public Maze(int theWidth, int theHeight) {
         super();
+        if (theWidth <= 0 || theHeight <= 0) {
+            throw new IllegalArgumentException("Dimensions must be greater than 0.");
+        }
+
         myWidth = theWidth;
         myHeight = theHeight;
         generateEmptyRooms();
@@ -70,7 +74,8 @@ public class Maze {
      * are not contained within this maze
      */
     public Room getRoom (int theX, int theY) {
-        if (theX > myWidth || theY > myHeight) {
+        if (theX > myWidth || theY > myHeight
+            || theX < 0 || theY < 0) {
             throw new IndexOutOfBoundsException("Given coordinates are out of bounds");
         }
         return myRooms[theX][theY];
