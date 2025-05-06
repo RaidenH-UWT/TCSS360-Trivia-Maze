@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.IllegalArgumentException;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +27,13 @@ public class TestQuestions {
     /**
      * Questions to test on.
      */
+    List<String> multiOpts = new ArrayList<String>(Arrays.asList(new String[] {"multiA", "multiB"}));
+    // multiOpts.add("multiA");
+    // multiOpts.add("multiB");
     Question trueQuestion = new TrueFalseQuestion(0001, "truerQuestion", true, "test", 3);
     Question falseQuestion = new TrueFalseQuestion(0002, "falserQuestion", false, "test", 3);
     Question shortA = new ShortAnswerQuestion(0003, "shortA", "shortAns", "test", 3);
-    Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "multiA", null, "test", 3);
+    Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "multiA", multiOpts, "test", 3);
 
     /**
      * Make sure creating two questions with the same ID throws an exception.
@@ -35,7 +41,7 @@ public class TestQuestions {
     @Test
     @SuppressWarnings("unused")
     void testDupeId() {
-        Question tfQuestion = new TrueFalseQuestion(0000, "dupeA", true, "test", 0);
+        Question tfQuestion = new TrueFalseQuestion(0000, "dupeA", true, "test", 3);
         Question shortQuestion;
         assertThrows(IllegalArgumentException.class, () -> createDupe());
     }
@@ -45,7 +51,7 @@ public class TestQuestions {
      */
     @SuppressWarnings("unused")
     private void createDupe() {
-        Question dupeQuestion = new ShortAnswerQuestion(0000, "dupeB", "dupeB", "test", 0);
+        Question dupeQuestion = new ShortAnswerQuestion(0000, "dupeB", "dupeB", "test", 3);
     }
 
     /**
