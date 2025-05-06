@@ -1,6 +1,8 @@
 package test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -19,6 +21,14 @@ import src.model.TrueFalseQuestion;
  * @version May 2, 2025
  */
 public class TestQuestions {
+    /**
+     * Questions to test on.
+     */
+    Question trueQuestion = new TrueFalseQuestion(0001, "truerQuestion", true, "test", 3);
+    Question falseQuestion = new TrueFalseQuestion(0002, "falserQuestion", false, "test", 4);
+    Question shortA = new ShortAnswerQuestion(0003, "shortA", "shortAns", "test", 0);
+    Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "ansA", "test", 0);
+
     /**
      * Make sure creating two questions with the same ID throws an exception.
      */
@@ -43,10 +53,7 @@ public class TestQuestions {
      */
     @Test
     void testTrueFalseAnswer() {
-        Question trueQuestion = new TrueFalseQuestion(0001, "truerQuestion", true, "test", 3);
-        Question falseQuestion = new TrueFalseQuestion(0002, "falserQuestion", false, "test", 4);
         // Have to pull checkAnswer down into the child class
-
         assertTrue(trueQuestion.checkAnswer("true"));
         assertFalse(trueQuestion.checkAnswer("false"));
 
@@ -59,8 +66,6 @@ public class TestQuestions {
      */
     @Test
     void testShortAnswer() {
-        Question shortA = new ShortAnswerQuestion(0003, "shortA", "shortAns", "test", 0);
-
         assertTrue(shortA.checkAnswer("shortAns"));
         assertFalse(shortA.checkAnswer("nonsense"));
     }
@@ -70,9 +75,24 @@ public class TestQuestions {
      */
     @Test
     void testMultiAnswer() {
-        Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "ansA", "test", 0);
-
         assertTrue(multiQ.checkAnswer("multiA"));
         assertFalse(multiQ.checkAnswer("garbage"));
+    }
+
+    /**
+     * Test equals() method
+     */
+    @Test
+    void testEquals() {
+        assertEquals(trueQuestion, trueQuestion);
+        assertEquals(falseQuestion, falseQuestion);
+        assertEquals(shortA, shortA);
+        assertEquals(multiQ, multiQ);
+
+        assertNotEquals(trueQuestion, falseQuestion);
+        assertNotEquals(trueQuestion, shortA);
+        assertNotEquals(shortA, trueQuestion);
+        assertNotEquals(multiQ, falseQuestion);
+        assertNotEquals(shortA, multiQ);
     }
 }
