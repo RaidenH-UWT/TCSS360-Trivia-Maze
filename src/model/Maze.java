@@ -49,6 +49,7 @@ public class Maze {
 
         myWidth = theWidth;
         myHeight = theHeight;
+        myRooms = new Room[myHeight][myWidth];
         generateEmptyRooms();
         // TODO: add option for random room generation?
     }
@@ -57,7 +58,6 @@ public class Maze {
      * Initialize the maze, creating new empty rooms to be changed manually.
      */
     private void generateEmptyRooms() {
-        myRooms = new Room[myWidth][myHeight];
         for (int i = 0; i < myHeight; i++) {
             for (int j = 0; j < myWidth; j++) {
                 myRooms[i][j] = new Room(j, i);
