@@ -34,6 +34,10 @@ public class Room {
      */
     public Room(int theX, int theY) {
         super();
+        myX = theX;
+        myY = theY;
+        myDoors = new EnumMap<>(Direction.class);
+        isVisited = false;
     }
 
     // could change to throw an exception instead of overwriting.
@@ -46,7 +50,7 @@ public class Room {
      * @param theDoor Door object to add
      */
     public void addDoor(Direction theDir, Door theDoor) {
-
+         myDoors.put(theDir, theDoor);
     }
 
     /**
@@ -55,7 +59,7 @@ public class Room {
      * @return Door in the given direction
      */
     public Door getDoor(Direction theDir) {
-        return null;
+         return myDoors.get(theDir);
     }
 
     /**
@@ -71,21 +75,21 @@ public class Room {
      * @return int X coordinate of this Room.
      */
     public int getX() {
-        return 0;
+        return myX;
     }
 
     /**
      * @return int Y coordinate of this Room.
      */
     public int getY() {
-        return 0;
+        return myY;
     }
 
     /**
      * @return true if the player has visited this Room, false otherwise.
      */
     public boolean isVisited() {
-        return false;
+        return isVisited;
     }
 
     /**
@@ -93,7 +97,7 @@ public class Room {
      * @param theVisited boolean if the player has visited or not
      */
     public void setVisited(boolean theVisited) {
-        
+        isVisited = theVisited;
     }
 
     @Override
