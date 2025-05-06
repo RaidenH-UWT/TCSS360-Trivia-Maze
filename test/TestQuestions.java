@@ -25,9 +25,9 @@ public class TestQuestions {
      * Questions to test on.
      */
     Question trueQuestion = new TrueFalseQuestion(0001, "truerQuestion", true, "test", 3);
-    Question falseQuestion = new TrueFalseQuestion(0002, "falserQuestion", false, "test", 4);
-    Question shortA = new ShortAnswerQuestion(0003, "shortA", "shortAns", "test", 0);
-    Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "ansA", "test", 0);
+    Question falseQuestion = new TrueFalseQuestion(0002, "falserQuestion", false, "test", 3);
+    Question shortA = new ShortAnswerQuestion(0003, "shortA", "shortAns", "test", 3);
+    Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "multiA", null, "test", 3);
 
     /**
      * Make sure creating two questions with the same ID throws an exception.

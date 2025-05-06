@@ -11,12 +11,12 @@ public abstract class Question {
     /**
      * ID of this question, for the database.
      */
-    protected int id;
+    protected int myId;
 
     /**
      * Text of this question.
      */
-    protected String questionText;
+    protected String myQuestion;
 
     // TODO: Consider moving down to child classes because this may be
     // type-specific, ex: multiple choice is more of an index thing while
@@ -24,20 +24,20 @@ public abstract class Question {
     /**
      * Correct answer for this question.
      */
-    protected String correctAnswer;
+    protected String myAnswer;
 
     // should this be the QuestionType?
     /**
      * Category of this question.
      */
-    protected String category;
+    protected String myCategory;
 
     /**
      * Difficulty of this question
      */
-    protected int difficulty;
+    protected int myDifficulty;
 
-    // correctAnswer may need to be moved down cause it depends on the QuestionType
+    // mynswer may need to be moved down cause it depends on the QuestionType
     /**
      * Creates a new Question object.
      * @param theId int ID for this question, to be used in the database
@@ -50,34 +50,46 @@ public abstract class Question {
                     String theCategory, int theDifficulty) {
         super();
         // add to database here?
+        if (theQuestion == null || theAnswer == null || theCategory == null) {
+            throw new IllegalArgumentException("Question parameters cannot be null");
+        }
+        if (theDifficulty < 1 || theDifficulty > 5) {
+            throw new IllegalArgumentException("Difficulty must be between 1 and 5");
+        }
+
+        myId = theId;
+        myQuestion = theQuestion;
+        myAnswer = theAnswer;
+        myCategory = theCategory;
+        myDifficulty = theDifficulty;
     }
 
     /**
      * @return int ID of this question.
      */
     public int getId() {
-        return 0;
+        return myId;
     }
 
     /**
      * @return String text of this question.
      */
     public String getQuestion() {
-        return null;
+        return myQuestion;
     }
 
     /**
      * @return String category of this question.
      */
     public String getCategory() {
-        return null;
+        return myCategory;
     }
 
     /**
      * @return int difficult of this question.
      */
     public int getDifficulty() {
-        return 0;
+        return myDifficulty;
     }
 
     /**
@@ -85,16 +97,12 @@ public abstract class Question {
      * @param theAnswer String answer to check
      * @return true if the passed answer and correct answer match, false otherwise
      */
-    public boolean checkAnswer(String theAnswer) {
-        return false;
-    }
+    public abstract boolean checkAnswer(String theAnswer);
 
     /**
      * @return QuestionType type of this question.
      */
-    public QuestionType getQuestionType() {
-        return null;
-    }
+    public abstract QuestionType getQuestionType();
 
     @Override
     public boolean equals(Object question) {

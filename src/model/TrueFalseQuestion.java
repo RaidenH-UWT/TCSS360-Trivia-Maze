@@ -14,7 +14,33 @@ public class TrueFalseQuestion extends Question {
      */
     public TrueFalseQuestion(final int theId, final String theQuestion, final boolean theAnswer,
                             final String theCategory, final int theDifficulty) {
-        super(theId, theQuestion, "", theCategory, theDifficulty);
+        super(theId, theQuestion, String.valueOf(theAnswer).toLowerCase(),
+            theCategory, theDifficulty);
+
+        if (!myAnswer.equals("true") && !myAnswer.equals("false")) {
+            throw new IllegalArgumentException("Answer must be true or false");
+        }
         // the answer should probably be pulled down to the child classes because it depends on the QType
+    }
+
+    /**
+     * Check the given answer against the correct answer.
+     * @param theAnswer String answer to check
+     * @return true if the passed answer and stored answer match, false otherwise
+     */
+    @Override
+    public boolean checkAnswer(final String theAnswer) {
+        if (theAnswer == null) {
+            return false;
+        }
+        return myAnswer.equalsIgnoreCase(theAnswer.trim());
+    }
+
+    /**
+     * @return QuestionType.TRUE_FALSE
+     */
+    @Override
+    public QuestionType getQuestionType() {
+        return QuestionType.TRUE_FALSE;
     }
 }

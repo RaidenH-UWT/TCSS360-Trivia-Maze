@@ -6,27 +6,39 @@ package src.model;
  * @version May 1, 2025
  */
 public class ShortAnswerQuestion extends Question {
+
     /**
      * {@inheritDoc}
      */
-    public ShortAnswerQuestion(final int theId, final String theQuestion, final String theAnswer,
-                            final String theCategory, final int theDifficulty) {
-        super(theId, theQuestion, theAnswer, theCategory, theDifficulty);
+    public ShortAnswerQuestion(final int theId,
+            final String theQuestionText,
+            final String theCorrectAnswer,
+            final String theCategory,
+            final int theDifficulty) {
+        super(theId, theQuestionText, theCorrectAnswer,
+                theCategory, theDifficulty);
     }
 
     // Abstract or child class, pick one
     /**
-     * {@inheritDoc}
+     * Check the given answer against the correct answer.
+     * @param theAnswer String answer to check
+     * @return true if the passed answer and stored answer match, false otherwise
      */
-    public boolean checkAnswer(String theAnswer) {
-        return false;
+    @Override
+    public boolean checkAnswer(final String theAnswer) {
+        if (theAnswer == null) {
+            return false;
+        }
+        return myAnswer.equalsIgnoreCase(theAnswer.trim());
     }
 
     // Shouldn't this be in the abstract class?
     /**
-     * {@inheritDoc}
+     * @return QuestionType.SHORT_ANSWER
      */
+    @Override
     public QuestionType getQuestionType() {
-        return null;
+        return QuestionType.SHORT_ANSWER;
     }
 }
