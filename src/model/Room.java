@@ -1,5 +1,6 @@
 package src.model;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 /**

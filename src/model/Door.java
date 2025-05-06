@@ -28,7 +28,7 @@ public class Door {
      */
     public Door(Question theQuestion) {
         super();
-        myQuestion = theQuestion
+        myQuestion = theQuestion;
         myLocked = false;
         myOpened = false;
     }
@@ -79,7 +79,7 @@ public class Door {
      * @return true if the answer was correct, false otherwise
      */
     public boolean answerQuestion(String theAnswer) {
-        return myQuestion != null && myQuestion.isCorrectAnswer(theAnswer);
+        return myQuestion != null && myQuestion.checkAnswer(theAnswer);
     }
 
     @Override
