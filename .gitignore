@@ -1,6 +1,7 @@
 # Raiden ignores
 /*.webp
 /sprints/*
+/.vscode/
 
 
 # JAVA DEFAULTS BELOW
