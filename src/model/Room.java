@@ -110,7 +110,12 @@ public class Room {
 
         boolean val = true;
         for (Direction dir : Direction.values()) {
-            val = getDoor(dir).equals(((Room) room).getDoor(dir));
+            if (getDoor(dir) == null && ((Room) room).getDoor(dir) == null) {
+                val = true;
+            } else {
+                val = getDoor(dir).equals(((Room) room).getDoor(dir));
+            }
+            
             if (!val) {
                 return val;
             }

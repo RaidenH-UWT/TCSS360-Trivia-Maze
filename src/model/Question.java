@@ -57,6 +57,10 @@ public abstract class Question {
             throw new IllegalArgumentException("Difficulty must be between 1 and 5");
         }
 
+        if (false) {
+            // TODO: Check DB to see if question exists with the same ID
+        }
+
         myId = theId;
         myQuestion = theQuestion;
         myAnswer = theAnswer;
