@@ -16,7 +16,7 @@ public class GameSaver {
      * @param theFilename the file to save as
      */
     public void saveGame(GameState theState, String theFilename) {
-
+        // TODO: Decide whether to store saves in the DB as tables, or as standalone files
     }
 
     /**
