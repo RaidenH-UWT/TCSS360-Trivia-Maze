@@ -1,5 +1,8 @@
 package src.view;
 
+import java.beans.PropertyChangeEvent;
+
+import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
 import src.model.Question;
@@ -11,6 +14,12 @@ import src.model.Room;
  * @version May 1, 2025
  */
 public class ConsoleView implements GameView {
+    public ConsoleView(GameState theState) {
+        super();
+
+        theState.addPropertyChangeListener(this);
+    }
+
     @Override
     public void displayMaze(Maze theMaze, Position theCurrentPosition) {
         System.out.println("Maze View:");
@@ -51,5 +60,12 @@ public class ConsoleView implements GameView {
     public String getAnswer() {
         System.out.println("Your answer: ");
         return null;
+    }
+
+    /**
+     * Listening for property changes
+     */
+    public void propertyChange(PropertyChangeEvent theEvent) {
+
     }
 }

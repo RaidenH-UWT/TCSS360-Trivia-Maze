@@ -1,11 +1,14 @@
 package src.view;
 
+import java.beans.PropertyChangeEvent;
+
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
 import src.model.Question;
@@ -45,8 +48,10 @@ public class GuiView implements GameView {
     /**
      * Create a new GuiView object.
      */
-    public GuiView() {
+    public GuiView(GameState theState) {
         super();
+
+        theState.addPropertyChangeListener(this);
     }
     
     public void displayMaze(Maze theMaze, Position theCurrentPosition) {
@@ -94,5 +99,12 @@ public class GuiView implements GameView {
         bar.add(helpMenu);
 
         return bar;
+    }
+
+    /**
+     * Listening for property changes
+     */
+    public void propertyChange(PropertyChangeEvent theEvent) {
+
     }
 }

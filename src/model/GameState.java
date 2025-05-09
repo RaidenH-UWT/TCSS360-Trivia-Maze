@@ -1,5 +1,7 @@
 package src.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,11 @@ import java.util.List;
  * @author Raiden H
  * @version May 1, 2025
  */
-public class GameState {
+public class GameState implements PropertyChangeEnabledGameState {
+    /**
+     * PropertyChangeSupport object for implementing the PropertyChange API.
+     */
+    private final PropertyChangeSupport myPCS;
     /**
      * Stores the maze object.
      */
@@ -48,6 +54,8 @@ public class GameState {
         questionsAnswered = 0;
         questionsCorrect = 0;
         visitedRooms = new ArrayList<Position>(theWidth * theHeight);
+
+        myPCS = new PropertyChangeSupport(this);
     }
 
     /**
@@ -66,6 +74,8 @@ public class GameState {
         // Make sure the passed position is within bounds
         if (isWithinBounds(thePosition)) {
             currentPosition = thePosition;
+        } else {
+            throw new IllegalArgumentException("Position out of bounds.");
         }
     }
 
@@ -124,6 +134,38 @@ public class GameState {
      */
     public List<Position> getVisitedRooms() {
         return visitedRooms;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener theListener) {
+        myPCS.addPropertyChangeListener(theListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addPropertyChangeListener(String thePropertyName, PropertyChangeListener theListener) {
+        myPCS.addPropertyChangeListener(thePropertyName, theListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removePropertyChangeListener(PropertyChangeListener theListener) {
+        myPCS.removePropertyChangeListener(theListener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removePropertyChangeListener(String thePropertyName, PropertyChangeListener theListener) {
+        myPCS.removePropertyChangeListener(thePropertyName, theListener);
     }
 
     /**

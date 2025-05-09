@@ -1,5 +1,7 @@
 package src.view;
 
+import java.beans.PropertyChangeListener;
+
 import src.model.Maze;
 import src.model.Position;
 import src.model.Question;
@@ -10,7 +12,7 @@ import src.model.Room;
  * @author Raiden H
  * @version May 1, 2025
  */
-public interface GameView {
+public interface GameView extends PropertyChangeListener {
     /**
      * Display the maze and player in their current state.
      * @param theMaze Maze object to display
