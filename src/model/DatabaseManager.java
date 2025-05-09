@@ -1,6 +1,9 @@
 package src.model;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -12,33 +15,24 @@ public class DatabaseManager {
     /**
      * Connection to the SQLite database for the game.
      */
-    private Connection myConnection;
+    private static Connection CONNECT;
+
+    /**
+     * Statement for sending write queries to the database.
+     */
+    private static Statement WQUERY;
 
     /**
      * Filepath to the SQLite database.
      */
-    private String dbPath;
+    private static String DB_PATH = "./path/to/database.db";
 
-    /**
-     * Constructor for the DatabaseManager class to get a connection to the database.
-     * @param dbPath Filepath to the SQLite database file
-     */
-    public DatabaseManager(String dbPath) {
-        super();
-    }
-
-    /**
-     * Connects to the database associated with this DatabaseManager object.
-     */
-    public void connect() {
-
-    }
-
-    /**
-     * Disconnects from the database associated with this DatabaseManager.
-     */
-    public void disconnect() {
-
+    static {
+        try (Connection CONNECT = DriverManager.getConnection(DB_PATH)) {
+            WQUERY = CONNECT.createStatement();
+        } catch (SQLException except) {
+            except.printStackTrace();
+        }
     }
 
     /**
@@ -46,7 +40,7 @@ public class DatabaseManager {
      * @param theId int ID associated with the question
      * @return Question object from the given ID
      */
-    public Question getQuestionById(int theId) {
+    public static Question getQuestionById(int theId) {
         return null;
     }
 
@@ -54,7 +48,7 @@ public class DatabaseManager {
      * Gets a random question from the database.
      * @return random Question object from the database
      */
-    public Question getRandomQuestion() {
+    public static Question getRandomQuestion() {
         return null;
     }
 
@@ -63,7 +57,7 @@ public class DatabaseManager {
      * @param type a QuestionType for the desired question
      * @return random Question object with the given type
      */
-    public Question getRandomQuestionByType(QuestionType type) {
+    public static Question getRandomQuestionByType(QuestionType type) {
         return null;
     }
 
@@ -73,7 +67,7 @@ public class DatabaseManager {
      * Gets all questions stored in the database.
      * @return List<Question> of every question in the database
      */
-    public List<Question> getAllQuestions() {
+    public static List<Question> getAllQuestions() {
         return null;
     }
 }
