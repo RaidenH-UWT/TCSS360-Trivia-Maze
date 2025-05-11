@@ -13,6 +13,21 @@ public interface PropertyChangeEnabledGameState {
      */
     String PROPERTY_POSITION = "positionChanged";
 
+    /**
+     * Constant string property name for a room being visited.
+     */
+    String PROPERTY_ROOM_VISITED = "roomVisited";
+
+    /**
+     * Constant string property name for a question being answered.
+     */
+    String PROPERTY_QUESTION_ANSWERED = "questionAnswered";
+
+    /**
+     * Constant string property name for a question being answered correctly.
+     */
+    String PROPERTY_QUESTION_CORRECT = "questionCorrect";
+
 
     /**
      * Add a PropertyChangeListener to the listener list. The listener is registered for

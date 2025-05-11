@@ -1,6 +1,8 @@
 package src.view;
 
 import java.beans.PropertyChangeEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -11,6 +13,7 @@ import javax.swing.JPanel;
 import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
+import src.model.PropertyChangeEnabledGameState;
 import src.model.Question;
 import src.model.Room;
 
@@ -46,10 +49,23 @@ public class GuiView implements GameView {
     private JMenuBar menuBar;
 
     /**
+     * Map<String, Runnable> for triggering methods based on PropertyChange events.
+     */
+    private Map<String, Runnable> propertyEvents;
+
+    /**
      * Create a new GuiView object.
      */
     public GuiView(GameState theState) {
         super();
+
+        propertyEvents = new HashMap<String, Runnable>();
+        
+        // here we add all the possible property events to the map.
+        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_POSITION, () -> updatePosition());
+        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED, () -> updateStats());
+        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT, () -> updateStats());
+        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, () -> updateRooms());
 
         theState.addPropertyChangeListener(this);
     }
@@ -79,6 +95,28 @@ public class GuiView implements GameView {
     }
 
     /**
+     * Update the position of the player.
+     */
+    private void updatePosition() {
+        // called when the player position changes
+    }
+
+    /**
+     * Update question stats for the player.
+     */
+    private void updateStats() {
+        // called when questionsAnswered or questionsCorrect increments, maybe replace?
+    }
+
+
+    /**
+     * Update displayed rooms.
+     */
+    private void updateRooms() {
+        // called when a new room is visited.
+    }
+
+    /**
      * Create a new menu bar for the window.
      * @return JMenuBar with necessary elements
      */
@@ -105,6 +143,7 @@ public class GuiView implements GameView {
      * Listening for property changes
      */
     public void propertyChange(PropertyChangeEvent theEvent) {
-
+        // Run a lambda from our propertyEvent map.
+        propertyEvents.get(theEvent.getPropertyName()).run();
     }
 }

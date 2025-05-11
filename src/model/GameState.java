@@ -74,6 +74,9 @@ public class GameState implements PropertyChangeEnabledGameState {
         // Make sure the passed position is within bounds
         if (isWithinBounds(thePosition)) {
             currentPosition = thePosition;
+
+            // fire property change event with the new position.
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, thePosition);
         } else {
             throw new IllegalArgumentException("Position out of bounds.");
         }
@@ -108,6 +111,9 @@ public class GameState implements PropertyChangeEnabledGameState {
      */
     public void incrementQuestionsAnswered() {
         questionsAnswered++;
+
+        // fire a property change event passing int 1
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED, null, 1);
     }
 
     /**
@@ -115,6 +121,9 @@ public class GameState implements PropertyChangeEnabledGameState {
      */
     public void incrementQuestionsCorrect() {
         questionsCorrect++;
+
+        // fire a property change event passing int 1
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT, null, 1);
     }
 
     /**
@@ -125,6 +134,9 @@ public class GameState implements PropertyChangeEnabledGameState {
         // make sure the room is within bounds and not already visited
         if (isWithinBounds(thePosition) && !visitedRooms.contains(thePosition)) {
             visitedRooms.add(thePosition);
+
+            // Fire a property change event passing the position of the room visited.
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, thePosition);
         }
     }
 
