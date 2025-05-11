@@ -53,4 +53,19 @@ public class MultipleChoiceQuestion extends Question {
     public QuestionType getQuestionType() {
         return QuestionType.MULTIPLE_CHOICE;
     }
+
+    @Override
+    public String toString() {
+        String out = 
+            "(" +
+            myId + ", " +
+            myQuestion + ", " +
+            myAnswer + ", " + 
+            myOptions + ", " + 
+            myCategory + ", " +
+            getQuestionType() + ", " +
+            myDifficulty + 
+            ")";
+        return out;
+    }
 }

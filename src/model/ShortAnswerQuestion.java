@@ -41,4 +41,18 @@ public class ShortAnswerQuestion extends Question {
     public QuestionType getQuestionType() {
         return QuestionType.SHORT_ANSWER;
     }
+
+    @Override
+    public String toString() {
+        String out = 
+            "(" +
+            myId + ", " +
+            myQuestion + ", " +
+            myAnswer + ", " + 
+            myCategory + ", " +
+            getQuestionType() + ", " +
+            myDifficulty + 
+            ")";
+        return out;
+    }
 }

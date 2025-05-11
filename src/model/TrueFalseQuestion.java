@@ -43,4 +43,18 @@ public class TrueFalseQuestion extends Question {
     public QuestionType getQuestionType() {
         return QuestionType.TRUE_FALSE;
     }
+
+    @Override
+    public String toString() {
+        String out = 
+            "(" +
+            myId + ", " +
+            myQuestion + ", " +
+            myAnswer + ", " + 
+            myCategory + ", " +
+            getQuestionType() + ", " +
+            myDifficulty + 
+            ")";
+        return out;
+    }
 }
