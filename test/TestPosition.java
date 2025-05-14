@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Class for testing the Position class.
- * @author Raiden H
+ * @author Evan Lei
  * @version May 13, 2025
  */
 public class PositionTest {
