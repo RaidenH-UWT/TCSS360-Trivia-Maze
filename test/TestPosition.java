@@ -9,7 +9,7 @@ import src.model.Position;
  * @author Evan Lei
  * @version May 13, 2025
  */
-public class PositionTest {
+public class TestPosition {
     /** Test position with coordinates (3,5) */
     private final Position posA = new Position(3, 5);
     /** Duplicate of posA */
