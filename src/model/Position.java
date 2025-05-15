@@ -50,6 +50,6 @@ public class Position {
         if (thePosition == null) {
             return false;
         }
-        return this.myX == thePosition.myX && this.myY == thePosition.myY;
+        return myX == thePosition.getX() && myY == thePosition.getY();
     }
 }
