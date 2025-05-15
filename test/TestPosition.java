@@ -36,8 +36,8 @@ public class TestPosition {
     @Test
     void testEquals() {
         // Equality cases
-        assertEquals(posA, posA);
-        assertEquals(posA, posB);
+        assertTrue(posA.equals(posA));
+        assertTrue(posA.equals(posB));
         
         // Inequality cases
         assertNotEquals(posA, posC);
