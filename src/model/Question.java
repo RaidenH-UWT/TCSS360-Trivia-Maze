@@ -5,6 +5,8 @@ package src.model;
  * @author Raiden H
  * @version May 1, 2025
  */
+// TODO: Refactor all Questions to work primarily off the SQLite database, rather than java state
+// e.g.: constructor only has an ID that's a reference to the table item in the database. 
 public abstract class Question {
     // TODO: Consider replacing the passed ID with a generated ID, easy to
     // implement in SQLite and makes sure we have control over the IDs.
