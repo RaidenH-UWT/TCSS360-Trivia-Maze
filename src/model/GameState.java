@@ -59,6 +59,14 @@ public class GameState implements PropertyChangeEnabledGameState {
     }
 
     /**
+     * Initialize the state with the given maze.
+     * @param side int size of the square maze
+     */
+    public GameState(int side) {
+        this(side, side);
+    }
+
+    /**
      * Get the current position of the player.
      * @return Position the player is currently at
      */
