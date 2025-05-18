@@ -60,7 +60,6 @@ public class Maze {
     private void generateEmptyRooms() {
         for (int i = 0; i < myHeight; i++) {
             for (int j = 0; j < myWidth; j++) {
-                System.out.println("generating room at " + i + " and " + j);
                 myRooms[i][j] = new Room(j, i);
             }
         }
