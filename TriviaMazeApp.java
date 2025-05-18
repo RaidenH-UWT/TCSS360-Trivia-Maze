@@ -1,4 +1,6 @@
 import src.model.DatabaseManager;
+import src.model.GameState;
+import src.view.ViewMockup;
 
 /**
  * Entry point for the Trivia Maze application.
@@ -6,7 +8,10 @@ import src.model.DatabaseManager;
 public class TriviaMazeApp {
     public static void main(String[] args) {
         DatabaseManager.connect();
-        System.out.println(DatabaseManager.getAllQuestions());
-        System.out.println(DatabaseManager.getRandomQuestion());
+        GameState state = new GameState(5, 5);
+
+        ViewMockup view = new ViewMockup(state);
+
+        view.initialize();
     }
 }
