@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -12,6 +13,9 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.Font;
+import java.awt.FontMetrics;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -20,6 +24,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import src.model.Direction;
 import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
@@ -168,20 +173,17 @@ public class ViewMockup implements GameView {
 
     // Save menu events
     private void saveGameEvent(final ActionEvent theEvent) {
-        // Create a file chooser to select the save location
+
         javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
         fileChooser.setDialogTitle("Save Game");
 
-        // Show the save dialog
         int userSelection = fileChooser.showSaveDialog(myFrame);
 
         if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
             java.io.File fileToSave = fileChooser.getSelectedFile();
 
             try {
-                // Need to have access to the GameState instance
-                // For now, let's create a placeholder or use a method to get the current state
-                GameState currentState = null; // TODO: Replace with actual GameState retrieval logic
+                GameState currentState = null;
                 GameSaver gameSaver = new GameSaver();
                 gameSaver.saveGame(currentState, fileToSave.getAbsolutePath());
                 JOptionPane.showMessageDialog(myFrame, "Game saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -380,9 +382,76 @@ public class ViewMockup implements GameView {
     }
 
     private JPanel createMapPanel() {
-        final JPanel panel = new JPanel();
-        panel.setBackground(new Color(255, 0, 0));
+        final JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                int width = getWidth();
+                int height = getHeight();
 
+                int rows = 5;
+                int cols = 5;
+
+                Color nodeColor = new Color(192, 192, 192); // cyan
+                Color arrowColor = new Color(255, 255, 255); // white
+                Color bgColor = new Color(0, 0, 0); // black
+
+                setBackground(bgColor);
+
+                int spacingX = width / (cols + 1);
+                int spacingY = height / (rows + 1);
+                int nodeSize = Math.min(spacingX, spacingY) / 2;
+
+                for (int row = 0; row < rows; row++) {
+                    for (int col = 0; col < cols; col++) {
+                        int x = spacingX * (col + 1) - nodeSize / 2;
+                        int y = spacingY * (row + 1) - nodeSize / 2;
+
+                        if (row == rows - 1 && col == cols - 1) {
+                            g.setColor(new Color(255, 0, 0)); // red
+                            g.fillRect(x, y, nodeSize, nodeSize);
+
+                            g.setColor(Color.BLACK);
+                            g.drawRect(x, y, nodeSize, nodeSize);
+
+                            g.setColor(Color.WHITE);
+                            g.setFont(new Font("Monospaced", Font.BOLD, 18));
+                            FontMetrics fm = g.getFontMetrics();
+                            String endText = "END";
+                            int textWidth = fm.stringWidth(endText);
+                            int textHeight = fm.getAscent();
+
+                            g.drawString(endText,
+                                    x + (nodeSize - textWidth) / 2,
+                                    y + (nodeSize + textHeight) / 2 - 2);
+                        } else {
+                            g.setColor(new Color(192, 192, 192));
+                            g.fillRect(x, y, nodeSize, nodeSize);
+
+                            g.setColor(Color.BLACK);
+                            g.drawRect(x, y, nodeSize, nodeSize);
+                        }
+
+                        if (col < cols - 1) {
+                            int midX = x + nodeSize;
+                            int midY = y + nodeSize / 2;
+                            g.setColor(Color.WHITE);
+                            g.fillRect(midX, midY - 2, spacingX - nodeSize, 4);
+                        }
+
+                        if (row < rows - 1) {
+                            int midX = x + nodeSize / 2;
+                            int midY = y + nodeSize;
+                            g.setColor(Color.WHITE);
+                            g.fillRect(midX - 2, midY, 4, spacingY - nodeSize);
+                        }
+                    }
+                }
+
+            }
+        };
+
+        panel.setBackground(Color.BLACK);
         return panel;
     }
 
@@ -408,8 +477,88 @@ public class ViewMockup implements GameView {
     }
 
     private JPanel createControlPanel() {
-        final JPanel panel = new JPanel();
-        panel.setBackground(new Color(255, 0, 255));
+        final JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                int width = getWidth();
+                int height = getHeight();
+                int centerX = width / 2;
+                int centerY = height / 2;
+
+                int crossSize = Math.min(width, height) / 2;
+                int armWidth = crossSize / 3;
+                int circleRadius = armWidth / 2;
+                int arrowSize = armWidth / 2;
+
+                circleRadius = (int) (circleRadius * 0.6);
+
+                java.awt.GradientPaint gradientPaint = new java.awt.GradientPaint(
+                        0, 0, new Color(60, 60, 60),
+                        width, height, new Color(40, 40, 40));
+                ((java.awt.Graphics2D) g).setPaint(gradientPaint);
+
+                java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+                g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int vX = centerX - armWidth / 2;
+                int vY = centerY - crossSize / 2;
+                int hX = centerX - crossSize / 2;
+                int hY = centerY - armWidth / 2;
+
+                RoundRectangle2D verticalArm = new RoundRectangle2D.Float(vX, vY, armWidth, crossSize, 10, 10);
+                RoundRectangle2D horizontalArm = new RoundRectangle2D.Float(hX, hY, crossSize, armWidth, 10, 10);
+
+                g2d.fill(verticalArm);
+                g2d.fill(horizontalArm);
+
+                g2d.setColor(Color.BLACK);
+                g2d.draw(verticalArm);
+                g2d.draw(horizontalArm);
+
+                g.setColor(new Color(26, 26, 26));
+                g.fillOval(centerX - circleRadius, centerY - circleRadius,
+                        circleRadius * 2, circleRadius * 2);
+
+                g.setColor(new Color(26, 26, 26));
+
+                drawDirectionalArrow(g2d, centerX, centerY - crossSize / 3, Direction.NORTH, arrowSize);
+                drawDirectionalArrow(g2d, centerX, centerY + crossSize / 3, Direction.SOUTH, arrowSize);
+                drawDirectionalArrow(g2d, centerX - crossSize / 3, centerY, Direction.WEST, arrowSize);
+                drawDirectionalArrow(g2d, centerX + crossSize / 3, centerY, Direction.EAST, arrowSize);
+            }
+
+            private void drawDirectionalArrow(java.awt.Graphics2D g, int x, int y, Direction dir, int size) {
+                int[] xPoints = new int[3];
+                int[] yPoints = new int[3];
+
+                switch (dir) {
+                    case NORTH -> {
+                        xPoints = new int[]{x, x - size / 2, x + size / 2};
+                        yPoints = new int[]{y - size / 2, y + size / 2, y + size / 2};
+                    }
+                    case SOUTH -> {
+                        xPoints = new int[]{x, x - size / 2, x + size / 2};
+                        yPoints = new int[]{y + size / 2, y - size / 2, y - size / 2};
+                    }
+                    case EAST -> {
+                        xPoints = new int[]{x + size / 2, x - size / 2, x - size / 2};
+                        yPoints = new int[]{y, y - size / 2, y + size / 2};
+                    }
+                    case WEST -> {
+                        xPoints = new int[]{x - size / 2, x + size / 2, x + size / 2};
+                        yPoints = new int[]{y, y - size / 2, y + size / 2};
+                    }
+                }
+
+                g.fillPolygon(xPoints, yPoints, 3);
+            }
+        };
+
+        panel.setPreferredSize(new Dimension(200, 200));
+        panel.setBackground(new Color(240, 240, 240));
 
         return panel;
     }
