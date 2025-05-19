@@ -26,15 +26,20 @@ import src.model.Position;
 import src.model.PropertyChangeEnabledGameState;
 import src.model.Question;
 import src.model.Room;
+import src.model.GameSaver;
 
 public class ViewMockup implements GameView {
-    /** The Dimension of the screen. */
+
+    /**
+     * The Dimension of the screen.
+     */
     private static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
-     * Map<String, Runnable> for triggering methods based on PropertyChange events.
+     * Map<String, Runnable> for triggering methods based on PropertyChange
+     * events.
      */
     private Map<String, Runnable> propertyEvents;
 
@@ -66,11 +71,10 @@ public class ViewMockup implements GameView {
         myFrame.setJMenuBar(createMenuBar());
         myFrame.setContentPane(createContentPane());
 
-
         // Displaying the window
         myFrame.pack();
         myFrame.setLocation(SCREEN_SIZE.width / 2 - myFrame.getWidth() / 2,
-            SCREEN_SIZE.height / 2 - myFrame.getHeight() / 2);
+                SCREEN_SIZE.height / 2 - myFrame.getHeight() / 2);
         myFrame.setVisible(true);
     }
 
@@ -124,7 +128,6 @@ public class ViewMockup implements GameView {
         // called when questionsAnswered or questionsCorrect increments, maybe replace?
     }
 
-
     /**
      * Update displayed rooms.
      */
@@ -146,7 +149,6 @@ public class ViewMockup implements GameView {
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
-
     // File menu events
     private void newGameEvent(final ActionEvent theEvent) {
         JOptionPane.showMessageDialog(myFrame, "Starting a new game! (reset state, choose game parameters, etc.)");
@@ -164,20 +166,67 @@ public class ViewMockup implements GameView {
         }
     }
 
-
     // Save menu events
     private void saveGameEvent(final ActionEvent theEvent) {
-        JOptionPane.showMessageDialog(myFrame, "Saving the game to a file! (ask for filename in file window!)");
+        // Create a file chooser to select the save location
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        fileChooser.setDialogTitle("Save Game");
+
+        // Show the save dialog
+        int userSelection = fileChooser.showSaveDialog(myFrame);
+
+        if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+
+            try {
+                // Need to have access to the GameState instance
+                // For now, let's create a placeholder or use a method to get the current state
+                GameState currentState = null; // TODO: Replace with actual GameState retrieval logic
+                GameSaver gameSaver = new GameSaver();
+                gameSaver.saveGame(currentState, fileToSave.getAbsolutePath());
+                JOptionPane.showMessageDialog(myFrame, "Game saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(myFrame, "Failed to save the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void loadGameEvent(final ActionEvent theEvent) {
-        JOptionPane.showMessageDialog(myFrame, "Loading a save! (open a file selector!)");
+        // Create a file chooser to select the save file
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        fileChooser.setDialogTitle("Load Game");
+
+        // Show the open dialog
+        int userSelection = fileChooser.showOpenDialog(myFrame);
+
+        if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToLoad = fileChooser.getSelectedFile();
+
+            try {
+                GameSaver gameSaver = new GameSaver();
+                GameState loadedState = gameSaver.getSave(fileToLoad.getAbsolutePath());
+
+                // Assuming we have a method to update the current game state
+                updateGameState(loadedState);
+                JOptionPane.showMessageDialog(myFrame, "Game loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(myFrame, "Failed to load the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Updates the current game state with the loaded state.
+     *
+     * @param loadedState The loaded GameState object.
+     */
+    private void updateGameState(GameState loadedState) {
+        // TODO: Implement logic to update the current game state and refresh the UI
     }
 
     private void manageSavesEvent(final ActionEvent theEvent) {
         JOptionPane.showMessageDialog(myFrame, "Managing Saves! (opened a file explorer!)");
     }
-
 
     // Help menu events
     private void aboutEvent(final ActionEvent theEvent) {
@@ -208,21 +257,20 @@ public class ViewMockup implements GameView {
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
-
-
     /**
      * Create a new menu bar for the window.
+     *
      * @return JMenuBar with necessary elements
      */
     private JMenuBar createMenuBar() {
         JMenuBar bar = new JMenuBar();
-        
+
         JMenu fileMenu = buildFileMenu();
-        
+
         JMenu saveMenu = buildSaveMenu();
 
         JMenu helpMenu = buildHelpMenu();
-        
+
         bar.add(fileMenu);
         bar.add(saveMenu);
         bar.add(helpMenu);
@@ -242,7 +290,6 @@ public class ViewMockup implements GameView {
 
         final JMenuItem exitItem = new JMenuItem("Exit");
         exitItem.addActionListener(this::exitEvent);
-
 
         menu.add(newGameItem);
         menu.add(settingsItem);
@@ -267,7 +314,7 @@ public class ViewMockup implements GameView {
         menu.add(saveItem);
         menu.add(loadItem);
         menu.add(manageItem);
-        
+
         return menu;
     }
 
@@ -299,28 +346,28 @@ public class ViewMockup implements GameView {
         // Insets(int top, int left, int bottom, int right) external padding
         // int ipadx: internal x padding   int ipady: internal y padding
         final JPanel mapPanel = createMapPanel();
-        GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7, 
-            GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0,  0), 0, 0);
+        GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
+                GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         final JPanel minimapPanel = createMinimapPanel();
-        GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3, 
-            GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
+                GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         final JPanel statsPanel = createStatsPanel();
-        GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3, 
-            GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3,
+                GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         final JPanel questionPanel = createQuestionPanel();
-        GridBagConstraints questionConstraint = new GridBagConstraints(3, 2, 1, 1, 0.3, 0.3, 
-            GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints questionConstraint = new GridBagConstraints(3, 2, 1, 1, 0.3, 0.3,
+                GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         final JPanel controlPanel = createControlPanel();
-        GridBagConstraints controlConstraint = new GridBagConstraints(3, 3, 1, 1, 0.3, 0.3, 
-            GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints controlConstraint = new GridBagConstraints(3, 3, 1, 1, 0.3, 0.3,
+                GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         final JPanel infoPanel = createInfoPanel();
-        GridBagConstraints infoConstraint = new GridBagConstraints(0, 3, 3, 1, 0.3, 0.3, 
-            GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        GridBagConstraints infoConstraint = new GridBagConstraints(0, 3, 3, 1, 0.3, 0.3,
+                GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         mainPanel.add(mapPanel, mapConstraint);
         mainPanel.add(minimapPanel, minimapConstraint);
@@ -343,14 +390,12 @@ public class ViewMockup implements GameView {
         final JPanel panel = new JPanel();
         panel.setBackground(new Color(0, 255, 0));
 
-
         return panel;
     }
 
     private JPanel createStatsPanel() {
         final JPanel panel = new JPanel();
         panel.setBackground(new Color(0, 0, 255));
-
 
         return panel;
     }
@@ -359,7 +404,6 @@ public class ViewMockup implements GameView {
         final JPanel panel = new JPanel();
         panel.setBackground(new Color(255, 255, 0));
 
-
         return panel;
     }
 
@@ -367,14 +411,12 @@ public class ViewMockup implements GameView {
         final JPanel panel = new JPanel();
         panel.setBackground(new Color(255, 0, 255));
 
-
         return panel;
     }
 
     private JPanel createInfoPanel() {
         final JPanel panel = new JPanel();
         panel.setBackground(new Color(0, 255, 255));
-
 
         return panel;
     }
