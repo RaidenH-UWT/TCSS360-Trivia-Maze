@@ -54,12 +54,22 @@ public class ViewMockup implements GameView {
      */
     private Map<String, Runnable> propertyEvents;
 
+    /**
+     * Reference to the JFrame for the window
+     */
     private final JFrame myFrame;
+
+    /**
+     * Dimensions of the maze (in rooms)
+     */
+    private final Dimension myMazeSize;
 
     public ViewMockup(GameState theState) {
         super();
 
         theState.addPropertyChangeListener(this);
+
+        myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getWidth());
 
         propertyEvents = new HashMap<String, Runnable>();
         // here we add all the possible property events to the map.
@@ -230,6 +240,7 @@ public class ViewMockup implements GameView {
      */
     private void updateGameState(GameState loadedState) {
         // TODO: Implement logic to update the current game state and refresh the UI
+        // maybe just reassign the GameState variable and run all the update methods?
     }
 
     private void manageSavesEvent(final ActionEvent theEvent) {
@@ -309,6 +320,7 @@ public class ViewMockup implements GameView {
 
     private JMenu buildSaveMenu() {
         final JMenu menu = new JMenu("Save");
+        menu.setMnemonic(KeyEvent.VK_S);
 
         final JMenuItem saveItem = new JMenuItem("Save Game");
         saveItem.addActionListener(this::saveGameEvent);
@@ -328,6 +340,7 @@ public class ViewMockup implements GameView {
 
     private JMenu buildHelpMenu() {
         JMenu menu = new JMenu("Help");
+        menu.setMnemonic(KeyEvent.VK_H);
 
         final JMenuItem aboutItem = new JMenuItem("About");
         aboutItem.addActionListener(this::aboutEvent);
@@ -394,9 +407,9 @@ public class ViewMockup implements GameView {
                 super.paintComponent(g);
                 int width = getWidth();
                 int height = getHeight();
-
-                int rows = 5;
-                int cols = 5;
+                // TODO: Rework implementation to work with non-square mazes
+                int rows = myMazeSize.height;
+                int cols = myMazeSize.width;
 
                 Color nodeColor = new Color(192, 192, 192);
                 Color arrowColor = new Color(255, 255, 255);
