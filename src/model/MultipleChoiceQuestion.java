@@ -5,7 +5,9 @@ import java.util.List;
 
 /**
  * Multiple choice variant of the Question class.
+ *
  * @author Raiden H
+ * @author Kalen Cha
  * @version May 1, 2025
  */
 public class MultipleChoiceQuestion extends Question {
@@ -38,8 +40,10 @@ public class MultipleChoiceQuestion extends Question {
 
     /**
      * Check the given answer against the correct answer.
+     *
      * @param theAnswer String answer to check
-     * @return true if the passed answer and stored answer match, false otherwise
+     * @return true if the passed answer and stored answer match, false
+     * otherwise
      */
     @Override
     public boolean checkAnswer(String theAnswer) {
@@ -56,16 +60,16 @@ public class MultipleChoiceQuestion extends Question {
 
     @Override
     public String toString() {
-        String out = 
-            "(" +
-            myId + ", " +
-            myQuestion + ", " +
-            myAnswer + ", " + 
-            myOptions + ", " + 
-            myCategory + ", " +
-            getQuestionType() + ", " +
-            myDifficulty + 
-            ")";
+        String out
+                = "("
+                + myId + ", "
+                + myQuestion + ", "
+                + myAnswer + ", "
+                + myOptions + ", "
+                + myCategory + ", "
+                + getQuestionType() + ", "
+                + myDifficulty
+                + ")";
         return out;
     }
 }

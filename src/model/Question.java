@@ -2,12 +2,15 @@ package src.model;
 
 /**
  * Abstraction of a question for inheriting from.
+ *
  * @author Raiden H
+ * @author Kalen Cha
  * @version May 1, 2025
  */
 // TODO: Refactor all Questions to work primarily off the SQLite database, rather than java state
 // e.g.: constructor only has an ID that's a reference to the table item in the database. 
 public abstract class Question {
+
     // TODO: Consider replacing the passed ID with a generated ID, easy to
     // implement in SQLite and makes sure we have control over the IDs.
     /**
@@ -42,6 +45,7 @@ public abstract class Question {
     // mynswer may need to be moved down cause it depends on the QuestionType
     /**
      * Creates a new Question object.
+     *
      * @param theId int ID for this question, to be used in the database
      * @param theQuestion String of the question text
      * @param theAnswer String of the correct answer
@@ -49,7 +53,7 @@ public abstract class Question {
      * @param theDifficulty int difficulty of this question [range]
      */
     public Question(int theId, String theQuestion, String theAnswer,
-                    String theCategory, int theDifficulty) {
+            String theCategory, int theDifficulty) {
         super();
         // add to database here?
         if (theQuestion == null || theAnswer == null || theCategory == null) {
@@ -100,8 +104,10 @@ public abstract class Question {
 
     /**
      * Check the given answer against the correct answer.
+     *
      * @param theAnswer String answer to check
-     * @return true if the passed answer and correct answer match, false otherwise
+     * @return true if the passed answer and correct answer match, false
+     * otherwise
      */
     public abstract boolean checkAnswer(String theAnswer);
 

@@ -2,7 +2,9 @@ package src.model;
 
 /**
  * Short answer variant of the Question class.
+ *
  * @author Raiden H
+ * @author Kalen Cha
  * @version May 1, 2025
  */
 public class ShortAnswerQuestion extends Question {
@@ -22,8 +24,10 @@ public class ShortAnswerQuestion extends Question {
     // Abstract or child class, pick one
     /**
      * Check the given answer against the correct answer.
+     *
      * @param theAnswer String answer to check
-     * @return true if the passed answer and stored answer match, false otherwise
+     * @return true if the passed answer and stored answer match, false
+     * otherwise
      */
     @Override
     public boolean checkAnswer(final String theAnswer) {
@@ -44,15 +48,15 @@ public class ShortAnswerQuestion extends Question {
 
     @Override
     public String toString() {
-        String out = 
-            "(" +
-            myId + ", " +
-            myQuestion + ", " +
-            myAnswer + ", " + 
-            myCategory + ", " +
-            getQuestionType() + ", " +
-            myDifficulty + 
-            ")";
+        String out
+                = "("
+                + myId + ", "
+                + myQuestion + ", "
+                + myAnswer + ", "
+                + myCategory + ", "
+                + getQuestionType() + ", "
+                + myDifficulty
+                + ")";
         return out;
     }
 }

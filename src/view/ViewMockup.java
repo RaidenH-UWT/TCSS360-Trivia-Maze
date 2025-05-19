@@ -17,12 +17,15 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
 import java.awt.FontMetrics;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import src.model.Direction;
 import src.model.GameState;
@@ -33,6 +36,9 @@ import src.model.Question;
 import src.model.Room;
 import src.model.GameSaver;
 
+/*
+ * @author Kalen Cha
+ */
 public class ViewMockup implements GameView {
 
     /**
@@ -351,11 +357,11 @@ public class ViewMockup implements GameView {
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel minimapPanel = createMinimapPanel();
+        final JPanel minimapPanel = createDoorPanel();
         GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
                 GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel statsPanel = createStatsPanel();
+        final JPanel statsPanel = createStatsPanel(3, 5);
         GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
@@ -392,9 +398,9 @@ public class ViewMockup implements GameView {
                 int rows = 5;
                 int cols = 5;
 
-                Color nodeColor = new Color(192, 192, 192); // cyan
-                Color arrowColor = new Color(255, 255, 255); // white
-                Color bgColor = new Color(0, 0, 0); // black
+                Color nodeColor = new Color(192, 192, 192);
+                Color arrowColor = new Color(255, 255, 255);
+                Color bgColor = new Color(0, 0, 0);
 
                 setBackground(bgColor);
 
@@ -408,7 +414,7 @@ public class ViewMockup implements GameView {
                         int y = spacingY * (row + 1) - nodeSize / 2;
 
                         if (row == rows - 1 && col == cols - 1) {
-                            g.setColor(new Color(255, 0, 0)); // red
+                            g.setColor(new Color(255, 0, 0));
                             g.fillRect(x, y, nodeSize, nodeSize);
 
                             g.setColor(Color.BLACK);
@@ -455,23 +461,88 @@ public class ViewMockup implements GameView {
         return panel;
     }
 
-    private JPanel createMinimapPanel() {
-        final JPanel panel = new JPanel();
-        panel.setBackground(new Color(0, 255, 0));
+    private JPanel createDoorPanel() {
+        JPanel panel = new JPanel();
+        panel.setBackground(new Color(18, 18, 18));
+        panel.setLayout(new GridBagLayout());
 
+        JButton openDoorButton = new JButton("OPEN DOOR");
+        openDoorButton.setOpaque(true);
+        openDoorButton.setContentAreaFilled(true);
+        openDoorButton.setBorderPainted(true);
+        openDoorButton.setFont(new Font("Monospaced", Font.BOLD, 30));
+        openDoorButton.setBackground(new Color(255, 204, 0));
+        openDoorButton.setForeground(Color.BLACK);
+        openDoorButton.setFocusPainted(false);
+        openDoorButton.setBorder(javax.swing.BorderFactory.createLineBorder(Color.BLACK, 2));
+        openDoorButton.setPreferredSize(new Dimension(450, 100));
+
+        panel.add(openDoorButton);
         return panel;
     }
 
-    private JPanel createStatsPanel() {
-        final JPanel panel = new JPanel();
-        panel.setBackground(new Color(0, 0, 255));
+    private JPanel createStatsPanel(int answered, int failed) {
+        JPanel panel = new JPanel();
+        panel.setBackground(new Color(18, 18, 18));
+        panel.setLayout(new GridBagLayout());
+
+        Font labelFont = new Font("Monospaced", Font.BOLD, 14);
+
+        JLabel answeredLabel = new JLabel("QUESTIONS ANSWERED: " + answered);
+        answeredLabel.setFont(labelFont);
+        answeredLabel.setForeground(Color.GREEN);
+
+        JLabel failedLabel = new JLabel("QUESTIONS FAILED:   " + failed);
+        failedLabel.setFont(labelFont);
+        failedLabel.setForeground(new Color(255, 85, 85));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(answeredLabel, gbc);
+
+        gbc.gridy = 1;
+        panel.add(failedLabel, gbc);
 
         return panel;
     }
 
     private JPanel createQuestionPanel() {
-        final JPanel panel = new JPanel();
-        panel.setBackground(new Color(255, 255, 0));
+        JPanel panel = new JPanel();
+        panel.setBackground(new Color(30, 30, 30));
+        panel.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JLabel questionLabel = new JLabel("QUESTION: ");
+        questionLabel.setForeground(new Color(0, 191, 255));
+        questionLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(questionLabel, gbc);
+
+        JLabel currentQuestion = new JLabel("2 + 2 = 5 (T OR F)");
+        currentQuestion.setForeground(Color.WHITE);
+        currentQuestion.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        panel.add(currentQuestion, gbc);
+
+        JLabel answerLabel = new JLabel("ANSWER >");
+        answerLabel.setForeground(new Color(106, 90, 205));
+        answerLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(answerLabel, gbc);
+
+        JTextField answerField = new JTextField(20);
+        answerField.setBackground(Color.BLACK);
+        answerField.setForeground(Color.GREEN);
+        answerField.setCaretColor(Color.GREEN);
+        answerField.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        gbc.gridx = 1;
 
         return panel;
     }
