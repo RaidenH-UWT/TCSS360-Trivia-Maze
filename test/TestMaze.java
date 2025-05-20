@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import src.model.Maze;
+import src.model.Position;
 import src.model.Room;
 
 /**
@@ -68,13 +69,13 @@ public class TestMaze {
         // Consider setting up a mock Maze object for testing.
 
         // Testing bounds allowed
-        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(-1, 0));
-        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(0, -1));
-        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(6, 0));
-        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(0, 6));
+        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(-1, 0)));
+        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(0, -1)));
+        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(6, 0)));
+        assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(0, 6)));
 
         // Finally testing the returned object
-        assertEquals(new Room(0, 0), testMaze.getRoom(0, 0));
+        assertEquals(new Room(0, 0), testMaze.getRoom(new Position(0, 0)));
         // TODO: with a mock object test this case more thoroughly
     }
 

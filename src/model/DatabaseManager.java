@@ -129,7 +129,7 @@ public class DatabaseManager {
       * @param theType QuestionType enum to select for
       * @return List<Question> of all questions with the given type
       */
-     public static List<Question> getAllQuestionsByType(QuestionType theType) {
+    public static List<Question> getAllQuestionsByType(QuestionType theType) {
         try {
             ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE 'Type'=" + theType);
             List<Question> resList = new LinkedList<Question>();
@@ -150,7 +150,7 @@ public class DatabaseManager {
       * @param theCategory String category to select for
       * @return List<Question> of all questions with the given category
       */
-     public static List<Question> getAllQuestionsByCategory(String theCategory) {
+    public static List<Question> getAllQuestionsByCategory(String theCategory) {
         try {
             ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE 'Category'=" + theCategory);
             List<Question> resList = new LinkedList<Question>();
@@ -165,6 +165,22 @@ public class DatabaseManager {
         }
         return null;
      }
+
+    public static List<String> getCategories() {
+        try {
+            ResultSet results = QUERY.executeQuery("SELECT category FROM QUESTIONS");
+            List<String> resList = new LinkedList<String>();
+
+            while (results.next()) {
+                resList.add(results.getString("category"));
+            }
+
+            return resList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * Parses a String and converts it into a java LinkedList splitting the string on commas.

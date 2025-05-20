@@ -39,12 +39,6 @@ public class ConsoleView implements GameView {
         System.out.println();
     }
 
-    // note in super
-    @Override
-    public void displayMessage(String theMessage) {
-        System.out.println(theMessage);
-        System.out.println();
-    }
     @Override
     public void displayGameOver(boolean isWon) {
         if (isWon) {
@@ -53,13 +47,6 @@ public class ConsoleView implements GameView {
             System.out.println("Game Over! You are trapped in the maze.");
         }
         System.out.println();
-    }
-
-    // note in super
-    @Override
-    public String getAnswer() {
-        System.out.println("Your answer: ");
-        return null;
     }
 
     /**

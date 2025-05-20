@@ -4,8 +4,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-// TODO: Decide whether we want to use Serialization (security flaws, not human readable)
-// or read/write from file (takes time to implement I/O pattern and structure)
 /**
  * Manages game saving and loading to and from file.
  *

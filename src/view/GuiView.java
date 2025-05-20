@@ -82,16 +82,8 @@ public class GuiView implements GameView {
         
     }
 
-    public void displayMessage(String theMessage) {
-
-    }
-
     public void displayGameOver(boolean isWon) {
         
-    }
-
-    public String getAnswer() {
-        return null;
     }
 
     /**

@@ -32,15 +32,9 @@ public interface GameView extends PropertyChangeListener {
      */
     public void displayQuestion(Question theQuestion);
 
-    // TODO: Unsure what the purpose of this is, please document.
-    public void displayMessage(String theMessage);
-
     /**
      * Display when the game ends.
      * @param isWon boolean whether the game ended in a win or not
      */
     public void displayGameOver(boolean isWon);
-
-    // TODO: Why is this here, what does it do.
-    public String getAnswer();
 }

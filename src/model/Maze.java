@@ -51,7 +51,6 @@ public class Maze {
         myHeight = theHeight;
         myRooms = new Room[myHeight][myWidth];
         generateEmptyRooms();
-        // TODO: add option for random room generation?
     }
 
     /**
@@ -65,7 +64,26 @@ public class Maze {
         }
     }
 
-    // TODO: consider replacing with a Position instead of X and Y?
+    /**
+     * Fills the generated rooms with random doors.
+     */
+    public void fillRoomsRandom() {
+        // TODO: Fill with random rooms
+    }
+
+    /**
+     * Fills the generated rooms with random doors from the given category.
+     * @param theCategory String name of the category
+     * @thorws IllegalArgumentException if the passed category is not in the database
+     */
+    public void fillRoomsRandom(String theCategory) {
+        if (!DatabaseManager.getCategories().contains(theCategory)) {
+            throw new IllegalArgumentException("Category is not in the database");
+        } else {
+            // TODO: Fill with random rooms of the category
+        }
+    }
+
     /**
      * Get the room with the given position.
      * @param theX int X coordinate of the room
@@ -74,12 +92,12 @@ public class Maze {
      * @throws IndexOutOfBoundsException if either of the given coordinates
      * are not contained within this maze
      */
-    public Room getRoom (int theX, int theY) {
-        if (theX > myWidth || theY > myHeight
-            || theX < 0 || theY < 0) {
+    public Room getRoom (Position thePosition) {
+        if (thePosition.getX() > myWidth || thePosition.getY() > myHeight
+            || thePosition.getX() < 0 || thePosition.getY() < 0) {
             throw new IndexOutOfBoundsException("Given coordinates are out of bounds");
         }
-        return myRooms[theX][theY];
+        return myRooms[thePosition.getX()][thePosition.getY()];
     }
 
     /**
@@ -96,8 +114,13 @@ public class Maze {
         return myHeight;
     }
 
-    // TODO: Unsure what the intended purpose of this method is, please document.
+    /**
+     * Check whether a path to the exit is possible from the current player position.
+     * @return true if a path to the exit is possible, false otherwise
+     */
     public boolean isPathAvailable() {
+        // implement recursively, sending a call down every path until all paths are covered or we find a good path.
+
         return false;
     }
 
