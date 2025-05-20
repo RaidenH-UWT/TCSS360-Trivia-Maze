@@ -1,14 +1,11 @@
 package src.view;
 
 import java.beans.PropertyChangeEvent;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -17,10 +14,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
-import java.awt.FontMetrics;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -127,9 +122,6 @@ public class ViewMockup implements GameView {
      */
     private void updatePosition(Position oldPos, Position newPos) {
         // called when the player position changes
-        System.out.println(myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]);
-        System.out.println(myRooms[newPos.getY() * myMazeSize.width + newPos.getX()]);
-        System.out.println();
         ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
 
         myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
