@@ -8,7 +8,7 @@ import src.view.ViewMockup;
 public class TriviaMazeApp {
     public static void main(String[] args) {
         DatabaseManager.connect();
-        GameState state = new GameState(5, 5);
+        GameState state = new GameState(5);
 
         ViewMockup view = new ViewMockup(state);
 

@@ -50,6 +50,10 @@ public class Maze {
         myWidth = theWidth;
         myHeight = theHeight;
         myRooms = new Room[myHeight][myWidth];
+
+        // TODO: TEMPORARY
+        myEntrance = new Position(1, 1);
+
         generateEmptyRooms();
     }
 

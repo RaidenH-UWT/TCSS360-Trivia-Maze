@@ -2,17 +2,22 @@ package src.view;
 
 import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -49,15 +54,16 @@ public class ViewMockup implements GameView {
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
-     * Map<String, Runnable> for triggering methods based on PropertyChange
-     * events.
-     */
-    private Map<String, Runnable> propertyEvents;
-
-    /**
      * Reference to the JFrame for the window
      */
     private final JFrame myFrame;
+
+    /**
+     * Array of rooms in the maze panel.
+     */
+    private Component[] myRooms;
+
+    private Position testPos = new Position(0, 0);
 
     /**
      * Dimensions of the maze (in rooms)
@@ -70,13 +76,6 @@ public class ViewMockup implements GameView {
         theState.addPropertyChangeListener(this);
 
         myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getWidth());
-
-        propertyEvents = new HashMap<String, Runnable>();
-        // here we add all the possible property events to the map.
-        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_POSITION, () -> updatePosition());
-        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED, () -> updateStats());
-        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT, () -> updateStats());
-        propertyEvents.put(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, () -> updateRooms());
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
@@ -118,48 +117,58 @@ public class ViewMockup implements GameView {
     }
 
     @Override
-    public void displayMessage(String theMessage) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayMessage'");
-    }
-
-    @Override
     public void displayGameOver(boolean isWon) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'displayGameOver'");
     }
 
-    @Override
-    public String getAnswer() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAnswer'");
-    }
-
     /**
      * Update the position of the player.
      */
-    private void updatePosition() {
+    private void updatePosition(Position oldPos, Position newPos) {
         // called when the player position changes
+        System.out.println(myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]);
+        System.out.println(myRooms[newPos.getY() * myMazeSize.width + newPos.getX()]);
+        System.out.println();
+        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
+
+        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
+        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
     }
 
     /**
      * Update question stats for the player.
      */
-    private void updateStats() {
+    private void updateStats(int answered, int correct) {
         // called when questionsAnswered or questionsCorrect increments, maybe replace?
     }
 
     /**
      * Update displayed rooms.
      */
-    private void updateRooms() {
+    private void updateRooms(LinkedList<Position> visitedRooms) {
         // called when a new room is visited.
     }
 
+    @SuppressWarnings("unchecked") // it's checked by the interface, that event gives that type
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'propertyChange'");
+    public void propertyChange(PropertyChangeEvent theEvent) {
+        switch (theEvent.getPropertyName()) {
+            case PropertyChangeEnabledGameState.PROPERTY_POSITION:
+                updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
+                break;
+            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED:
+                updateStats(1, 0);
+                break;
+            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT:
+                updateStats(0, 1);
+                break;
+            case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
+                updateRooms((LinkedList<Position>) theEvent.getNewValue());
+                break;
+            default:
+                throw new UnsupportedOperationException("Property change not supported");
+        }
     }
 
 
@@ -400,7 +409,11 @@ public class ViewMockup implements GameView {
         return mainPanel;
     }
 
+    /*
     private JPanel createMapPanel() {
+        // If we're going to do this, it probably shouldn't be an inline class
+        // either break it off into a seperate class
+        // or an internal class
         final JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -473,6 +486,28 @@ public class ViewMockup implements GameView {
         panel.setBackground(Color.BLACK);
         return panel;
     }
+*/
+
+    // Reworked createMapPanel() to work with any dimensions and use seperate RoomPanels 
+    // instead of coloured boxes.
+    private JPanel createMapPanel() {
+        final JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(myMazeSize.width, myMazeSize.height, 5, 5));
+        panel.setBackground(Color.BLACK);
+
+        for (int row = 0; row < myMazeSize.width; row++) {
+            for (int col = 0; col < myMazeSize.height; col++) {
+                final JPanel roomPane = new RoomPanel(new Position(row, col));
+                panel.add(roomPane, row,  col);
+            }
+        }
+
+        myRooms = panel.getComponents();
+
+        updatePosition(new Position(0,0), new Position(0, 0));
+
+        return panel;
+    }
 
     private JPanel createDoorPanel() {
         JPanel panel = new JPanel();
@@ -480,6 +515,7 @@ public class ViewMockup implements GameView {
         panel.setLayout(new GridBagLayout());
 
         JButton openDoorButton = new JButton("OPEN DOOR");
+        openDoorButton.addActionListener(this::positionHelper); // TODO: TEMPORARY
         openDoorButton.setOpaque(true);
         openDoorButton.setContentAreaFilled(true);
         openDoorButton.setBorderPainted(true);
@@ -492,6 +528,13 @@ public class ViewMockup implements GameView {
 
         panel.add(openDoorButton);
         return panel;
+    }
+
+    // TODO: TEMPORARY
+    private void positionHelper(final ActionEvent theEvent) {
+        Position temp = testPos;
+        testPos = new Position((testPos.getX() + 1) % myMazeSize.width, (testPos.getY() + 1) % myMazeSize.height);
+        updatePosition(temp, testPos);
     }
 
     private JPanel createStatsPanel(int answered, int failed) {
@@ -652,5 +695,34 @@ public class ViewMockup implements GameView {
         panel.setBackground(new Color(0, 255, 255));
 
         return panel;
+    }
+
+    private class RoomPanel extends JPanel {
+        // Add display for rooms
+        // i'm thinking 4 triangles, 1 for each cardinal direction
+        // and colour coded based on lock state
+        // and mystery colour if they haven't been visited yet.
+        private final Position myPos;
+
+        private Color myColor;
+
+        public RoomPanel(Position thePos) {
+            super();
+
+            myPos = thePos;
+            myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
+            setBackground(myColor);
+        }
+
+        public void resetBackground() {
+            myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
+            setBackground(myColor);
+            repaint();
+        }
+
+        @Override
+        public String toString() {
+            return myPos.getX() + ", " + myPos.getY() + " with " + this.getBackground().toString();
+        }
     }
 }
