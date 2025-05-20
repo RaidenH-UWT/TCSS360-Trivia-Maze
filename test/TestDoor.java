@@ -7,9 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import src.model.DatabaseManager;
 import src.model.Door;
 import src.model.Question;
-import src.model.TrueFalseQuestion;
+import src.model.QuestionFactory;
 
 /**
  * Class for testing the Door object.
@@ -32,7 +33,8 @@ public class TestDoor {
      */
     @BeforeEach
     void setup() {
-        testQuestion = new TrueFalseQuestion(0, "testQ", true, "test", 3);
+        DatabaseManager.connect();
+        testQuestion = QuestionFactory.buildQuestion(1);
         testDoor = new Door(testQuestion);
     }
 
@@ -73,7 +75,6 @@ public class TestDoor {
      */
     @Test
     void testAnswerQuestion() {
-        // TODO: Come back to this if we swap from String to bool.
         assertFalse(testDoor.answerQuestion("false"));
 
         assertTrue(testDoor.answerQuestion("true"));

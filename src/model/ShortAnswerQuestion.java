@@ -8,17 +8,19 @@ package src.model;
  * @version May 1, 2025
  */
 public class ShortAnswerQuestion extends Question {
+    /**
+     * String answer of this question.
+     */
+    private String myAnswer;
 
     /**
      * {@inheritDoc}
      */
-    public ShortAnswerQuestion(final int theId,
-            final String theQuestionText,
-            final String theCorrectAnswer,
-            final String theCategory,
-            final int theDifficulty) {
-        super(theId, theQuestionText, theCorrectAnswer,
-                theCategory, theDifficulty);
+    protected ShortAnswerQuestion(final int theId, final String theQuestionText,
+            final String theAnswer, final int theDifficulty) {
+        super(theId);
+
+        myAnswer = theAnswer;
     }
 
     // Abstract or child class, pick one
@@ -48,15 +50,8 @@ public class ShortAnswerQuestion extends Question {
 
     @Override
     public String toString() {
-        String out
-                = "("
-                + myId + ", "
-                + myQuestion + ", "
-                + myAnswer + ", "
-                + myCategory + ", "
-                + getQuestionType() + ", "
-                + myDifficulty
-                + ")";
+        String out = "(" + getId() + ", " + getQuestion() + ", "
+            + myAnswer + ", " + ", " + getQuestionType() + ")";
         return out;
     }
 }

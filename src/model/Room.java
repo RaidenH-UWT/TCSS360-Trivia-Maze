@@ -42,7 +42,7 @@ public class Room {
     }
 
     // could change to throw an exception instead of overwriting.
-    // may want to make private and only used in the contructor (encapsulation!!)
+    // TODO: may want to make private and only used in the contructor (encapsulation!!)
     /**
      * Adds a new Door to the given direction.
      * WARNING: THIS METHOD WILL OVERWRITE IF THERE IS ALREADY A DOOR PRESENT
@@ -69,7 +69,7 @@ public class Room {
      * @return true if that direction has a Door, false otherwise
      */
     public boolean hasDoor(Direction theDir) {
-        return false;
+        return myDoors.containsKey(theDir);
     }
 
     /**

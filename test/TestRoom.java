@@ -7,11 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import src.model.DatabaseManager;
 import src.model.Direction;
 import src.model.Door;
 import src.model.Question;
+import src.model.QuestionFactory;
 import src.model.Room;
-import src.model.TrueFalseQuestion;
 
 /**
  * Class for testing the Room object.
@@ -31,7 +32,8 @@ public class TestRoom {
      */
     @BeforeEach
     void setup() {
-        testQuestion = new TrueFalseQuestion(0, "test", true, "test", 3);
+        DatabaseManager.connect();
+        testQuestion = QuestionFactory.buildQuestion(1);
         testDoor = new Door(testQuestion);
         testRoom = new Room(0, 0);
     }

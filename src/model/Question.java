@@ -7,73 +7,38 @@ package src.model;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-// TODO: Refactor all Questions to work primarily off the SQLite database, rather than java state
-// e.g.: constructor only has an ID that's a reference to the table item in the database. 
-public abstract class Question {
 
-    // TODO: Consider replacing the passed ID with a generated ID, easy to
-    // implement in SQLite and makes sure we have control over the IDs.
+public abstract class Question {
     /**
      * ID of this question, for the database.
      */
-    protected int myId;
+    private int myId;
 
     /**
      * Text of this question.
      */
-    protected String myQuestion;
-
-    // TODO: Consider moving down to child classes because this may be
-    // type-specific, ex: multiple choice is more of an index thing while
-    // short answer would be a string.
-    /**
-     * Correct answer for this question.
-     */
-    protected String myAnswer;
-
-    // should this be the QuestionType?
-    /**
-     * Category of this question.
-     */
-    protected String myCategory;
+    private String myQuestion;
 
     /**
-     * Difficulty of this question
+     * 1-5 int difficulty of this question.
      */
-    protected int myDifficulty;
+    private int myDifficulty;
 
-    // mynswer may need to be moved down cause it depends on the QuestionType
     /**
      * Creates a new Question object.
      *
-     * @param theId int ID for this question, to be used in the database
-     * @param theQuestion String of the question text
-     * @param theAnswer String of the correct answer
-     * @param theCategory String of the question category
-     * @param theDifficulty int difficulty of this question [range]
+     * @param theId int ID for this question from the database
      */
-    public Question(int theId, String theQuestion, String theAnswer,
-            String theCategory, int theDifficulty) {
+    protected Question(int theId) {
         super();
-        // add to database here?
-        if (theQuestion == null || theAnswer == null || theCategory == null) {
-            throw new IllegalArgumentException("Question parameters cannot be null");
-        }
-        if (theDifficulty < 1 || theDifficulty > 5) {
-            throw new IllegalArgumentException("Difficulty must be between 1 and 5");
-        }
 
         myId = theId;
-        myQuestion = theQuestion;
-        myAnswer = theAnswer;
-        myCategory = theCategory;
-        myDifficulty = theDifficulty;
     }
 
     /**
-     * @return int ID of this question.
+     * @return int ID of this question
      */
-    public int getId() {
+    protected int getId() {
         return myId;
     }
 
@@ -82,13 +47,6 @@ public abstract class Question {
      */
     public String getQuestion() {
         return myQuestion;
-    }
-
-    /**
-     * @return String category of this question.
-     */
-    public String getCategory() {
-        return myCategory;
     }
 
     /**
@@ -120,6 +78,6 @@ public abstract class Question {
         }
 
         // If we have unique IDs (we should) all we need to do is check the ID
-        return getId() == ((Question) question).getId();
+        return myId == ((Question) question).getId();
     }
 }

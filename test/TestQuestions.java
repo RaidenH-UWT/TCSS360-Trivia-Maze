@@ -3,20 +3,14 @@ package test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.IllegalArgumentException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import src.model.MultipleChoiceQuestion;
+import src.model.DatabaseManager;
 import src.model.Question;
-import src.model.ShortAnswerQuestion;
-import src.model.TrueFalseQuestion;
+import src.model.QuestionFactory;
 
 /**
  * Class for testing the classes inheriting from Question.
@@ -27,31 +21,23 @@ public class TestQuestions {
     /**
      * Questions to test on.
      */
-    List<String> multiOpts = new ArrayList<String>(Arrays.asList(new String[] {"multiA", "multiB"}));
-    // multiOpts.add("multiA");
-    // multiOpts.add("multiB");
-    Question trueQuestion = new TrueFalseQuestion(0001, "truerQuestion", true, "test", 3);
-    Question falseQuestion = new TrueFalseQuestion(0002, "falserQuestion", false, "test", 3);
-    Question shortA = new ShortAnswerQuestion(0003, "shortA", "shortAns", "test", 3);
-    Question multiQ = new MultipleChoiceQuestion(0004, "multiQ", "multiA", multiOpts, "test", 3);
+    Question trueQuestion;
+    Question falseQuestion;
+    Question shortA;
+    Question multiQ;
+    
 
-    /**
-     * Make sure creating two questions with the same ID throws an exception.
-     */
-    @Test
-    @SuppressWarnings("unused")
-    void testDupeId() {
-        Question tfQuestion = new TrueFalseQuestion(0000, "dupeA", true, "test", 3);
-        Question shortQuestion;
-        assertThrows(IllegalArgumentException.class, () -> createDupe());
-    }
+    @BeforeEach
+    void setup() {
+        DatabaseManager.connect();
 
-    /**
-     * Private helper to create a question with a duplicate ID.
-     */
-    @SuppressWarnings("unused")
-    private void createDupe() {
-        Question dupeQuestion = new ShortAnswerQuestion(0000, "dupeB", "dupeB", "test", 3);
+        /**
+         * Questions to test on.
+         */
+        trueQuestion = QuestionFactory.buildQuestion(1);
+        falseQuestion = QuestionFactory.buildQuestion(5);
+        shortA = QuestionFactory.buildQuestion(0);
+        multiQ = QuestionFactory.buildQuestion(2);
     }
 
     /**
@@ -72,7 +58,7 @@ public class TestQuestions {
      */
     @Test
     void testShortAnswer() {
-        assertTrue(shortA.checkAnswer("shortAns"));
+        assertTrue(shortA.checkAnswer("testShortA"));
         assertFalse(shortA.checkAnswer("nonsense"));
     }
 
@@ -81,7 +67,7 @@ public class TestQuestions {
      */
     @Test
     void testMultiAnswer() {
-        assertTrue(multiQ.checkAnswer("multiA"));
+        assertTrue(multiQ.checkAnswer("testMultiA"));
         assertFalse(multiQ.checkAnswer("garbage"));
     }
 

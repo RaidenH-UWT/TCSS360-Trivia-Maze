@@ -11,22 +11,28 @@ import java.util.List;
  * @version May 1, 2025
  */
 public class MultipleChoiceQuestion extends Question {
+    /**
+     * String answer of this question.
+     */
+    private String myAnswer;
 
     /**
      * List of options for this question.
      */
     private List<String> myOptions;
 
-    public MultipleChoiceQuestion(final int theId, final String theQuestionText, final String theCorrectAnswer,
-            List<String> theOptions, final String theCategory, final int theDifficulty) {
-        super(theId, theQuestionText, theCorrectAnswer, theCategory, theDifficulty);
+    protected MultipleChoiceQuestion(final int theId, final String theQuestionText,
+        final String theAnswer, List<String> theOptions, final int theDifficulty) {
+        super(theId);
 
         if (theOptions == null || theOptions.size() < 2) {
             throw new IllegalArgumentException("Multiple choice questions must have at leaset 2 options");
         }
-        if (!theOptions.contains(theCorrectAnswer)) {
+        if (!theOptions.contains(theAnswer)) {
             throw new IllegalArgumentException("Options must contain the correct answer");
         }
+
+        myAnswer = theAnswer;
 
         myOptions = new ArrayList<>(theOptions);
     }
@@ -60,16 +66,8 @@ public class MultipleChoiceQuestion extends Question {
 
     @Override
     public String toString() {
-        String out
-                = "("
-                + myId + ", "
-                + myQuestion + ", "
-                + myAnswer + ", "
-                + myOptions + ", "
-                + myCategory + ", "
-                + getQuestionType() + ", "
-                + myDifficulty
-                + ")";
+        String out = "(" + getId() + ", " + getQuestion() + ", "
+            + myAnswer + ", " + ", " + getQuestionType() + ")";
         return out;
     }
 }
