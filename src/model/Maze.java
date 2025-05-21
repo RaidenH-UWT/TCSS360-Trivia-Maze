@@ -51,8 +51,8 @@ public class Maze {
         myHeight = theHeight;
         myRooms = new Room[myHeight][myWidth];
 
-        // TODO: TEMPORARY
         myEntrance = new Position(1, 1);
+        myExit = new Position(theWidth, theHeight);
 
         generateEmptyRooms();
     }
