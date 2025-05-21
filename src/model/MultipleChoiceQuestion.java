@@ -21,9 +21,9 @@ public class MultipleChoiceQuestion extends Question {
      */
     private List<String> myOptions;
 
-    protected MultipleChoiceQuestion(final int theId, final String theQuestionText,
+    protected MultipleChoiceQuestion(final int theId, final String theQuestion,
         final String theAnswer, List<String> theOptions, final int theDifficulty) {
-        super(theId);
+        super(theId, theQuestion, theDifficulty);
 
         if (theOptions == null || theOptions.size() < 2) {
             throw new IllegalArgumentException("Multiple choice questions must have at leaset 2 options");
@@ -66,8 +66,7 @@ public class MultipleChoiceQuestion extends Question {
 
     @Override
     public String toString() {
-        String out = "(" + getId() + ", " + getQuestion() + ", "
-            + myAnswer + ", " + ", " + getQuestionType() + ")";
+        String out = "(" + getId() + ", " + getQuestion() + ", " + getQuestionType() + ")";
         return out;
     }
 }

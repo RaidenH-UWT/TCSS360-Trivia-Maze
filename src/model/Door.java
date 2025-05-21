@@ -96,4 +96,10 @@ public class Door {
 
         return val;
     }
+
+    @Override
+    public String toString() {
+        String out = String.format("lock: %b, %s", isLocked(), getQuestion().toString());
+        return out;
+    }
 }

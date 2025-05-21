@@ -1,11 +1,19 @@
 package src.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 /**
  * Stores data about the maze and the rooms within it.
  * @author Raiden H
  * @version May 1, 2025
  */
 public class Maze {
+    /**
+     * Flag to allow duplicate questions in the maze.
+     * Use during development when we don't have enough unique questions.
+     */
+    private static boolean ALLOW_DUPLICATE_QUESTIONS = true;
     /**
      * Width of the maze.
      */
@@ -37,11 +45,12 @@ public class Maze {
     private boolean myCompleted;
 
     /**
-     * Creates a new maze of the given dimensions.
+     * Creates a new maze of the given dimensions and uses questions of the given category.
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
+     * @param theCategory String category to pull questions from
      */
-    public Maze(int theWidth, int theHeight) {
+    public Maze(int theWidth, int theHeight, String theCategory) {
         super();
         if (theWidth <= 0 || theHeight <= 0) {
             throw new IllegalArgumentException("Dimensions must be greater than 0.");
@@ -55,6 +64,22 @@ public class Maze {
         myExit = new Position(theWidth, theHeight);
 
         generateEmptyRooms();
+
+        // If a category was passed, generate rooms with the given category.
+        if (theCategory == null) {
+            fillRoomsRandom();
+        } else {
+            fillRoomsRandom(theCategory);
+        }
+    }
+
+    /**
+     * Creates a new maze of the given dimensions.
+     * @param theWidth int width of the new maze
+     * @param theHeight int height of the new maze
+     */
+    public Maze(int theWidth, int theHeight) {
+        this(theWidth, theHeight, null);
     }
 
     /**
@@ -73,18 +98,66 @@ public class Maze {
      */
     public void fillRoomsRandom() {
         // TODO: Fill with random rooms
+        ArrayList<Question> questions = new ArrayList<Question>(QuestionFactory.getAllQuestions());
+        fillRooms(questions);
     }
 
     /**
      * Fills the generated rooms with random doors from the given category.
      * @param theCategory String name of the category
-     * @thorws IllegalArgumentException if the passed category is not in the database
+     * @throws IllegalArgumentException if the passed category is not in the database
      */
     public void fillRoomsRandom(String theCategory) {
         if (!DatabaseManager.getCategories().contains(theCategory)) {
             throw new IllegalArgumentException("Category is not in the database");
         } else {
-            // TODO: Fill with random rooms of the category
+            ArrayList<Question> questions = new ArrayList<Question>(QuestionFactory.getAllQuestionsByCategory(theCategory));
+            fillRooms(questions);
+        }
+    }
+
+    /**
+     * Fills all rooms of the maze with the given list of questions.
+     * @param theQuestions ArrayList<Question> of questions to fill with
+     */
+    private void fillRooms(ArrayList<Question> theQuestions) {
+        if (!ALLOW_DUPLICATE_QUESTIONS && theQuestions.size() < myWidth * myHeight) {
+            throw new IndexOutOfBoundsException("Not enough questions to fill the maze");
+        }
+        Collections.shuffle(theQuestions);
+        int i = 0;
+        for (Room[] roomArr : myRooms) {
+            for (Room room : roomArr) {
+                // Only add doors if they don't lead to a wall
+                if (!(room.getX() == 0)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.WEST, door);
+                    i++;
+                }
+                if (!(room.getX() == myWidth - 1)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.EAST, door);
+                    i++;
+                }
+                if (!(room.getY() == 0)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.NORTH, door);
+                    i++;
+                }
+                if (!(room.getY() == myHeight - 1)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.SOUTH, door);
+                    i++;
+                }
+            }
+        }
+    }
+
+    public void printRooms() {
+        for (Room[] roomArr : myRooms) {
+            for (Room room : roomArr) {
+                System.out.println(room);
+            }
         }
     }
 

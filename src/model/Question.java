@@ -29,10 +29,12 @@ public abstract class Question {
      *
      * @param theId int ID for this question from the database
      */
-    protected Question(int theId) {
+    protected Question(int theId, String theQuestion, int theDifficulty) {
         super();
 
         myId = theId;
+        myQuestion = theQuestion;
+        myDifficulty = theDifficulty;
     }
 
     /**

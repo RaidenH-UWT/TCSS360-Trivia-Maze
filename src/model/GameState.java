@@ -45,17 +45,27 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Initialize the state with the given maze.
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
+     * @param theCategory String category to pull questions from
      */
-    public GameState(int theWidth, int theHeight) {
+    public GameState(int theWidth, int theHeight, String theCategory) {
         super();
 
-        myMaze = new Maze(theWidth, theHeight);
+        myMaze = new Maze(theWidth, theHeight, theCategory);
         currentPosition = myMaze.getEntrance();
         questionsAnswered = 0;
         questionsCorrect = 0;
         visitedRooms = new ArrayList<Position>(theWidth * theHeight);
 
         myPCS = new PropertyChangeSupport(this);
+    }
+
+    /**
+     * Creates a new maze of the given dimensions.
+     * @param theWidth int width of the new maze
+     * @param theHeight int height of the new maze
+     */
+    public GameState(int theWidth, int theHeight) {
+        this(theWidth, theHeight, null);
     }
 
     /**

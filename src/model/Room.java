@@ -50,7 +50,7 @@ public class Room {
      * @param theDir Direction to add the new Door to
      * @param theDoor Door object to add
      */
-    public void addDoor(Direction theDir, Door theDoor) {
+    protected void addDoor(Direction theDir, Door theDoor) {
          myDoors.put(theDir, theDoor);
     }
 
@@ -60,7 +60,7 @@ public class Room {
      * @return Door in the given direction
      */
     public Door getDoor(Direction theDir) {
-         return myDoors.get(theDir);
+        return myDoors.get(theDir);
     }
 
     /**
@@ -123,5 +123,22 @@ public class Room {
         val = (getX() == ((Room) room).getX()) && (getY() == ((Room) room).getY());
 
         return val;
+    }
+
+    @Override
+    public String toString() {
+        String[] doors = new String[4];
+        int i = 0;
+        for (Direction dir : Direction.values()) {
+            if (hasDoor(dir)) {
+                doors[i] = getDoor(dir).toString();
+            } else {
+                doors[i] = "Wall";
+            }
+            i++;
+        }
+        String out = String.format("(%d, %d, [NORTH: %s, SOUTH: %s, EAST: %s, WEST: %s])", 
+            myX, myY, doors[0], doors[1], doors[2], doors[3]);
+        return out;
     }
 }

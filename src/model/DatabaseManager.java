@@ -71,7 +71,7 @@ public class DatabaseManager {
 
     /**
      * Gets all questions stored in the database.
-     * @return List<Question> of every question in the database
+     * @return ResultSet of every question in the database
      */
     protected static ResultSet getAllQuestions() {
         try {
@@ -82,8 +82,16 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return null;
-     }
+    }
 
+    /**
+     * Get all questions in the test category.
+     * @return ResultSet of every question in the test category
+     */
+    protected static ResultSet getTestQuestions() {
+        return getAllQuestionsByCategory("test");
+    }
+    
     /**
      * Gets all questions with the given type.
      * @param theType QuestionType enum to select for
@@ -104,7 +112,7 @@ public class DatabaseManager {
     /**
      * Gets all questions with the given category.
      * @param theCategory String category to select for
-     * @return List<Question> of all questions with the given category
+     * @return ResultSet of all questions with the given category
      */
     protected static ResultSet getAllQuestionsByCategory(String theCategory) {
         try {
@@ -116,8 +124,12 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return null;
-     }
+    }
 
+    /**
+     * Get a list of all the categories in the database.
+     * @return List<String> of every category name in the database
+     */
     protected static List<String> getCategories() {
         try {
             ResultSet results = QUERY.executeQuery("SELECT category FROM QUESTIONS");

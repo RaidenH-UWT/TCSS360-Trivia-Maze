@@ -79,6 +79,26 @@ public class QuestionFactory {
     }
 
     /**
+     * Gets all test questions stored in the database.
+     * @return List<Question> of every test question in the database
+     */
+    public static List<Question> getTestQuestions() {
+        try {
+            ResultSet results = DatabaseManager.getTestQuestions();
+            List<Question> resList = new LinkedList<Question>();
+            
+            while (results.next()) {
+                resList.add(sqlRowToQuestion(results));
+            }
+            return resList;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Gets all questions with the given type.
      * @param theType QuestionType enum to select for
      * @return List<Question> of all questions with the given type

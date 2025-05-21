@@ -22,7 +22,7 @@ public class TrueFalseQuestion extends Question {
      */
     protected TrueFalseQuestion(final int theId, final String theQuestion,
         final String theAnswer, final int theDifficulty) {
-        super(theId);
+        super(theId, theQuestion, theDifficulty);
 
         myAnswer = theAnswer;
     }
@@ -52,8 +52,7 @@ public class TrueFalseQuestion extends Question {
 
     @Override
     public String toString() {
-        String out = "(" + getId() + ", " + getQuestion() + ", "
-            + myAnswer + ", " + ", " + getQuestionType() + ")";
+        String out = "(" + getId() + ", " + getQuestion() + ", " + getQuestionType() + ")";
         return out;
     }
 }
