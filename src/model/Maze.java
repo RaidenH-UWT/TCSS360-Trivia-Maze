@@ -97,7 +97,6 @@ public class Maze {
      * Fills the generated rooms with random doors.
      */
     public void fillRoomsRandom() {
-        // TODO: Fill with random rooms
         ArrayList<Question> questions = new ArrayList<Question>(QuestionFactory.getAllQuestions());
         fillRooms(questions);
     }

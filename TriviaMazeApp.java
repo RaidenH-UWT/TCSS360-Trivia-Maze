@@ -17,7 +17,5 @@ public class TriviaMazeApp {
         myView = new ViewMockup(myState);
 
         ((ViewMockup) myView).initialize();
-
-        myState.getMaze().printRooms();
     }
 }
