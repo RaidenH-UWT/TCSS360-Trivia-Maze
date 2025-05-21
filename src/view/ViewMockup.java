@@ -1,14 +1,19 @@
 package src.view;
 
 import java.beans.PropertyChangeEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.awt.BorderLayout;
 import java.util.LinkedList;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -16,7 +21,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
-
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,7 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
+import javax.swing.border.Border;
 import src.model.Direction;
 import src.model.GameState;
 import src.model.Maze;
@@ -64,7 +70,10 @@ public class ViewMockup implements GameView {
      * Dimensions of the maze (in rooms)
      */
     private final Dimension myMazeSize;
-
+    /**
+    * Stores selected sprite.
+    */
+    private ImageIcon selectedSprite;
     public ViewMockup(GameState theState) {
         super();
 
@@ -683,11 +692,82 @@ public class ViewMockup implements GameView {
     }
 
     private JPanel createInfoPanel() {
-        final JPanel panel = new JPanel();
-        panel.setBackground(new Color(0, 255, 255));
+       final JPanel panel = new JPanel();
+            panel.setBackground(new Color(0, 0, 0));
+            panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+    
+            int[] widths = {56, 80, 60, 90};
+            int[] heights = {56, 100, 60, 60};
+            String[] imagePaths = {
+                "src/Sprites/kirby1.png",
+                "src/Sprites/kirby2.png",
+                "src/Sprites/kirby3.png",
+                "src/Sprites/kirby4.png"
+            };
+            
+            JLabel[] kirbyLabels = new JLabel[imagePaths.length];
+            
+           
+            final Border selectedBorder = BorderFactory.createLineBorder(Color.YELLOW, 3);
+            final Border defaultBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+            
+            final JLabel[] selectedLabel = {null};
+            
+            for (int i = 0; i < imagePaths.length; i++) {
+                ImageIcon originalIcon = new ImageIcon(imagePaths[i]);
+             
+                Image scaledImage = originalIcon.getImage().getScaledInstance(widths[i], heights[i], Image.SCALE_SMOOTH);
+                ImageIcon scaledIcon = new ImageIcon(scaledImage);
+            
+                JLabel label = new JLabel(scaledIcon);
+                label.setBorder(defaultBorder);
+                kirbyLabels[i] = label;
+                final int index = i;
+                label.addMouseListener(new java.awt.event.MouseAdapter() {
+                     public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    int choice = JOptionPane.showConfirmDialog(
+                        panel,
+                        "Confirm selection of character" + (index + 1) + "?",
+                        "Confirm Selection",
+                        JOptionPane.YES_NO_OPTION
+                    );
+            
+                    if (choice == JOptionPane.YES_OPTION) {
+                        if (selectedLabel[0] != null) {
+                            selectedLabel[0].setBorder(defaultBorder);
+                        }
+                        label.setBorder(selectedBorder);
+                        selectedLabel[0] = label;
+            
+                       
+                        selectedSprite = ((ImageIcon) label.getIcon());
+                } else {
+                    selectedSprite = null;
+                }
+            }
+            });
+    
+            panel.add(label);
+        }
+            JPanel mainPanel = new JPanel(new BorderLayout());
+            mainPanel.setBackground(Color.BLACK);
+    
+       
+            mainPanel.add(panel, BorderLayout.CENTER);
+    
+            JLabel chooseLabel = new JLabel("CHOOSE YOUR CHARACTER");
+            chooseLabel.setForeground(Color.YELLOW);
+            chooseLabel.setHorizontalAlignment(JLabel.CENTER);
+            chooseLabel.setFont(new Font("Monospaced", Font.BOLD, 15));
+            mainPanel.add(chooseLabel, BorderLayout.NORTH);
 
-        return panel;
+        return mainPanel;
+        
     }
+    private ImageIcon getSelectedSprite() {
+        return selectedSprite;
+    }
+    
 
     private class RoomPanel extends JPanel {
         // Add display for rooms
