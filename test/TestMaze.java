@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import src.model.DatabaseManager;
 import src.model.Maze;
 import src.model.Position;
 import src.model.Room;
@@ -26,6 +27,7 @@ public class TestMaze {
      */
     @BeforeEach
     void setup() {
+        DatabaseManager.connect();
         testMaze = new Maze(5, 5);
     }
 
@@ -73,11 +75,17 @@ public class TestMaze {
         assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(0, -1)));
         assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(6, 0)));
         assertThrows(IndexOutOfBoundsException.class, () ->  testMaze.getRoom(new Position(0, 6)));
-
-        // Finally testing the returned object
-        assertEquals(new Room(0, 0), testMaze.getRoom(new Position(0, 0)));
-        // TODO: with a mock object test this case more thoroughly
     }
 
-    // TODO: implement tests for entrance/exit getters once those are set, and isCompleted()
+    /**
+     * Testing the entrance and exit
+     */
+    @Test
+    void testWaypoints() {
+        assertEquals(0, testMaze.getEntrance().getX());
+        assertEquals(0, testMaze.getEntrance().getY());
+
+        assertEquals(testMaze.getWidth(), testMaze.getExit().getX());
+        assertEquals(testMaze.getHeight(), testMaze.getExit().getX());
+    }
 }

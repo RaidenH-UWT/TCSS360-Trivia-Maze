@@ -60,7 +60,7 @@ public class Maze {
         myHeight = theHeight;
         myRooms = new Room[myHeight][myWidth];
 
-        myEntrance = new Position(1, 1);
+        myEntrance = new Position(0, 0);
         myExit = new Position(theWidth, theHeight);
 
         generateEmptyRooms();

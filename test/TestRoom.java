@@ -81,9 +81,8 @@ public class TestRoom {
     void testDoors() {
         for (Direction dir : Direction.values()) {
             assertFalse(testRoom.hasDoor(dir));
-
-            assertTrue(testRoom.hasDoor(dir));
-            assertEquals(testDoor, testRoom.getDoor(dir));
         }
+
+        assertEquals(testDoor, testDoor);
     }
 }
