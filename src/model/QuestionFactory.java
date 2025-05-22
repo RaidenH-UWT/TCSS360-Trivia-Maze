@@ -2,8 +2,8 @@ package src.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -33,7 +33,7 @@ public class QuestionFactory {
         try {
             ResultSet results = DatabaseManager.getAllQuestionsByCategory(theCategory);
 
-            List<Question> resList = new LinkedList<Question>();
+            List<Question> resList = new ArrayList<Question>();
             
             while (results.next()) {
                 resList.add(sqlRowToQuestion(results));
@@ -47,12 +47,37 @@ public class QuestionFactory {
     }
 
     /**
-     * Gets a random question by its associated QuestionType
-     * @param theCategory a QuestionType for the desired question
-     * @return random Question object with the given type
+      * Gets all questions with the given categories.
+      * @param theCategory String array categories to select for
+      * @return List<Question> of all questions with the given categories
+      */
+    public static List<Question> getAllQuestionsByCategories(String[] theCategories) {
+        List<Question> questions = new ArrayList<Question>();
+        for (String category : theCategories) {
+            questions.addAll(getAllQuestionsByCategory(category));
+        }
+        return questions;
+    }
+
+    /**
+     * Gets a random question by its category
+     * @param theCategory String category for the desired question
+     * @return random Question object with the given category
      */
     public static Question getRandomQuestionByCategory(String theCategory) {
         List<Question> questions = getAllQuestionsByCategory(theCategory);
+        Random rand = new Random();
+
+        return questions.get(rand.nextInt(questions.size()));
+    }
+
+    /**
+     * Gets a random question by its categories
+     * @param theCategories String array categories for the desired question
+     * @return random Question object with the given categories
+     */
+    public static Question getRandomQuestionByCategories(String[] theCategories) {
+        List<Question> questions = getAllQuestionsByCategories(theCategories);
         Random rand = new Random();
 
         return questions.get(rand.nextInt(questions.size()));
@@ -65,7 +90,7 @@ public class QuestionFactory {
     public static List<Question> getAllQuestions() {
         try {
             ResultSet results = DatabaseManager.getAllQuestions();
-            List<Question> resList = new LinkedList<Question>();
+            List<Question> resList = new ArrayList<Question>();
             
             while (results.next()) {
                 resList.add(sqlRowToQuestion(results));
@@ -85,7 +110,7 @@ public class QuestionFactory {
     public static List<Question> getTestQuestions() {
         try {
             ResultSet results = DatabaseManager.getTestQuestions();
-            List<Question> resList = new LinkedList<Question>();
+            List<Question> resList = new ArrayList<Question>();
             
             while (results.next()) {
                 resList.add(sqlRowToQuestion(results));
@@ -106,7 +131,7 @@ public class QuestionFactory {
     public static List<Question> getAllQuestionsByType(QuestionType theType) {
         try {
             ResultSet results = DatabaseManager.getAllQuestionsByType(theType);
-            List<Question> resList = new LinkedList<Question>();
+            List<Question> resList = new ArrayList<Question>();
             
             while (results.next()) {
                 resList.add(sqlRowToQuestion(results));
@@ -143,12 +168,12 @@ public class QuestionFactory {
     }
 
     /**
-     * Parses a String and converts it into a java LinkedList splitting the string on commas.
+     * Parses a String and converts it into a java ArrayList splitting the string on commas.
      * @param theSQL String to parse into a list
-     * @return LinkedList<String> of the parsed data
+     * @return ArrayList<String> of the parsed data
      */
-    private static LinkedList<String> sqlStringToList(String theSQL) {
-        return new LinkedList<String>(Arrays.asList(theSQL.split(",")));
+    private static ArrayList<String> sqlStringToList(String theSQL) {
+        return new ArrayList<String>(Arrays.asList(theSQL.split(",")));
     }
 
     /**
