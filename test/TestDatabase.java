@@ -15,11 +15,17 @@ import src.model.QuestionFactory;
  * @version May 1, 2025
  */
 public class TestDatabase {
+    /**
+     * Setup the database connection before each test.
+     */
     @BeforeEach
     void setup() {
         DatabaseManager.connect();
     }
 
+    /**
+     * Test getById to make sure we get the same question every time.
+     */
     @Test
     void testGetByID() {
         assertEquals(QuestionFactory.buildQuestion(0), QuestionFactory.buildQuestion(0));

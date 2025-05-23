@@ -1,8 +1,6 @@
 package src.view;
 
 import java.beans.PropertyChangeEvent;
-import java.util.HashMap;
-import java.util.Map;
 import java.awt.BorderLayout;
 import java.util.LinkedList;
 import java.awt.Color;
@@ -42,8 +40,12 @@ import src.model.Question;
 import src.model.Room;
 import src.model.GameSaver;
 
-/*
+/**
+ * Mockup of the GuiView class for experimentation with the GUI.
+ * Documentation & conventions not strict in here.
+ * @author Raiden H
  * @author Kalen Cha
+ * @version Spring 2025
  */
 public class ViewMockup implements GameView {
 

@@ -21,12 +21,15 @@ public class MultipleChoiceQuestion extends Question {
      */
     private List<String> myOptions;
 
+    /**
+     * Constructor called only from QuestionFactory.
+     */
     protected MultipleChoiceQuestion(final int theId, final String theQuestion,
-        final String theAnswer, List<String> theOptions, final int theDifficulty) {
+        final String theAnswer, final List<String> theOptions, final int theDifficulty) {
         super(theId, theQuestion, theDifficulty);
 
         if (theOptions == null || theOptions.size() < 2) {
-            throw new IllegalArgumentException("Multiple choice questions must have at leaset 2 options");
+            throw new IllegalArgumentException("Multiple choice questions must have at least 2 options");
         }
         if (!theOptions.contains(theAnswer)) {
             throw new IllegalArgumentException("Options must contain the correct answer");
@@ -53,6 +56,9 @@ public class MultipleChoiceQuestion extends Question {
      */
     @Override
     public boolean checkAnswer(String theAnswer) {
+        if (theAnswer == null) {
+            return false;
+        }
         return myAnswer.equalsIgnoreCase(theAnswer.trim());
     }
 

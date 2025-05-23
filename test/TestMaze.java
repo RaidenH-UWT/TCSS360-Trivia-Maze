@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import src.model.DatabaseManager;
 import src.model.Maze;
 import src.model.Position;
-import src.model.Room;
 
 /**
  * Class for testing the Maze object.
@@ -20,10 +19,10 @@ public class TestMaze {
     /**
      * Objects for testing on.
      */
-    Maze testMaze;
+    private Maze testMaze;
 
     /**
-     * Setup clean Maze object before each test.
+     * Setup clean Maze object and database connection before each test.
      */
     @BeforeEach
     void setup() {
@@ -60,7 +59,7 @@ public class TestMaze {
      */
     @Test
     void testIsPathAvailable() {
-        // Please implement, unsure what the intended behaviour is.
+        // TODO: Implement test
     }
     
     /**

@@ -72,6 +72,5 @@ public interface PropertyChangeEnabledGameState {
      * @param thePropertyName The name of the property that was listened on.
      * @param theListener The PropertyChangeListener to be removed
      */
-    void removePropertyChangeListener(String thePropertyName,
-                                      PropertyChangeListener theListener);
+    void removePropertyChangeListener(String thePropertyName, PropertyChangeListener theListener);
 }

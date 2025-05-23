@@ -26,8 +26,9 @@ public class Door {
      * Constructs a new Door with the given Question.
      * @param theQuestion the Question object associated with this Door
      */
-    public Door(Question theQuestion) {
+    public Door(final Question theQuestion) {
         super();
+
         myQuestion = theQuestion;
         myLocked = false;
         myOpened = false;
@@ -78,21 +79,21 @@ public class Door {
      * @param theAnswer the answer to attempt
      * @return true if the answer was correct, false otherwise
      */
-    public boolean answerQuestion(String theAnswer) {
+    public boolean answerQuestion(final String theAnswer) {
         return myQuestion != null && myQuestion.checkAnswer(theAnswer);
     }
 
     @Override
-    public boolean equals(Object door) {
+    public boolean equals(final Object theDoor) {
         // Make sure our casting works
-        if (!this.getClass().equals(door.getClass())) {
+        if (!this.getClass().equals(theDoor.getClass())) {
             return false;
         }
 
         boolean val = 
-            isOpen() == ((Door) door).isOpen()
-            && isLocked() == ((Door) door).isLocked()
-            && getQuestion().equals(((Door) door).getQuestion());
+            isOpen() == ((Door) theDoor).isOpen()
+            && isLocked() == ((Door) theDoor).isLocked()
+            && getQuestion().equals(((Door) theDoor).getQuestion());
 
         return val;
     }

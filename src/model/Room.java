@@ -28,30 +28,31 @@ public class Room {
     /**
      * Stores whether the player has visited this room or not.
      */
-    private boolean isVisited;
+    private boolean myIsVisited;
 
     /**
      * Creates a new Room with the given coordinates and creates new doors for the room.
      */
-    public Room(int theX, int theY) {
+    public Room(final int theX, final int theY) {
         super();
         myX = theX;
         myY = theY;
         myDoors = new EnumMap<>(Direction.class);
-        isVisited = false;
+        myIsVisited = false;
     }
 
-    // could change to throw an exception instead of overwriting.
-    // TODO: may want to make private and only used in the contructor (encapsulation!!)
     /**
      * Adds a new Door to the given direction.
-     * WARNING: THIS METHOD WILL OVERWRITE IF THERE IS ALREADY A DOOR PRESENT
-     * AT THE GIVEN DIRECTION.
      * @param theDir Direction to add the new Door to
      * @param theDoor Door object to add
+     * @throws IllegalArgumentException if this Room already has a Door in the given direction
      */
-    protected void addDoor(Direction theDir, Door theDoor) {
-         myDoors.put(theDir, theDoor);
+    protected void addDoor(final Direction theDir, final Door theDoor) {
+        if (hasDoor(theDir)) {
+            throw new IllegalArgumentException("Room already has a door to the " + theDir);
+        } else {
+            myDoors.put(theDir, theDoor);
+        }
     }
 
     /**
@@ -59,7 +60,7 @@ public class Room {
      * @param theDir Direction of the Door to retrieve
      * @return Door in the given direction
      */
-    public Door getDoor(Direction theDir) {
+    public Door getDoor(final Direction theDir) {
         return myDoors.get(theDir);
     }
 
@@ -68,7 +69,7 @@ public class Room {
      * @param theDir Direction to check
      * @return true if that direction has a Door, false otherwise
      */
-    public boolean hasDoor(Direction theDir) {
+    public boolean hasDoor(final Direction theDir) {
         return myDoors.containsKey(theDir);
     }
 
@@ -90,37 +91,40 @@ public class Room {
      * @return true if the player has visited this Room, false otherwise.
      */
     public boolean isVisited() {
-        return isVisited;
+        return myIsVisited;
     }
 
     /**
      * Set whether the player has visited this Room or not.
      * @param theVisited boolean if the player has visited or not
      */
-    public void setVisited(boolean theVisited) {
-        isVisited = theVisited;
+    public void setVisited(final boolean theVisited) {
+        myIsVisited = theVisited;
     }
 
     @Override
-    public boolean equals(Object room) {
+    public boolean equals(final Object theRoom) {
         // Make sure our casting works
-        if (!this.getClass().equals(room.getClass())) {
+        if (!this.getClass().equals(theRoom.getClass())) {
             return false;
         }
 
+        // Check if the doors are identical
         boolean val = true;
         for (Direction dir : Direction.values()) {
-            if (getDoor(dir) == null && ((Room) room).getDoor(dir) == null) {
+            if (getDoor(dir) == null && ((Room) theRoom).getDoor(dir) == null) {
                 val = true;
             } else {
-                val = getDoor(dir).equals(((Room) room).getDoor(dir));
+                val = getDoor(dir).equals(((Room) theRoom).getDoor(dir));
             }
             
             if (!val) {
                 return val;
             }
         }
-        val = (getX() == ((Room) room).getX()) && (getY() == ((Room) room).getY());
+
+        // Get our final answer
+        val = (getX() == ((Room) theRoom).getX()) && (getY() == ((Room) theRoom).getY());
 
         return val;
     }
@@ -137,8 +141,10 @@ public class Room {
             }
             i++;
         }
+
         String out = String.format("(%d, %d, [NORTH: %s, SOUTH: %s, EAST: %s, WEST: %s])", 
             myX, myY, doors[0], doors[1], doors[2], doors[3]);
+            
         return out;
     }
 }

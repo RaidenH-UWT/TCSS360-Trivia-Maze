@@ -27,7 +27,7 @@ public class DatabaseManager {
     /**
      * Filepath to the SQLite database.
      */
-    private static String DB_PATH = "jdbc:sqlite:src/model/mazedb.db";
+    private final static String DB_PATH = "jdbc:sqlite:src/model/mazedb.db";
 
     /**
      * Connect to the database.
@@ -58,7 +58,7 @@ public class DatabaseManager {
      * @param theId int ID associated with the question
      * @return ResultSet object from the given ID
      */
-    protected static ResultSet getQuestionById(int theId) {
+    protected static ResultSet getQuestionById(final int theId) {
         try {
             return QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE ID=" + theId);
         } catch (SQLException e) {
@@ -66,8 +66,6 @@ public class DatabaseManager {
         }
         return null;
     }
-
-    
 
     /**
      * Gets all questions stored in the database.
@@ -97,7 +95,7 @@ public class DatabaseManager {
      * @param theType QuestionType enum to select for
      * @return ResultSet of all questions with the given type
      */
-    protected static ResultSet getAllQuestionsByType(QuestionType theType) {
+    protected static ResultSet getAllQuestionsByType(final QuestionType theType) {
         try {
             ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE 'Type'=" + theType);
 
@@ -114,7 +112,7 @@ public class DatabaseManager {
      * @param theCategory String category to select for
      * @return ResultSet of all questions with the given category
      */
-    protected static ResultSet getAllQuestionsByCategory(String theCategory) {
+    protected static ResultSet getAllQuestionsByCategory(final String theCategory) {
         try {
             ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE 'Category'=" + theCategory);
             

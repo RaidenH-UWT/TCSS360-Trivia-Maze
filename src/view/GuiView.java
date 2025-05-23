@@ -1,7 +1,10 @@
 package src.view;
 
+// General imports
 import java.beans.PropertyChangeEvent;
 import java.util.LinkedList;
+
+// AWT imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -17,6 +20,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
 
+// Swing imports
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+// Local imports
 import src.model.Direction;
 import src.model.GameState;
 import src.model.Maze;
@@ -50,6 +55,9 @@ public class GuiView implements GameView {
      */
     private static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
+    /**
+     * The Dimension of the window.
+     */
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
@@ -67,7 +75,11 @@ public class GuiView implements GameView {
      */
     private final Dimension myMazeSize;
 
-    public GuiView(GameState theState) {
+    /**
+     * Create a new GuiView watching the given state
+     * @param theState GameState object to watch for property changes
+     */
+    public GuiView(final GameState theState) {
         super();
 
         theState.addPropertyChangeListener(this);
@@ -83,6 +95,9 @@ public class GuiView implements GameView {
         myFrame.setPreferredSize(WINDOW_SIZE);
     }
 
+    /**
+     * Setup the GUI components and display the window.
+     */
     public void initialize() {
         // Adding GUI components
         myFrame.setJMenuBar(createMenuBar());
@@ -95,6 +110,7 @@ public class GuiView implements GameView {
         myFrame.setVisible(true);
     }
 
+    // TODO: Potentially rewrite the interface, unsure if these are still necessary.
     @Override
     public void displayMaze(Maze theMaze, Position theCurrentPosition) {
         // TODO Auto-generated method stub
@@ -121,32 +137,34 @@ public class GuiView implements GameView {
 
     /**
      * Update the position of the player.
+     * @param theOldPos Position the player was at previously
+     * @param theNewPos Position the player is at now
      */
-    private void updatePosition(Position oldPos, Position newPos) {
+    private void updatePosition(final Position theOldPos, Position theNewPos) {
         // called when the player position changes
-        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
+        ((RoomPanel) myRooms[theOldPos.getY() * myMazeSize.width + theOldPos.getX()]).resetBackground();
 
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
+        myRooms[theNewPos.getY() * myMazeSize.width + theNewPos.getX()].setBackground(Color.YELLOW);
+        myRooms[theNewPos.getY() * myMazeSize.width + theNewPos.getX()].repaint();
     }
 
     /**
-     * Update question stats for the player.
+     * Update displayed question stats for the player.
      */
-    private void updateStats(int answered, int correct) {
+    private void updateStats(final int theAnswered, final int theCorrect) {
         // called when questionsAnswered or questionsCorrect increments, maybe replace?
     }
 
     /**
      * Update displayed rooms.
      */
-    private void updateRooms(LinkedList<Position> visitedRooms) {
+    private void updateRooms(final LinkedList<Position> theVisitedRooms) {
         // called when a new room is visited.
     }
 
     @SuppressWarnings("unchecked") // it's checked by the interface, that event gives that type
     @Override
-    public void propertyChange(PropertyChangeEvent theEvent) {
+    public void propertyChange(final PropertyChangeEvent theEvent) {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
                 updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
@@ -239,9 +257,9 @@ public class GuiView implements GameView {
     /**
      * Updates the current game state with the loaded state.
      *
-     * @param loadedState The loaded GameState object.
+     * @param theLoadState The loaded GameState object.
      */
-    private void updateGameState(GameState loadedState) {
+    private void updateGameState(final GameState theLoadState) {
         // TODO: Implement logic to update the current game state and refresh the UI
         // maybe just reassign the GameState variable and run all the update methods?
     }
@@ -265,6 +283,7 @@ public class GuiView implements GameView {
     }
 
     private void howToEvent(final ActionEvent theEvent) {
+        // TODO: Write something here
         String howtoMsg = """
         Answer trivia questions
         """;
@@ -442,18 +461,18 @@ public class GuiView implements GameView {
         return panel;
     }
 
-    private JPanel createStatsPanel(int answered, int failed) {
+    private JPanel createStatsPanel(final int theAnswered, final int theFailed) {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(18, 18, 18));
         panel.setLayout(new GridBagLayout());
 
         Font labelFont = new Font("Monospaced", Font.BOLD, 14);
 
-        JLabel answeredLabel = new JLabel("QUESTIONS ANSWERED: " + answered);
+        JLabel answeredLabel = new JLabel("QUESTIONS ANSWERED: " + theAnswered);
         answeredLabel.setFont(labelFont);
         answeredLabel.setForeground(Color.GREEN);
 
-        JLabel failedLabel = new JLabel("QUESTIONS FAILED:   " + failed);
+        JLabel failedLabel = new JLabel("QUESTIONS FAILED:   " + theFailed);
         failedLabel.setFont(labelFont);
         failedLabel.setForeground(new Color(255, 85, 85));
 
@@ -508,6 +527,7 @@ public class GuiView implements GameView {
         return panel;
     }
 
+    // TODO: This method should probably be broken up, especially that inline class.
     private JPanel createControlPanel() {
         final JPanel panel = new JPanel() {
             @Override
@@ -611,8 +631,15 @@ public class GuiView implements GameView {
 
         private Color myColor;
 
-        public RoomPanel(Position thePos) {
+        public RoomPanel(final Position thePos) {
             super();
+
+            if (thePos.getX() < 0 || thePos.getY() < 0
+                || thePos.getX() > myMazeSize.getWidth()
+                || thePos.getY() > myMazeSize.getHeight()) {
+
+                throw new IndexOutOfBoundsException("Position out of bounds");
+            }
 
             myPos = thePos;
             myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);

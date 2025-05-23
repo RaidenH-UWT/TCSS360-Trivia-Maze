@@ -28,8 +28,11 @@ public abstract class Question {
      * Creates a new Question object.
      *
      * @param theId int ID for this question from the database
+     * @param theQuestion String question from the database
+     * @param theDifficulty int difficulty of this problem. Must be in the range 1-5 inclusive
+     * range checking on difficulty is done in the database.
      */
-    protected Question(int theId, String theQuestion, int theDifficulty) {
+    protected Question(final int theId, final String theQuestion, final int theDifficulty) {
         super();
 
         myId = theId;
@@ -65,7 +68,7 @@ public abstract class Question {
      * @return true if the passed answer and correct answer match, false
      * otherwise
      */
-    public abstract boolean checkAnswer(String theAnswer);
+    public abstract boolean checkAnswer(final String theAnswer);
 
     /**
      * @return QuestionType type of this question.
@@ -73,13 +76,14 @@ public abstract class Question {
     public abstract QuestionType getQuestionType();
 
     @Override
-    public boolean equals(Object question) {
+    public boolean equals(final Object theQuestion) {
         // Make sure our casting works
-        if (!this.getClass().equals(question.getClass())) {
+        if (!this.getClass().equals(theQuestion.getClass())) {
             return false;
         }
 
         // If we have unique IDs (we should) all we need to do is check the ID
-        return myId == ((Question) question).getId();
+        // IDs are guaranteed to exist by the database and QuestionFactory
+        return myId == ((Question) theQuestion).getId();
     }
 }

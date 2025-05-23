@@ -23,23 +23,23 @@ public class GameState implements PropertyChangeEnabledGameState {
     /**
      * Stores the current position of the player.
      */
-    private Position currentPosition;
+    private Position myCurrentPosition;
     // Could calculate these instead of storing them just counting the rooms in the maze
     /**
      * Stores the number of questions the player has answered.
      */
-    private int questionsAnswered;
+    private int myQuestionsAnswered;
 
     /**
      * Stores the number of questions the player has answered correctly.
      */
-    private int questionsCorrect;
+    private int myQuestionsCorrect;
 
     // maybe List<Room> instead, cause rooms already store their position and we could access the data faster?
     /**
      * Stores the rooms the player has visited.
      */
-    private List<Position> visitedRooms;
+    private List<Position> myVisitedRooms;
 
     /**
      * Initialize the state with the given maze.
@@ -47,14 +47,15 @@ public class GameState implements PropertyChangeEnabledGameState {
      * @param theHeight int height of the new maze
      * @param theCategory String category to pull questions from
      */
-    public GameState(int theWidth, int theHeight, String theCategory) {
+    public GameState(final int theWidth, final int theHeight, final String theCategory) {
         super();
 
+        // Maze constructor does parameter checking
         myMaze = new Maze(theWidth, theHeight, theCategory);
-        currentPosition = myMaze.getEntrance();
-        questionsAnswered = 0;
-        questionsCorrect = 0;
-        visitedRooms = new ArrayList<Position>(theWidth * theHeight);
+        myCurrentPosition = myMaze.getEntrance();
+        myQuestionsAnswered = 0;
+        myQuestionsCorrect = 0;
+        myVisitedRooms = new ArrayList<Position>(theWidth * theHeight);
 
         myPCS = new PropertyChangeSupport(this);
     }
@@ -64,34 +65,34 @@ public class GameState implements PropertyChangeEnabledGameState {
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
      */
-    public GameState(int theWidth, int theHeight) {
+    public GameState(final int theWidth, final int theHeight) {
         this(theWidth, theHeight, null);
     }
 
     /**
      * Initialize the state with the given maze.
-     * @param side int size of the square maze
+     * @param theSideLength int size of the square maze
      */
-    public GameState(int side) {
-        this(side, side);
+    public GameState(final int theSideLength) {
+        this(theSideLength, theSideLength);
     }
 
     /**
      * Get the current position of the player.
      * @return Position the player is currently at
      */
-    public Position getCurrentPosition() {
-        return currentPosition;
+    public Position getMyCurrentPosition() {
+        return myCurrentPosition;
     }
 
     /**
      * Sets the position of the player.
      * @param thePosition Position for the player to be set to
      */
-    public void setCurrentPosition(Position thePosition) {
+    public void setMyCurrentPosition(final Position thePosition) {
         // Make sure the passed position is within bounds
         if (isWithinBounds(thePosition)) {
-            currentPosition = thePosition;
+            myCurrentPosition = thePosition;
 
             // fire property change event with the new position.
             myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, thePosition);
@@ -112,23 +113,23 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Get how many questions the player has answered.
      * @return int number of questions the player has answered
      */
-    public int getQuestionsAnswered() {
-        return questionsAnswered;
+    public int getmyQuestionsAnswered() {
+        return myQuestionsAnswered;
     }
 
     /**
      * Get how many questions the player has gotten correct.
      * @return int number of questions the player has answered correctly
      */
-    public int getQuestionsCorrect() {
-        return questionsCorrect;
+    public int getmyQuestionsCorrect() {
+        return myQuestionsCorrect;
     }
 
     /**
      * Bumps up the number of questions the player has answered by 1.
      */
-    public void incrementQuestionsAnswered() {
-        questionsAnswered++;
+    public void incrementmyQuestionsAnswered() {
+        myQuestionsAnswered++;
 
         // fire a property change event passing int 1
         myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED, null, 1);
@@ -137,8 +138,8 @@ public class GameState implements PropertyChangeEnabledGameState {
     /**
      * Bumps up the number of questions the player has gotten correct by 1.
      */
-    public void incrementQuestionsCorrect() {
-        questionsCorrect++;
+    public void incrementmyQuestionsCorrect() {
+        myQuestionsCorrect++;
 
         // fire a property change event passing int 1
         myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT, null, 1);
@@ -148,13 +149,15 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Add a room the player has visited to the list.
      * @param thePosition Position of the room to be added
      */
-    public void addVisitedRoom(Position thePosition) {
+    public void addVisitedRoom(final Position thePosition) {
         // make sure the room is within bounds and not already visited
-        if (isWithinBounds(thePosition) && !visitedRooms.contains(thePosition)) {
-            visitedRooms.add(thePosition);
+        if (isWithinBounds(thePosition) && !myVisitedRooms.contains(thePosition)) {
+            myVisitedRooms.add(thePosition);
 
             // Fire a property change event passing the position of the room visited.
             myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, thePosition);
+        } else {
+            throw new IllegalArgumentException("Position out of bounds.");
         }
     }
 
@@ -162,15 +165,15 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Get which rooms the player has visited.
      * @return List<Position> list of the positions of rooms the player has visited
      */
-    public List<Position> getVisitedRooms() {
-        return visitedRooms;
+    public List<Position> getmyVisitedRooms() {
+        return myVisitedRooms;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addPropertyChangeListener(PropertyChangeListener theListener) {
+    public void addPropertyChangeListener(final PropertyChangeListener theListener) {
         myPCS.addPropertyChangeListener(theListener);
     }
 
@@ -178,7 +181,7 @@ public class GameState implements PropertyChangeEnabledGameState {
      * {@inheritDoc}
      */
     @Override
-    public void addPropertyChangeListener(String thePropertyName, PropertyChangeListener theListener) {
+    public void addPropertyChangeListener(final String thePropertyName, final PropertyChangeListener theListener) {
         myPCS.addPropertyChangeListener(thePropertyName, theListener);
     }
 
@@ -186,7 +189,7 @@ public class GameState implements PropertyChangeEnabledGameState {
      * {@inheritDoc}
      */
     @Override
-    public void removePropertyChangeListener(PropertyChangeListener theListener) {
+    public void removePropertyChangeListener(final PropertyChangeListener theListener) {
         myPCS.removePropertyChangeListener(theListener);
     }
 
@@ -194,7 +197,7 @@ public class GameState implements PropertyChangeEnabledGameState {
      * {@inheritDoc}
      */
     @Override
-    public void removePropertyChangeListener(String thePropertyName, PropertyChangeListener theListener) {
+    public void removePropertyChangeListener(final String thePropertyName, final PropertyChangeListener theListener) {
         myPCS.removePropertyChangeListener(thePropertyName, theListener);
     }
 
@@ -203,8 +206,10 @@ public class GameState implements PropertyChangeEnabledGameState {
      * @param thePosition position to check
      * @return true if thePosition is within bounds, false otherwise
      */
-    private boolean isWithinBounds(Position thePosition) {
-        return thePosition.getX() <= getMaze().getWidth() 
-            && thePosition.getY() <= getMaze().getHeight();
+    private boolean isWithinBounds(final Position thePosition) {
+        return thePosition.getX() <= getMaze().getWidth()
+            && thePosition.getX() >= 0
+            && thePosition.getY() <= getMaze().getHeight()
+            && thePosition.getY() >= 0;
     }
 }

@@ -21,19 +21,20 @@ public class TestQuestions {
     /**
      * Questions to test on.
      */
-    Question trueQuestion;
-    Question falseQuestion;
-    Question shortA;
-    Question multiQ;
+    private Question trueQuestion;
+    private Question falseQuestion;
+    private Question shortA;
+    private Question multiQ;
     
 
+    /**
+     * Setup database connection and new questions for each test.
+     */
     @BeforeEach
     void setup() {
         DatabaseManager.connect();
 
-        /**
-         * Questions to test on.
-         */
+        // Questions to test on
         trueQuestion = QuestionFactory.buildQuestion(1);
         falseQuestion = QuestionFactory.buildQuestion(5);
         shortA = QuestionFactory.buildQuestion(0);

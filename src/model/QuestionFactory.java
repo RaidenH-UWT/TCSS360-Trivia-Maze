@@ -19,7 +19,7 @@ public class QuestionFactory {
      * @param theId int ID to grab from the database
      * @return Question object with the given ID and associated state
      */
-    public static Question buildQuestion(int theId) {
+    public static Question buildQuestion(final int theId) {
         ResultSet question = DatabaseManager.getQuestionById(theId);
         return sqlRowToQuestion(question);
     }
@@ -29,7 +29,7 @@ public class QuestionFactory {
       * @param theCategory String category to select for
       * @return List<Question> of all questions with the given category
       */
-    public static List<Question> getAllQuestionsByCategory(String theCategory) {
+    public static List<Question> getAllQuestionsByCategory(final String theCategory) {
         try {
             ResultSet results = DatabaseManager.getAllQuestionsByCategory(theCategory);
 
@@ -48,10 +48,10 @@ public class QuestionFactory {
 
     /**
       * Gets all questions with the given categories.
-      * @param theCategory String array categories to select for
+      * @param theCategories String array categories to select for
       * @return List<Question> of all questions with the given categories
       */
-    public static List<Question> getAllQuestionsByCategories(String[] theCategories) {
+    public static List<Question> getAllQuestionsByCategories(final String[] theCategories) {
         List<Question> questions = new ArrayList<Question>();
         for (String category : theCategories) {
             questions.addAll(getAllQuestionsByCategory(category));
@@ -64,7 +64,7 @@ public class QuestionFactory {
      * @param theCategory String category for the desired question
      * @return random Question object with the given category
      */
-    public static Question getRandomQuestionByCategory(String theCategory) {
+    public static Question getRandomQuestionByCategory(final String theCategory) {
         List<Question> questions = getAllQuestionsByCategory(theCategory);
         Random rand = new Random();
 
@@ -76,7 +76,7 @@ public class QuestionFactory {
      * @param theCategories String array categories for the desired question
      * @return random Question object with the given categories
      */
-    public static Question getRandomQuestionByCategories(String[] theCategories) {
+    public static Question getRandomQuestionByCategories(final String[] theCategories) {
         List<Question> questions = getAllQuestionsByCategories(theCategories);
         Random rand = new Random();
 
@@ -96,7 +96,6 @@ public class QuestionFactory {
                 resList.add(sqlRowToQuestion(results));
             }
             return resList;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -116,7 +115,6 @@ public class QuestionFactory {
                 resList.add(sqlRowToQuestion(results));
             }
             return resList;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -128,7 +126,7 @@ public class QuestionFactory {
      * @param theType QuestionType enum to select for
      * @return List<Question> of all questions with the given type
      */
-    public static List<Question> getAllQuestionsByType(QuestionType theType) {
+    public static List<Question> getAllQuestionsByType(final QuestionType theType) {
         try {
             ResultSet results = DatabaseManager.getAllQuestionsByType(theType);
             List<Question> resList = new ArrayList<Question>();
@@ -137,7 +135,6 @@ public class QuestionFactory {
                 resList.add(sqlRowToQuestion(results));
             }
             return resList;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -149,7 +146,7 @@ public class QuestionFactory {
      * @param theType a QuestionType for the desired question
      * @return random Question object with the given type
      */
-    public static Question getRandomQuestionByType(QuestionType theType) {
+    public static Question getRandomQuestionByType(final QuestionType theType) {
         List<Question> questions = getAllQuestionsByType(theType);
         Random rand = new Random();
 
@@ -172,7 +169,7 @@ public class QuestionFactory {
      * @param theSQL String to parse into a list
      * @return ArrayList<String> of the parsed data
      */
-    private static ArrayList<String> sqlStringToList(String theSQL) {
+    private static ArrayList<String> sqlStringToList(final String theSQL) {
         return new ArrayList<String>(Arrays.asList(theSQL.split(",")));
     }
 
@@ -181,9 +178,10 @@ public class QuestionFactory {
      * @param theResults ResultSet to parse the first row of
      * @return Question object parsed
      */
-    private static Question sqlRowToQuestion(ResultSet theResults) {
+    private static Question sqlRowToQuestion(final ResultSet theResults) {
         Question result = null;
         try {
+            // Build a new question based on the Type column
             switch (theResults.getString("Type")) {
                     case "ShortAnswer":
                         result = new ShortAnswerQuestion(theResults.getInt("ID"), theResults.getString("Question"), 

@@ -17,7 +17,7 @@ public class TrueFalseQuestion extends Question {
      *
      * @param theId int ID for this question, to be used in the database
      * @param theQuestion String of the question text
-     * @param theAnswer boolean of the correct answer
+     * @param theAnswer String of the correct answer accepted values are "true" or "false"
      * @param theDifficulty int difficulty of this question [range]
      */
     protected TrueFalseQuestion(final int theId, final String theQuestion,

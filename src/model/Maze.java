@@ -13,7 +13,7 @@ public class Maze {
      * Flag to allow duplicate questions in the maze.
      * Use during development when we don't have enough unique questions.
      */
-    private static boolean ALLOW_DUPLICATE_QUESTIONS = true;
+    private static final boolean ALLOW_DUPLICATE_QUESTIONS = true;
     /**
      * Width of the maze.
      */
@@ -50,7 +50,7 @@ public class Maze {
      * @param theHeight int height of the new maze
      * @param theCategory String category to pull questions from
      */
-    public Maze(int theWidth, int theHeight, String theCategory) {
+    public Maze(final int theWidth, final int theHeight, final String theCategory) {
         super();
         if (theWidth <= 0 || theHeight <= 0) {
             throw new IllegalArgumentException("Dimensions must be greater than 0.");
@@ -69,6 +69,7 @@ public class Maze {
         if (theCategory == null) {
             fillRoomsRandom();
         } else {
+            // Error checking if theCategory exists in the database.
             fillRoomsRandom(theCategory);
         }
     }
@@ -78,7 +79,7 @@ public class Maze {
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
      */
-    public Maze(int theWidth, int theHeight) {
+    public Maze(final int theWidth, final int theHeight) {
         this(theWidth, theHeight, null);
     }
 
@@ -106,7 +107,7 @@ public class Maze {
      * @param theCategory String name of the category
      * @throws IllegalArgumentException if the passed category is not in the database
      */
-    public void fillRoomsRandom(String theCategory) {
+    public void fillRoomsRandom(final String theCategory) {
         if (!DatabaseManager.getCategories().contains(theCategory)) {
             throw new IllegalArgumentException("Category is not in the database");
         } else {
@@ -119,11 +120,14 @@ public class Maze {
      * Fills all rooms of the maze with the given list of questions.
      * @param theQuestions ArrayList<Question> of questions to fill with
      */
-    private void fillRooms(ArrayList<Question> theQuestions) {
+    @SuppressWarnings("unused") // Complaining about the duplicate questions constant
+    private void fillRooms(final ArrayList<Question> theQuestions) {
         if (!ALLOW_DUPLICATE_QUESTIONS && theQuestions.size() < myWidth * myHeight) {
             throw new IndexOutOfBoundsException("Not enough questions to fill the maze");
         }
+
         Collections.shuffle(theQuestions);
+
         int i = 0;
         for (Room[] roomArr : myRooms) {
             for (Room room : roomArr) {
@@ -152,6 +156,9 @@ public class Maze {
         }
     }
 
+    /**
+     * Print every room in the maze to the console.
+     */
     public void printRooms() {
         for (Room[] roomArr : myRooms) {
             for (Room room : roomArr) {
@@ -162,13 +169,11 @@ public class Maze {
 
     /**
      * Get the room with the given position.
-     * @param theX int X coordinate of the room
-     * @param theY int Y coordinate of the room
+     * @param thePosition Position coordinates of the room
      * @return Room object from the given coordinates
-     * @throws IndexOutOfBoundsException if either of the given coordinates
-     * are not contained within this maze
+     * @throws IndexOutOfBoundsException if the given Position is not within the maze
      */
-    public Room getRoom (Position thePosition) {
+    public Room getRoom(final Position thePosition) {
         if (thePosition.getX() > myWidth || thePosition.getY() > myHeight
             || thePosition.getX() < 0 || thePosition.getY() < 0) {
             throw new IndexOutOfBoundsException("Given coordinates are out of bounds");

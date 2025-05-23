@@ -19,7 +19,7 @@ public class GameSaver {
      * @param theState a GameState object storing the state of the game
      * @param theFilename the file to save as
      */
-    public void saveGame(GameState theState, String theFilename) {
+    public void saveGame(final GameState theState, final String theFilename) {
         try (FileOutputStream fileOut = new FileOutputStream(theFilename); ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(theState);
         } catch (IOException e) {
@@ -34,7 +34,7 @@ public class GameSaver {
      * @return GameState object containing the state of the game
      * @throws FileNotFoundException if the given save file is not found
      */
-    public GameState getSave(String theFilename) {
+    public GameState getSave(final String theFilename) {
         return null;
     }
 }

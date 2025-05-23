@@ -23,7 +23,6 @@ public class ShortAnswerQuestion extends Question {
         myAnswer = theAnswer;
     }
 
-    // Abstract or child class, pick one
     /**
      * Check the given answer against the correct answer.
      *
@@ -39,7 +38,6 @@ public class ShortAnswerQuestion extends Question {
         return myAnswer.equalsIgnoreCase(theAnswer.trim());
     }
 
-    // Shouldn't this be in the abstract class?
     /**
      * @return QuestionType.SHORT_ANSWER
      */

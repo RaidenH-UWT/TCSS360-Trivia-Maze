@@ -23,9 +23,9 @@ public class TestRoom {
     /**
      * Objects to test on.
      */
-    Question testQuestion;
-    Door testDoor;
-    Room testRoom;
+    private Question testQuestion;
+    private Door testDoor;
+    private Room testRoom;
     
     /**
      * Setup fresh objects before each test.

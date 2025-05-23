@@ -1,7 +1,7 @@
 package src.model;
 
 /**
- * Stores 2D position of objects in the maze.
+ * Stores immutable 2D position of objects in the maze.
  * @author Raiden H
  * @author May 1, 2025
  */
@@ -46,10 +46,13 @@ public class Position {
      * @param thePosition Position to check against
      * @return true if the two Positions have the same X and Y coordinates, false otherwise
      */
-    public boolean equals(Position thePosition) {
+    @Override
+    public boolean equals(final Object thePosition) {
         if (thePosition == null) {
             return false;
+        } else if (!this.getClass().equals(thePosition.getClass())) {
+            return false;
         }
-        return myX == thePosition.getX() && myY == thePosition.getY();
+        return myX == ((Position) thePosition).getX() && myY == ((Position) thePosition).getY();
     }
 }

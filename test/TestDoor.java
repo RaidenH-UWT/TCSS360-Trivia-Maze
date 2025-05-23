@@ -21,12 +21,12 @@ public class TestDoor {
     /**
      * Door object for testing.
      */
-    Door testDoor;
+    private Door testDoor;
 
     /**
      * Question object for testing
      */
-    Question testQuestion;
+    private Question testQuestion;
 
     /**
      * Setup a clean Door object for each test with a T/F question.

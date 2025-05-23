@@ -18,23 +18,23 @@ public interface GameView extends PropertyChangeListener {
      * @param theMaze Maze object to display
      * @param theCurrentPosition Position the player is curerntly at
      */
-    public void displayMaze(Maze theMaze, Position theCurrentPosition);
+    public void displayMaze(final Maze theMaze, final Position theCurrentPosition);
 
     /**
      * Display a view of the given room.
      * @param theRoom Room object to display
      */
-    public void displayRoom(Room theRoom);
+    public void displayRoom(final Room theRoom);
 
     /**
      * Display the given question.
      * @param theQuestion Question object to be displayed
      */
-    public void displayQuestion(Question theQuestion);
+    public void displayQuestion(final Question theQuestion);
 
     /**
      * Display when the game ends.
-     * @param isWon boolean whether the game ended in a win or not
+     * @param theIsWon boolean whether the game ended in a win or not
      */
-    public void displayGameOver(boolean isWon);
+    public void displayGameOver(final boolean theIsWon);
 }
