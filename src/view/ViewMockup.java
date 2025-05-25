@@ -2,17 +2,20 @@ package src.view;
 
 import java.beans.PropertyChangeEvent;
 import java.awt.BorderLayout;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Polygon;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -57,6 +60,20 @@ public class ViewMockup implements GameView {
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
+         * List of states for a door to be in
+         * 0: Wall
+         * 1: Not visited (never been)
+         * 2: Visited (been, but hasn't answered yet)
+         * 3: Failed
+         * 4: Succeeded
+         */
+    private static final int DOOR_WALL = 0;
+    private static final int DOOR_NOT_VISITED = 1;
+    private static final int DOOR_VISITED = 2;
+    private static final int DOOR_FAILED = 3;
+    private static final int DOOR_SUCCEEDED = 4;
+
+    /**
      * Reference to the JFrame for the window
      */
     private final JFrame myFrame;
@@ -64,9 +81,7 @@ public class ViewMockup implements GameView {
     /**
      * Array of rooms in the maze panel.
      */
-    private Component[] myRooms;
-
-    private Position testPos = new Position(0, 0);
+    private RoomPanel[] myRooms;
 
     /**
      * Dimensions of the maze (in rooms)
@@ -76,12 +91,17 @@ public class ViewMockup implements GameView {
     * Stores selected sprite.
     */
     private ImageIcon selectedSprite;
+
+    private Position myPlayerPosition;
+
     public ViewMockup(GameState theState) {
         super();
 
         theState.addPropertyChangeListener(this);
 
         myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getWidth());
+
+        myPlayerPosition = new Position(0, 0);
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
@@ -149,25 +169,32 @@ public class ViewMockup implements GameView {
     /**
      * Update displayed rooms.
      */
-    private void updateRooms(LinkedList<Position> visitedRooms) {
+    private void updateRooms(final Position thePosition) {
         // called when a new room is visited.
     }
 
-    @SuppressWarnings("unchecked") // it's checked by the interface, that event gives that type
+    private void updateDoor(final Direction theDir, final int theDoorState) {
+        myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()]
+            .setDoorState(Direction.NORTH, theDoorState);
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent theEvent) {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
                 updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
                 break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED:
+            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_FAILED:
                 updateStats(1, 0);
                 break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT:
+            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_SUCCEEDED:
                 updateStats(0, 1);
                 break;
             case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
-                updateRooms((LinkedList<Position>) theEvent.getNewValue());
+                updateRooms((Position) theEvent.getNewValue());
+                break;
+            case PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED:
+                updateDoor((Direction) theEvent.getNewValue(), (Integer) theEvent.getOldValue());
                 break;
             default:
                 throw new UnsupportedOperationException("Property change not supported");
@@ -500,12 +527,11 @@ public class ViewMockup implements GameView {
 
         for (int row = 0; row < myMazeSize.width; row++) {
             for (int col = 0; col < myMazeSize.height; col++) {
-                final JPanel roomPane = new RoomPanel(new Position(row, col));
+                final RoomPanel roomPane = new RoomPanel(new Position(row, col), new int[] {0, 0, 0, 0});
+                myRooms[row * myMazeSize.width + col] = roomPane;
                 panel.add(roomPane, row,  col);
             }
         }
-
-        myRooms = panel.getComponents();
 
         updatePosition(new Position(0,0), new Position(0, 0));
 
@@ -518,7 +544,6 @@ public class ViewMockup implements GameView {
         panel.setLayout(new GridBagLayout());
 
         JButton openDoorButton = new JButton("OPEN DOOR");
-        openDoorButton.addActionListener(this::positionHelper); // TODO: TEMPORARY
         openDoorButton.setOpaque(true);
         openDoorButton.setContentAreaFilled(true);
         openDoorButton.setBorderPainted(true);
@@ -531,13 +556,6 @@ public class ViewMockup implements GameView {
 
         panel.add(openDoorButton);
         return panel;
-    }
-
-    // TODO: TEMPORARY
-    private void positionHelper(final ActionEvent theEvent) {
-        Position temp = testPos;
-        testPos = new Position((testPos.getX() + 1) % myMazeSize.width, (testPos.getY() + 1) % myMazeSize.height);
-        updatePosition(temp, testPos);
     }
 
     private JPanel createStatsPanel(int answered, int failed) {
@@ -778,12 +796,26 @@ public class ViewMockup implements GameView {
         // and mystery colour if they haven't been visited yet.
         private final Position myPos;
 
+        private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
+
+        /**
+         * Array of states for a door to be in
+         * 0: Wall
+         * 1: Not visited
+         * 2: Visited
+         * 3: Failed
+         * 4: Succeeded
+         * north, south, east, west
+         */
+        private int[] myDoorState;
+
         private Color myColor;
 
-        public RoomPanel(Position thePos) {
+        public RoomPanel(final Position thePos, final int[] theRoomState) {
             super();
 
             myPos = thePos;
+            myDoorState = theRoomState;
             myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
             setBackground(myColor);
         }
@@ -792,6 +824,56 @@ public class ViewMockup implements GameView {
             myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
             setBackground(myColor);
             repaint();
+        }
+
+        public void setDoorState(final Direction theDir, final int theState) {
+            if (theState >= 0 && theState <= 4) {
+                // Assign to index based on the ordinal
+                // {NORTH, SOUTH, EAST, WEST}
+                myDoorState[theDir.ordinal()] = theState;
+            }
+        }
+
+        @Override
+        public void paintComponent(final Graphics theGraphics) {
+            super.paintComponent(theGraphics);
+
+            Graphics2D g2d = (Graphics2D) theGraphics;
+
+            updateDoorTriangles();
+
+            for (Direction dir : Direction.values()) {
+                
+
+                g2d.fillPolygon(DOORTRIANGLES.get(dir));
+            }
+            
+        }
+
+        private void updateDoorTriangles() {
+            if (DOORTRIANGLES.isEmpty()) {
+                Polygon northPoly = new Polygon(new int[] {0, this.getSize().width / 2, this.getSize().width}, 
+                    new int[] {0, this.getSize().height / 2, 0}, 3);
+
+                Polygon southPoly = new Polygon(new int[] {0, this.getSize().width / 2, this.getSize().width}, 
+                    new int[] {this.getSize().height, this.getSize().height / 2, this.getSize().height}, 3);
+
+                Polygon eastPoly = new Polygon(new int[] {this.getSize().width, this.getSize().width / 2, this.getSize().width}, 
+                    new int[] {0, this.getSize().height / 2, this.getSize().height}, 3);
+
+                Polygon westPoly = new Polygon(new int[] {0, this.getSize().width / 2, 0}, 
+                    new int[] {0, this.getSize().height / 2, this.getSize().height}, 3);
+
+                DOORTRIANGLES.put(Direction.NORTH, northPoly);
+                DOORTRIANGLES.put(Direction.SOUTH, southPoly);
+                DOORTRIANGLES.put(Direction.EAST, eastPoly);
+                DOORTRIANGLES.put(Direction.WEST, westPoly);
+            }
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(400, 400);
         }
 
         @Override

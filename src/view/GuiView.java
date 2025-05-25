@@ -158,25 +158,24 @@ public class GuiView implements GameView {
     /**
      * Update displayed rooms.
      */
-    private void updateRooms(final LinkedList<Position> theVisitedRooms) {
+    private void updateRooms(final Position thePosition) {
         // called when a new room is visited.
     }
 
-    @SuppressWarnings("unchecked") // it's checked by the interface, that event gives that type
     @Override
     public void propertyChange(final PropertyChangeEvent theEvent) {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
                 updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
                 break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED:
+            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_FAILED:
                 updateStats(1, 0);
                 break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT:
+            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_SUCCEEDED:
                 updateStats(0, 1);
                 break;
             case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
-                updateRooms((LinkedList<Position>) theEvent.getNewValue());
+                updateRooms((Position) theEvent.getNewValue());
                 break;
             default:
                 throw new UnsupportedOperationException("Property change not supported");

@@ -28,12 +28,12 @@ public class GameState implements PropertyChangeEnabledGameState {
     /**
      * Stores the number of questions the player has answered.
      */
-    private int myQuestionsAnswered;
+    private int myQuestionsFailed;
 
     /**
      * Stores the number of questions the player has answered correctly.
      */
-    private int myQuestionsCorrect;
+    private int myQuestionsSucceeded;
 
     // maybe List<Room> instead, cause rooms already store their position and we could access the data faster?
     /**
@@ -53,8 +53,8 @@ public class GameState implements PropertyChangeEnabledGameState {
         // Maze constructor does parameter checking
         myMaze = new Maze(theWidth, theHeight, theCategory);
         myCurrentPosition = myMaze.getEntrance();
-        myQuestionsAnswered = 0;
-        myQuestionsCorrect = 0;
+        myQuestionsFailed = 0;
+        myQuestionsSucceeded = 0;
         myVisitedRooms = new ArrayList<Position>(theWidth * theHeight);
 
         myPCS = new PropertyChangeSupport(this);
@@ -113,36 +113,32 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Get how many questions the player has answered.
      * @return int number of questions the player has answered
      */
-    public int getmyQuestionsAnswered() {
-        return myQuestionsAnswered;
+    public int getMyQuestionsFailed() {
+        return myQuestionsFailed;
     }
 
     /**
      * Get how many questions the player has gotten correct.
      * @return int number of questions the player has answered correctly
      */
-    public int getmyQuestionsCorrect() {
-        return myQuestionsCorrect;
+    public int getMyQuestionsSucceeded() {
+        return myQuestionsSucceeded;
     }
 
-    /**
-     * Bumps up the number of questions the player has answered by 1.
-     */
-    public void incrementmyQuestionsAnswered() {
-        myQuestionsAnswered++;
+    public boolean answerDoor(final Direction theDir, final String theAnswer) {
+        boolean out = myMaze.getRoom(myCurrentPosition).getDoor(theDir).answerQuestion(theAnswer);
 
-        // fire a property change event passing int 1
-        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_ANSWERED, null, 1);
-    }
+        if (out) {
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 3, theDir);
 
-    /**
-     * Bumps up the number of questions the player has gotten correct by 1.
-     */
-    public void incrementmyQuestionsCorrect() {
-        myQuestionsCorrect++;
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_SUCCEEDED, null, theDir);
+        } else {
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 4, theDir);
 
-        // fire a property change event passing int 1
-        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_CORRECT, null, 1);
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_FAILED, null, theDir);
+        }
+
+        return out;
     }
 
     /**

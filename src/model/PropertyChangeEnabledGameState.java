@@ -19,14 +19,19 @@ public interface PropertyChangeEnabledGameState {
     String PROPERTY_ROOM_VISITED = "roomVisited";
 
     /**
-     * Constant string property name for a question being answered.
+     * Constant string property name for a question being answered incorrectly.
      */
-    String PROPERTY_QUESTION_ANSWERED = "questionAnswered";
+    String PROPERTY_QUESTION_FAILED = "questionFailed";
 
     /**
      * Constant string property name for a question being answered correctly.
      */
-    String PROPERTY_QUESTION_CORRECT = "questionCorrect";
+    String PROPERTY_QUESTION_SUCCEEDED = "questionSucceeded";
+
+    /**
+     * Constant string property name for a door being visited
+     */
+    String PROPERTY_DOOR_VISITED = "doorVisited";
 
 
     /**
