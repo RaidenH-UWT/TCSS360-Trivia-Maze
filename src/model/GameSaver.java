@@ -39,7 +39,6 @@ public class GameSaver {
             FileInputStream fileIn = new FileInputStream(theFilename);
             ObjectInputStream in = new ObjectInputStream(fileIn)
         ) {
-            // Safe cast, assuming your GameState implements Serializable
             return (GameState) in.readObject();
         } catch (FileNotFoundException e) {
             System.err.println("Save file not found: " + e.getMessage());
