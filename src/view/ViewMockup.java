@@ -44,8 +44,9 @@ import src.model.Room;
 import src.model.GameSaver;
 
 /**
- * Mockup of the GuiView class for experimentation with the GUI.
- * Documentation & conventions not strict in here.
+ * Mockup of the GuiView class for experimentation with the GUI. Documentation &
+ * conventions not strict in here.
+ *
  * @author Raiden H
  * @author Kalen Cha
  * @version Spring 2025
@@ -80,8 +81,8 @@ public class ViewMockup implements GameView {
     private final Dimension myMazeSize;
 
     /**
-    * Stores selected sprite.
-    */
+     * Stores selected sprite.
+     */
     private ImageIcon selectedSprite;
 
     private Position myPlayerPosition;
@@ -158,9 +159,8 @@ public class ViewMockup implements GameView {
      */
     private void updateStats(final boolean theCorrect) {
         // called when questionsAnswered or questionsCorrect increments, maybe replace?
-        
-        // always increment answered questions
 
+        // always increment answered questions
         if (theCorrect) {
             // increment correct questions if theCorrect is true
         }
@@ -178,7 +178,7 @@ public class ViewMockup implements GameView {
 
         // Get the room at the current player position, and update the door in the given direction
         myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()]
-            .setDoorState(Direction.NORTH, theDoorState);
+                .setDoorState(Direction.NORTH, theDoorState);
     }
 
     @Override
@@ -422,7 +422,7 @@ public class ViewMockup implements GameView {
 
         final JPanel controlPanel = createControlPanel();
         GridBagConstraints controlConstraint = new GridBagConstraints(3, 3, 1, 1, 0.3, 0.3,
-                GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+                GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 80, 0), 0, 0);
 
         final JPanel infoPanel = createInfoPanel();
         GridBagConstraints infoConstraint = new GridBagConstraints(0, 3, 3, 1, 0.3, 0.3,
@@ -515,8 +515,7 @@ public class ViewMockup implements GameView {
         panel.setBackground(Color.BLACK);
         return panel;
     }
-*/
-
+     */
     // Reworked createMapPanel() to work with any dimensions and use seperate RoomPanels 
     // instead of coloured boxes.
     private JPanel createMapPanel() {
@@ -547,11 +546,11 @@ public class ViewMockup implements GameView {
 
                 final RoomPanel roomPane = new RoomPanel(new Position(row, col), doorStates);
                 myRooms[row * myMazeSize.width + col] = roomPane;
-                panel.add(roomPane, row,  col);
+                panel.add(roomPane, row, col);
             }
         }
 
-        updatePosition(new Position(0,0), new Position(0, 0));
+        updatePosition(new Position(0, 0), new Position(0, 0));
 
         return panel;
     }
@@ -643,7 +642,13 @@ public class ViewMockup implements GameView {
     }
 
     private JPanel createControlPanel() {
-        final JPanel panel = new JPanel() {
+
+        final int panelSize = 200;
+        final int crossSize = (int) (panelSize * 0.8);
+        final int armWidth = crossSize / 3;
+        final int centerX = panelSize / 2;
+        final int centerY = panelSize / 2;
+        final JPanel dPadPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -653,7 +658,7 @@ public class ViewMockup implements GameView {
                 int centerX = width / 2;
                 int centerY = height / 2;
 
-                int crossSize = Math.min(width, height) / 2;
+                int crossSize = (int) (Math.min(width, height) * 0.8);
                 int armWidth = crossSize / 3;
                 int circleRadius = armWidth / 2;
                 int arrowSize = armWidth / 2;
@@ -723,91 +728,133 @@ public class ViewMockup implements GameView {
             }
         };
 
-        panel.setPreferredSize(new Dimension(200, 200));
-        panel.setBackground(new Color(240, 240, 240));
+        dPadPanel.setPreferredSize(new Dimension(200, 200));
+        dPadPanel.setBackground(new Color(240, 240, 240));
+        dPadPanel.setLayout(null);
 
-        return panel;
+        JButton upButton = new JButton();
+        JButton downButton = new JButton();
+        JButton leftButton = new JButton();
+        JButton rightButton = new JButton();
+
+        upButton.setBounds(centerX - armWidth / 2, centerY - crossSize / 2, armWidth, armWidth);
+        downButton.setBounds(centerX - armWidth / 2, centerY + crossSize / 2 - armWidth, armWidth, armWidth);
+        leftButton.setBounds(centerX - crossSize / 2, centerY - armWidth / 2, armWidth, armWidth);
+        rightButton.setBounds(centerX + crossSize / 2 - armWidth, centerY - armWidth / 2, armWidth, armWidth);
+
+        upButton.setBounds(156, 23, 66, 66);
+        downButton.setBounds(156, 145, 66, 66);
+        leftButton.setBounds(93, 83, 66, 66);
+        rightButton.setBounds(220, 83, 66, 66);
+
+        upButton.setOpaque(false);
+        upButton.setContentAreaFilled(false);
+        upButton.setBorderPainted(false);
+        downButton.setOpaque(false);
+        downButton.setContentAreaFilled(false);
+        downButton.setBorderPainted(false);
+        leftButton.setOpaque(false);
+        leftButton.setContentAreaFilled(false);
+        leftButton.setBorderPainted(false);
+        rightButton.setOpaque(false);
+        rightButton.setContentAreaFilled(false);
+        rightButton.setBorderPainted(false);
+
+        upButton.addActionListener(e -> handleDPadPress(Direction.NORTH));
+        downButton.addActionListener(e -> handleDPadPress(Direction.SOUTH));
+        leftButton.addActionListener(e -> handleDPadPress(Direction.WEST));
+        rightButton.addActionListener(e -> handleDPadPress(Direction.EAST));
+
+        dPadPanel.add(upButton);
+        dPadPanel.add(downButton);
+        dPadPanel.add(leftButton);
+        dPadPanel.add(rightButton);
+
+        return dPadPanel;
+    }
+
+    private void handleDPadPress(Direction direction) {
+        // TODO: Implement movement logic here
+        System.out.println("D-pad pressed: " + direction);
     }
 
     private JPanel createInfoPanel() {
-       final JPanel panel = new JPanel();
-            panel.setBackground(new Color(0, 0, 0));
-            panel.setLayout(new FlowLayout(FlowLayout.CENTER));
-    
-            int[] widths = {56, 80, 60, 90};
-            int[] heights = {56, 100, 60, 60};
-            String[] imagePaths = {
-                "src/Sprites/kirby1.png",
-                "src/Sprites/kirby2.png",
-                "src/Sprites/kirby3.png",
-                "src/Sprites/kirby4.png"
-            };
-            
-            JLabel[] kirbyLabels = new JLabel[imagePaths.length];
-            
-           
-            final Border selectedBorder = BorderFactory.createLineBorder(Color.YELLOW, 3);
-            final Border defaultBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-            
-            final JLabel[] selectedLabel = {null};
-            
-            for (int i = 0; i < imagePaths.length; i++) {
-                ImageIcon originalIcon = new ImageIcon(imagePaths[i]);
-             
-                Image scaledImage = originalIcon.getImage().getScaledInstance(widths[i], heights[i], Image.SCALE_SMOOTH);
-                ImageIcon scaledIcon = new ImageIcon(scaledImage);
-            
-                JLabel label = new JLabel(scaledIcon);
-                label.setBorder(defaultBorder);
-                kirbyLabels[i] = label;
-                final int index = i;
-                label.addMouseListener(new java.awt.event.MouseAdapter() {
-                     public void mouseClicked(java.awt.event.MouseEvent evt) {
+        final JPanel panel = new JPanel();
+        panel.setBackground(new Color(0, 0, 0));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        int[] widths = {56, 80, 60, 90};
+        int[] heights = {56, 100, 60, 60};
+        String[] imagePaths = {
+            "src/Sprites/kirby1.png",
+            "src/Sprites/kirby2.png",
+            "src/Sprites/kirby3.png",
+            "src/Sprites/kirby4.png"
+        };
+
+        JLabel[] kirbyLabels = new JLabel[imagePaths.length];
+
+        final Border selectedBorder = BorderFactory.createLineBorder(Color.YELLOW, 3);
+        final Border defaultBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+
+        final JLabel[] selectedLabel = {null};
+
+        for (int i = 0; i < imagePaths.length; i++) {
+            ImageIcon originalIcon = new ImageIcon(imagePaths[i]);
+
+            Image scaledImage = originalIcon.getImage().getScaledInstance(widths[i], heights[i], Image.SCALE_SMOOTH);
+            ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+            JLabel label = new JLabel(scaledIcon);
+            label.setBorder(defaultBorder);
+            kirbyLabels[i] = label;
+            final int index = i;
+            label.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
                     int choice = JOptionPane.showConfirmDialog(
-                        panel,
-                        "Confirm selection of character" + (index + 1) + "?",
-                        "Confirm Selection",
-                        JOptionPane.YES_NO_OPTION
+                            panel,
+                            "Confirm selection of character" + (index + 1) + "?",
+                            "Confirm Selection",
+                            JOptionPane.YES_NO_OPTION
                     );
-            
+
                     if (choice == JOptionPane.YES_OPTION) {
                         if (selectedLabel[0] != null) {
                             selectedLabel[0].setBorder(defaultBorder);
                         }
                         label.setBorder(selectedBorder);
                         selectedLabel[0] = label;
-            
-                       
+
                         selectedSprite = ((ImageIcon) label.getIcon());
-                } else {
-                    selectedSprite = null;
+                    } else {
+                        selectedSprite = null;
+                    }
                 }
-            }
             });
-    
+
             panel.add(label);
         }
-            JPanel mainPanel = new JPanel(new BorderLayout());
-            mainPanel.setBackground(Color.BLACK);
-    
-       
-            mainPanel.add(panel, BorderLayout.CENTER);
-    
-            JLabel chooseLabel = new JLabel("CHOOSE YOUR CHARACTER");
-            chooseLabel.setForeground(Color.YELLOW);
-            chooseLabel.setHorizontalAlignment(JLabel.CENTER);
-            chooseLabel.setFont(new Font("Monospaced", Font.BOLD, 15));
-            mainPanel.add(chooseLabel, BorderLayout.NORTH);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.BLACK);
+
+        mainPanel.add(panel, BorderLayout.CENTER);
+
+        JLabel chooseLabel = new JLabel("CHOOSE YOUR CHARACTER");
+        chooseLabel.setForeground(Color.YELLOW);
+        chooseLabel.setHorizontalAlignment(JLabel.CENTER);
+        chooseLabel.setFont(new Font("Monospaced", Font.BOLD, 15));
+        mainPanel.add(chooseLabel, BorderLayout.NORTH);
 
         return mainPanel;
-        
+
     }
+
     private ImageIcon getSelectedSprite() {
         return selectedSprite;
     }
-    
 
     private class RoomPanel extends JPanel {
+
         // Add display for rooms
         // i'm thinking 4 triangles, 1 for each cardinal direction
         // and colour coded based on lock state
@@ -817,13 +864,8 @@ public class ViewMockup implements GameView {
         private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
 
         /**
-         * Array of states for a door to be in
-         * 0: Wall
-         * 1: Not visited
-         * 2: Visited
-         * 3: Failed
-         * 4: Succeeded
-         * north, south, east, west
+         * Array of states for a door to be in 0: Wall 1: Not visited 2: Visited
+         * 3: Failed 4: Succeeded north, south, east, west
          */
         private int[] myDoorState;
 
@@ -862,27 +904,26 @@ public class ViewMockup implements GameView {
             updateDoorTriangles();
 
             for (Direction dir : Direction.values()) {
-                // Set the color from DOOR_COLORS according to the direction
                 g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
 
                 g2d.fillPolygon(DOORTRIANGLES.get(dir));
             }
-            
+
         }
 
         private void updateDoorTriangles() {
             if (DOORTRIANGLES.isEmpty()) {
-                Polygon northPoly = new Polygon(new int[] {0, this.getSize().width / 2, this.getSize().width}, 
-                    new int[] {0, this.getSize().height / 2, 0}, 3);
+                Polygon northPoly = new Polygon(new int[]{0, this.getSize().width / 2, this.getSize().width},
+                        new int[]{0, this.getSize().height / 2, 0}, 3);
 
-                Polygon southPoly = new Polygon(new int[] {0, this.getSize().width / 2, this.getSize().width}, 
-                    new int[] {this.getSize().height, this.getSize().height / 2, this.getSize().height}, 3);
+                Polygon southPoly = new Polygon(new int[]{0, this.getSize().width / 2, this.getSize().width},
+                        new int[]{this.getSize().height, this.getSize().height / 2, this.getSize().height}, 3);
 
-                Polygon eastPoly = new Polygon(new int[] {this.getSize().width, this.getSize().width / 2, this.getSize().width}, 
-                    new int[] {0, this.getSize().height / 2, this.getSize().height}, 3);
+                Polygon eastPoly = new Polygon(new int[]{this.getSize().width, this.getSize().width / 2, this.getSize().width},
+                        new int[]{0, this.getSize().height / 2, this.getSize().height}, 3);
 
-                Polygon westPoly = new Polygon(new int[] {0, this.getSize().width / 2, 0}, 
-                    new int[] {0, this.getSize().height / 2, this.getSize().height}, 3);
+                Polygon westPoly = new Polygon(new int[]{0, this.getSize().width / 2, 0},
+                        new int[]{0, this.getSize().height / 2, this.getSize().height}, 3);
 
                 DOORTRIANGLES.put(Direction.NORTH, northPoly);
                 DOORTRIANGLES.put(Direction.SOUTH, southPoly);
