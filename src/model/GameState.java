@@ -130,12 +130,8 @@ public class GameState implements PropertyChangeEnabledGameState {
 
         if (out) {
             myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 3, theDir);
-
-            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_SUCCEEDED, null, theDir);
         } else {
             myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 4, theDir);
-
-            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_QUESTION_FAILED, null, theDir);
         }
 
         return out;

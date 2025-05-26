@@ -14,6 +14,20 @@ import src.model.Room;
  */
 public interface GameView extends PropertyChangeListener {
     /**
+     * List of states for a door to be in
+     * 0: Wall
+     * 1: Not visited (never been)
+     * 2: Visited (been, but hasn't answered yet)
+     * 3: Failed
+     * 4: Succeeded
+     */
+    public static final int DOOR_WALL = 0;
+    public static final int DOOR_NOT_VISITED = 1;
+    public static final int DOOR_VISITED = 2;
+    public static final int DOOR_FAILED = 3;
+    public static final int DOOR_SUCCEEDED = 4;
+
+    /**
      * Display the maze and player in their current state.
      * @param theMaze Maze object to display
      * @param theCurrentPosition Position the player is curerntly at

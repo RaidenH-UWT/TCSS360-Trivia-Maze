@@ -60,18 +60,9 @@ public class ViewMockup implements GameView {
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
-         * List of states for a door to be in
-         * 0: Wall
-         * 1: Not visited (never been)
-         * 2: Visited (been, but hasn't answered yet)
-         * 3: Failed
-         * 4: Succeeded
-         */
-    private static final int DOOR_WALL = 0;
-    private static final int DOOR_NOT_VISITED = 1;
-    private static final int DOOR_VISITED = 2;
-    private static final int DOOR_FAILED = 3;
-    private static final int DOOR_SUCCEEDED = 4;
+     * Array of Colors for door state, indexed according to state constants.
+     */
+    private static final Color[] DOOR_COLORS = {Color.DARK_GRAY, Color.GRAY, Color.BLUE, Color.RED, Color.GREEN};
 
     /**
      * Reference to the JFrame for the window
@@ -111,7 +102,7 @@ public class ViewMockup implements GameView {
 
         // Setting behaviour
         myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        myFrame.setResizable(true);
+        myFrame.setResizable(false);
         myFrame.setPreferredSize(WINDOW_SIZE);
     }
 
@@ -165,8 +156,14 @@ public class ViewMockup implements GameView {
     /**
      * Update question stats for the player.
      */
-    private void updateStats(int answered, int correct) {
+    private void updateStats(final boolean theCorrect) {
         // called when questionsAnswered or questionsCorrect increments, maybe replace?
+        
+        // always increment answered questions
+
+        if (theCorrect) {
+            // increment correct questions if theCorrect is true
+        }
     }
 
     /**
@@ -177,6 +174,9 @@ public class ViewMockup implements GameView {
     }
 
     private void updateDoor(final Direction theDir, final int theDoorState) {
+        updateStats(theDoorState == 4);
+
+        // Get the room at the current player position, and update the door in the given direction
         myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()]
             .setDoorState(Direction.NORTH, theDoorState);
     }
@@ -186,12 +186,6 @@ public class ViewMockup implements GameView {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
                 updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
-                break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_FAILED:
-                updateStats(1, 0);
-                break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_SUCCEEDED:
-                updateStats(0, 1);
                 break;
             case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
                 updateRooms((Position) theEvent.getNewValue());
@@ -306,10 +300,12 @@ public class ViewMockup implements GameView {
     private void howToEvent(final ActionEvent theEvent) {
         String howtoMsg = """
         Answer trivia questions
+        Document door colour key
+        Document controls
+        Document minimap door selection
         """;
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
-
 
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -530,7 +526,26 @@ public class ViewMockup implements GameView {
 
         for (int row = 0; row < myMazeSize.width; row++) {
             for (int col = 0; col < myMazeSize.height; col++) {
-                final RoomPanel roomPane = new RoomPanel(new Position(row, col), new int[] {0, 0, 0, 0});
+                // Start every door off at DOOR_NOT_VISITED
+                int[] doorStates = {DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED}; // N, S, E, W
+
+                // If this room is on an edge, set the corresponding door to DOOR_WALL
+                if (col == 0) {
+                    doorStates[3] = DOOR_WALL;
+                }
+                if (col == myMazeSize.height - 1) {
+                    doorStates[2] = DOOR_WALL;
+                }
+                if (row == 0) {
+                    doorStates[1] = DOOR_WALL;
+                }
+                if (row == myMazeSize.width - 1) {
+                    doorStates[0] = DOOR_WALL;
+                }
+
+                doorStates[3] = DOOR_VISITED;
+
+                final RoomPanel roomPane = new RoomPanel(new Position(row, col), doorStates);
                 myRooms[row * myMazeSize.width + col] = roomPane;
                 panel.add(roomPane, row,  col);
             }
@@ -835,6 +850,7 @@ public class ViewMockup implements GameView {
                 // {NORTH, SOUTH, EAST, WEST}
                 myDoorState[theDir.ordinal()] = theState;
             }
+            repaint();
         }
 
         @Override
@@ -846,7 +862,8 @@ public class ViewMockup implements GameView {
             updateDoorTriangles();
 
             for (Direction dir : Direction.values()) {
-                
+                // Set the color from DOOR_COLORS according to the direction
+                g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
 
                 g2d.fillPolygon(DOORTRIANGLES.get(dir));
             }

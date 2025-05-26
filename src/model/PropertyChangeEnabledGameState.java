@@ -21,11 +21,13 @@ public interface PropertyChangeEnabledGameState {
     /**
      * Constant string property name for a question being answered incorrectly.
      */
+    @Deprecated // TODO: Remove deprecated event
     String PROPERTY_QUESTION_FAILED = "questionFailed";
 
     /**
      * Constant string property name for a question being answered correctly.
      */
+    @Deprecated // TODO: Remove deprecated event
     String PROPERTY_QUESTION_SUCCEEDED = "questionSucceeded";
 
     /**
