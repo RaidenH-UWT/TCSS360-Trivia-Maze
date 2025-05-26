@@ -543,8 +543,6 @@ public class ViewMockup implements GameView {
                     doorStates[0] = DOOR_WALL;
                 }
 
-                doorStates[3] = DOOR_VISITED;
-
                 final RoomPanel roomPane = new RoomPanel(new Position(row, col), doorStates);
                 myRooms[row * myMazeSize.width + col] = roomPane;
                 panel.add(roomPane, row,  col);
