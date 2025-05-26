@@ -35,6 +35,17 @@ public class GameSaver {
      * @throws FileNotFoundException if the given save file is not found
      */
     public GameState getSave(final String theFilename) {
+         try (
+            FileInputStream fileIn = new FileInputStream(theFilename);
+            ObjectInputStream in = new ObjectInputStream(fileIn)
+        ) {
+            // Safe cast, assuming your GameState implements Serializable
+            return (GameState) in.readObject();
+        } catch (FileNotFoundException e) {
+            System.err.println("Save file not found: " + e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading game: " + e.getMessage());
+        }
         return null;
     }
 }
