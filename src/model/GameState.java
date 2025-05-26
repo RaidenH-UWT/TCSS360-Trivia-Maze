@@ -24,7 +24,14 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Stores the current position of the player.
      */
     private Position myCurrentPosition;
+
+    /**
+     * Stores the current direction of the player. Used for specifying which Door
+     * we're looking at.
+     */
+    private Direction myCurrentDirection;
     // Could calculate these instead of storing them just counting the rooms in the maze
+    // TODO: rework with updated property change events
     /**
      * Stores the number of questions the player has answered.
      */
