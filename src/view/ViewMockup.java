@@ -87,6 +87,7 @@ public class ViewMockup implements GameView {
      * Dimensions of the maze (in rooms)
      */
     private final Dimension myMazeSize;
+
     /**
     * Stores selected sprite.
     */
@@ -102,6 +103,8 @@ public class ViewMockup implements GameView {
         myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getWidth());
 
         myPlayerPosition = new Position(0, 0);
+
+        myRooms = new RoomPanel[myMazeSize.width * myMazeSize.height];
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
