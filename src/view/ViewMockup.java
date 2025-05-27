@@ -161,14 +161,12 @@ public class ViewMockup implements GameView {
         System.out.println("Moving from (" + oldPos.getX() + "," + oldPos.getY()
                 + ") to (" + newPos.getX() + "," + newPos.getY() + ")");
 
-        // Calculate array indices
         int oldIndex = oldPos.getY() * myMazeSize.width + oldPos.getX();
         int newIndex = newPos.getY() * myMazeSize.width + newPos.getX();
 
         System.out.println("Old index: " + oldIndex + ", New index: " + newIndex);
         System.out.println("Array length: " + myRooms.length);
 
-        // Bounds checking
         if (oldIndex >= 0 && oldIndex < myRooms.length && myRooms[oldIndex] != null) {
             myRooms[oldIndex].resetBackground();
             myRooms[oldIndex].repaint();
