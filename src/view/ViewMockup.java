@@ -183,12 +183,15 @@ public class ViewMockup implements GameView {
     /**
      * Update the position of the player.
      */
-    private void updatePosition(Position oldPos, Position newPos) {
+    private void updatePosition(Position newPos) {
         // called when the player position changes
-        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
+        myRooms[myCurrentRoom].setIsPlayerPosition(false);
+        myRooms[myCurrentRoom].repaint();
 
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
+        myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
+
+        myRooms[myCurrentRoom].setIsPlayerPosition(true);
+        myRooms[myCurrentRoom].repaint();
     }
 
     /**
