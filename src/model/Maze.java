@@ -5,13 +5,16 @@ import java.util.Collections;
 
 /**
  * Stores data about the maze and the rooms within it.
+ *
  * @author Raiden H
+ * @author Kalen Cha
  * @version May 1, 2025
  */
 public class Maze {
+
     /**
-     * Flag to allow duplicate questions in the maze.
-     * Use during development when we don't have enough unique questions.
+     * Flag to allow duplicate questions in the maze. Use during development
+     * when we don't have enough unique questions.
      */
     private static final boolean ALLOW_DUPLICATE_QUESTIONS = true;
     /**
@@ -45,7 +48,9 @@ public class Maze {
     private boolean myCompleted;
 
     /**
-     * Creates a new maze of the given dimensions and uses questions of the given category.
+     * Creates a new maze of the given dimensions and uses questions of the
+     * given category.
+     *
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
      * @param theCategory String category to pull questions from
@@ -76,6 +81,7 @@ public class Maze {
 
     /**
      * Creates a new maze of the given dimensions.
+     *
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
      */
@@ -104,8 +110,10 @@ public class Maze {
 
     /**
      * Fills the generated rooms with random doors from the given category.
+     *
      * @param theCategory String name of the category
-     * @throws IllegalArgumentException if the passed category is not in the database
+     * @throws IllegalArgumentException if the passed category is not in the
+     * database
      */
     public void fillRoomsRandom(final String theCategory) {
         if (!DatabaseManager.getCategories().contains(theCategory)) {
@@ -118,6 +126,7 @@ public class Maze {
 
     /**
      * Fills all rooms of the maze with the given list of questions.
+     *
      * @param theQuestions ArrayList<Question> of questions to fill with
      */
     @SuppressWarnings("unused") // Complaining about the duplicate questions constant
@@ -169,16 +178,21 @@ public class Maze {
 
     /**
      * Get the room with the given position.
+     *
      * @param thePosition Position coordinates of the room
      * @return Room object from the given coordinates
-     * @throws IndexOutOfBoundsException if the given Position is not within the maze
+     * @throws IndexOutOfBoundsException if the given Position is not within the
+     * maze
      */
     public Room getRoom(final Position thePosition) {
-        if (thePosition.getX() > myWidth || thePosition.getY() > myHeight
-            || thePosition.getX() < 0 || thePosition.getY() < 0) {
-            throw new IndexOutOfBoundsException("Given coordinates are out of bounds");
+        int x = thePosition.getX();
+        int y = thePosition.getY();
+
+        if (x < 0 || x >= myWidth || y < 0 || y >= myHeight) {
+            throw new IndexOutOfBoundsException("Position is out of bounds: " + x + ", " + y);
         }
-        return myRooms[thePosition.getX()][thePosition.getY()];
+
+        return myRooms[y][x];
     }
 
     /**
@@ -196,7 +210,9 @@ public class Maze {
     }
 
     /**
-     * Check whether a path to the exit is possible from the current player position.
+     * Check whether a path to the exit is possible from the current player
+     * position.
+     *
      * @return true if a path to the exit is possible, false otherwise
      */
     public boolean isPathAvailable() {
@@ -221,9 +237,17 @@ public class Maze {
 
     /**
      * Check whether this maze is completed or not.
+     *
      * @return true if this maze is completed, false otherwise
      */
     public boolean isCompleted() {
         return myCompleted;
     }
+
+    public boolean isWithinBounds(Position pos) {
+        int x = pos.getX();
+        int y = pos.getY();
+        return x >= 0 && x < myWidth && y >= 0 && y < myHeight;
+    }
+
 }

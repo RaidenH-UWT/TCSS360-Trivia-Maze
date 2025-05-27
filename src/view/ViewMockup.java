@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import src.model.Direction;
+import src.model.Door;
 import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
@@ -87,12 +88,22 @@ public class ViewMockup implements GameView {
 
     private Position myPlayerPosition;
 
+    private final GameState myGameState;
+
+    private static final int DOOR_WALL = 0;
+    private static final int DOOR_NOT_VISITED = 1;
+    private static final int DOOR_VISITED = 2;
+    private static final int DOOR_FAILED = 3;
+    private static final int DOOR_SUCCEEDED = 4;
+
     public ViewMockup(GameState theState) {
         super();
 
+        myGameState = theState;
+
         theState.addPropertyChangeListener(this);
 
-        myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getWidth());
+        myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getHeight());
 
         myPlayerPosition = new Position(0, 0);
 
@@ -147,11 +158,29 @@ public class ViewMockup implements GameView {
      * Update the position of the player.
      */
     private void updatePosition(Position oldPos, Position newPos) {
-        // called when the player position changes
-        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
+        System.out.println("Moving from (" + oldPos.getX() + "," + oldPos.getY()
+                + ") to (" + newPos.getX() + "," + newPos.getY() + ")");
 
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
+        // Calculate array indices
+        int oldIndex = oldPos.getY() * myMazeSize.width + oldPos.getX();
+        int newIndex = newPos.getY() * myMazeSize.width + newPos.getX();
+
+        System.out.println("Old index: " + oldIndex + ", New index: " + newIndex);
+        System.out.println("Array length: " + myRooms.length);
+
+        // Bounds checking
+        if (oldIndex >= 0 && oldIndex < myRooms.length && myRooms[oldIndex] != null) {
+            myRooms[oldIndex].resetBackground();
+            myRooms[oldIndex].repaint();
+        }
+
+        if (newIndex >= 0 && newIndex < myRooms.length && myRooms[newIndex] != null) {
+            myPlayerPosition = newPos;
+            myRooms[newIndex].setBackground(Color.YELLOW);
+            myRooms[newIndex].repaint();
+        } else {
+            System.out.println("Invalid new position index: " + newIndex);
+        }
     }
 
     /**
@@ -175,10 +204,8 @@ public class ViewMockup implements GameView {
 
     private void updateDoor(final Direction theDir, final int theDoorState) {
         updateStats(theDoorState == 4);
-
-        // Get the room at the current player position, and update the door in the given direction
         myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()]
-                .setDoorState(Direction.NORTH, theDoorState);
+                .setDoorState(theDir, theDoorState);
     }
 
     @Override
@@ -225,7 +252,6 @@ public class ViewMockup implements GameView {
 
     // Save menu events
     private void saveGameEvent(final ActionEvent theEvent) {
-
         javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
         fileChooser.setDialogTitle("Save Game");
 
@@ -235,9 +261,8 @@ public class ViewMockup implements GameView {
             java.io.File fileToSave = fileChooser.getSelectedFile();
 
             try {
-                GameState currentState = null;
                 GameSaver gameSaver = new GameSaver();
-                gameSaver.saveGame(currentState, fileToSave.getAbsolutePath());
+                gameSaver.saveGame(myGameState, fileToSave.getAbsolutePath());
                 JOptionPane.showMessageDialog(myFrame, "Game saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(myFrame, "Failed to save the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -275,8 +300,18 @@ public class ViewMockup implements GameView {
      * @param loadedState The loaded GameState object.
      */
     private void updateGameState(GameState loadedState) {
-        // TODO: Implement logic to update the current game state and refresh the UI
-        // maybe just reassign the GameState variable and run all the update methods?
+        // Update UI based on the loaded state
+        // Reset player position
+        Position oldPosition = myPlayerPosition;
+        Position newPosition = loadedState.getMyCurrentPosition();
+        updatePosition(oldPosition, newPosition);
+
+        // TODO: Update other UI elements based on the loaded state
+        // Use myGameState for reference to the current state if needed
+        // Update the game state through proper channels (controller)
+        // This is just a placeholder - the actual implementation would depend on your architecture
+        System.out.println("Game state loaded from: " + myGameState.getClass().getName()
+                + " to: " + loadedState.getClass().getName());
     }
 
     private void manageSavesEvent(final ActionEvent theEvent) {
@@ -516,42 +551,47 @@ public class ViewMockup implements GameView {
         return panel;
     }
      */
+    private int[] getDoorStatesForRoom(int col, int row) {
+        int[] doorStates = new int[4];
+        Maze maze = myGameState.getMaze();
+
+        Room room = maze.getRoom(new Position(col, row));
+
+        for (Direction dir : Direction.values()) {
+            Position neighbor = new Position(col, row).translate(dir);
+            if (!maze.isWithinBounds(neighbor)) {
+                doorStates[dir.ordinal()] = DOOR_WALL;
+            } else {
+                Door door = room.getDoor(dir);
+                doorStates[dir.ordinal()] = getDoorStateForView(door);
+            }
+        }
+
+        return doorStates;
+    }
+
     // Reworked createMapPanel() to work with any dimensions and use seperate RoomPanels 
     // instead of coloured boxes.
+    // Fix the createMapPanel method - coordinate system consistency
     private JPanel createMapPanel() {
         final JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(myMazeSize.width, myMazeSize.height, 5, 5));
+
+        panel.setLayout(new GridLayout(myMazeSize.height, myMazeSize.width, 5, 5));
         panel.setBackground(Color.BLACK);
 
-        for (int row = 0; row < myMazeSize.width; row++) {
-            for (int col = 0; col < myMazeSize.height; col++) {
-                // Start every door off at DOOR_NOT_VISITED
-                int[] doorStates = {DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED}; // N, S, E, W
+        for (int row = 0; row < myMazeSize.height; row++) {
+            for (int col = 0; col < myMazeSize.width; col++) {
 
-                // If this room is on an edge, set the corresponding door to DOOR_WALL
-                if (col == 0) {
-                    doorStates[3] = DOOR_WALL;
-                }
-                if (col == myMazeSize.height - 1) {
-                    doorStates[2] = DOOR_WALL;
-                }
-                if (row == 0) {
-                    doorStates[1] = DOOR_WALL;
-                }
-                if (row == myMazeSize.width - 1) {
-                    doorStates[0] = DOOR_WALL;
-                }
+                int[] doorStates = getDoorStatesForRoom(col, row);
 
-                doorStates[3] = DOOR_VISITED;
+                final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates);
 
-                final RoomPanel roomPane = new RoomPanel(new Position(row, col), doorStates);
                 myRooms[row * myMazeSize.width + col] = roomPane;
-                panel.add(roomPane, row, col);
+                panel.add(roomPane);
             }
         }
 
         updatePosition(new Position(0, 0), new Position(0, 0));
-
         return panel;
     }
 
@@ -637,6 +677,8 @@ public class ViewMockup implements GameView {
         answerField.setCaretColor(Color.GREEN);
         answerField.setFont(new Font("Monospaced", Font.PLAIN, 14));
         gbc.gridx = 1;
+        gbc.gridy = 1;
+        panel.add(answerField, gbc);
 
         return panel;
     }
@@ -774,8 +816,56 @@ public class ViewMockup implements GameView {
     }
 
     private void handleDPadPress(Direction direction) {
-        // TODO: Implement movement logic here
-        System.out.println("D-pad pressed: " + direction);
+        Maze maze = myGameState.getMaze();
+        Room currentRoom = maze.getRoom(myPlayerPosition);
+        Door door = currentRoom.getDoor(direction);
+
+        if (door == null) {
+            System.out.println("There's a wall in that direction!");
+            return;
+        }
+
+        if (door.isOpen()) {
+            movePlayer(direction);
+            return;
+        }
+
+        if (door.isLocked()) {
+            JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Question question = door.getQuestion();
+        String playerAnswer = JOptionPane.showInputDialog(myFrame, question.getQuestion());
+
+        if (playerAnswer == null) {
+            return;
+        }
+
+        if (door.answerQuestion(playerAnswer)) {
+            door.open();
+            updateDoor(direction, DOOR_SUCCEEDED);
+
+            Position nextPosition = myPlayerPosition.translate(direction);
+            Room nextRoom = maze.getRoom(nextPosition);
+            Door reverseDoor = nextRoom.getDoor(direction.getOpposite());
+            if (reverseDoor != null) {
+                reverseDoor.open();
+            }
+            movePlayer(direction);
+
+        } else {
+            door.lock();
+            updateDoor(direction, DOOR_FAILED);
+            JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void movePlayer(Direction direction) {
+        Position newPosition = myPlayerPosition.translate(direction);
+
+        updatePosition(myPlayerPosition, newPosition);
+        myPlayerPosition = newPosition;
     }
 
     private JPanel createInfoPanel() {
@@ -826,6 +916,12 @@ public class ViewMockup implements GameView {
                         selectedLabel[0] = label;
 
                         selectedSprite = ((ImageIcon) label.getIcon());
+
+                        for (RoomPanel room : myRooms) {
+                            if (room != null) {
+                                room.repaint();
+                            }
+                        }
                     } else {
                         selectedSprite = null;
                     }
@@ -905,25 +1001,49 @@ public class ViewMockup implements GameView {
 
             for (Direction dir : Direction.values()) {
                 g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
-
                 g2d.fillPolygon(DOORTRIANGLES.get(dir));
             }
 
+            if (myPos.equals(myPlayerPosition) && selectedSprite != null) {
+                Image spriteImg = selectedSprite.getImage();
+                int panelW = getWidth();
+                int panelH = getHeight();
+                int spriteW = Math.min(panelW, panelH) / 2;
+                int spriteH = Math.min(panelW, panelH) / 2;
+                int x = (panelW - spriteW) / 2;
+                int y = (panelH - spriteH) / 2;
+                g2d.drawImage(spriteImg, x, y, spriteW, spriteH, this);
+            }
         }
 
         private void updateDoorTriangles() {
-            if (DOORTRIANGLES.isEmpty()) {
-                Polygon northPoly = new Polygon(new int[]{0, this.getSize().width / 2, this.getSize().width},
-                        new int[]{0, this.getSize().height / 2, 0}, 3);
+            int width = getWidth();
+            int height = getHeight();
 
-                Polygon southPoly = new Polygon(new int[]{0, this.getSize().width / 2, this.getSize().width},
-                        new int[]{this.getSize().height, this.getSize().height / 2, this.getSize().height}, 3);
+            if (width > 0 && height > 0) {
+                Polygon northPoly = new Polygon(
+                        new int[]{0, width / 2, width},
+                        new int[]{0, height / 2, 0},
+                        3
+                );
 
-                Polygon eastPoly = new Polygon(new int[]{this.getSize().width, this.getSize().width / 2, this.getSize().width},
-                        new int[]{0, this.getSize().height / 2, this.getSize().height}, 3);
+                Polygon southPoly = new Polygon(
+                        new int[]{0, width / 2, width},
+                        new int[]{height, height / 2, height},
+                        3
+                );
 
-                Polygon westPoly = new Polygon(new int[]{0, this.getSize().width / 2, 0},
-                        new int[]{0, this.getSize().height / 2, this.getSize().height}, 3);
+                Polygon eastPoly = new Polygon(
+                        new int[]{width, width / 2, width},
+                        new int[]{0, height / 2, height},
+                        3
+                );
+
+                Polygon westPoly = new Polygon(
+                        new int[]{0, width / 2, 0},
+                        new int[]{0, height / 2, height},
+                        3
+                );
 
                 DOORTRIANGLES.put(Direction.NORTH, northPoly);
                 DOORTRIANGLES.put(Direction.SOUTH, southPoly);
@@ -941,5 +1061,18 @@ public class ViewMockup implements GameView {
         public String toString() {
             return myPos.getX() + ", " + myPos.getY() + " with " + this.getBackground().toString();
         }
+    }
+
+    private int getDoorStateForView(Door door) {
+        if (door == null) {
+            return DOOR_WALL;
+        }
+        if (door.isLocked()) {
+            return DOOR_FAILED;
+        }
+        if (door.isOpen()) {
+            return DOOR_SUCCEEDED;
+        }
+        return DOOR_NOT_VISITED;
     }
 }

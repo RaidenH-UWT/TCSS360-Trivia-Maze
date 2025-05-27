@@ -2,16 +2,19 @@ package src.model;
 
 /**
  * Manages the lock state and question for this direction of a room.
+ *
  * @author Raiden H
+ * @author Kalen Cha
  * @version May 1, 2025
  */
 public class Door {
+
     // could replace these two with one int either 0, 1, or 2
     /**
      * Stores whether this door is permanantly locked or not.
      */
     private boolean myLocked;
-        
+
     /**
      * Stores whether this door is open or not.
      */
@@ -24,6 +27,7 @@ public class Door {
 
     /**
      * Constructs a new Door with the given Question.
+     *
      * @param theQuestion the Question object associated with this Door
      */
     public Door(final Question theQuestion) {
@@ -36,6 +40,7 @@ public class Door {
 
     /**
      * Get the locked state of this door.
+     *
      * @return true if this door is locked, false otherwise
      */
     public boolean isLocked() {
@@ -44,6 +49,7 @@ public class Door {
 
     /**
      * Get the opened state of this door.
+     *
      * @return true if this door is open, false otherwise
      */
     public boolean isOpen() {
@@ -68,14 +74,17 @@ public class Door {
 
     /**
      * Get the Question associated with this Door.
+     *
      * @return Question object associated with this door
      */
     public Question getQuestion() {
         return myQuestion;
     }
+
     // Should this behaviour be in the Question class instead?
     /**
      * Attempts to answer the question associated with this Door.
+     *
      * @param theAnswer the answer to attempt
      * @return true if the answer was correct, false otherwise
      */
@@ -90,10 +99,10 @@ public class Door {
             return false;
         }
 
-        boolean val = 
-            isOpen() == ((Door) theDoor).isOpen()
-            && isLocked() == ((Door) theDoor).isLocked()
-            && getQuestion().equals(((Door) theDoor).getQuestion());
+        boolean val
+                = isOpen() == ((Door) theDoor).isOpen()
+                && isLocked() == ((Door) theDoor).isLocked()
+                && getQuestion().equals(((Door) theDoor).getQuestion());
 
         return val;
     }
