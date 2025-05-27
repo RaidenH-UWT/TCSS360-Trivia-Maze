@@ -1080,6 +1080,16 @@ public class ViewMockup implements GameView {
                 g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
                 g2d.fillPolygon(DOORTRIANGLES.get(dir));
             }
+            if (myPos.equals(myPlayerPosition) && selectedSprite != null) {
+                Image spriteImg = selectedSprite.getImage();
+                int panelW = getWidth();
+                int panelH = getHeight();
+                int spriteW = Math.min(panelW, panelH) / 2;
+                int spriteH = Math.min(panelW, panelH) / 2;
+                int x = (panelW - spriteW) / 2;
+                int y = (panelH - spriteH) / 2;
+                g2d.drawImage(spriteImg, x, y, spriteW, spriteH, this);
+            }
 
         }
 
