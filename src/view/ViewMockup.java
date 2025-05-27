@@ -184,12 +184,17 @@ public class ViewMockup implements GameView {
     /**
      * Update the position of the player.
      */
-    private void updatePosition(Position oldPos, Position newPos) {
-        // called when the player position changes
-        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
+    private void updatePosition(Position newPos) {
+        // Reset old room
+        myRooms[myCurrentRoom].setIsPlayerPosition(false);
+        myRooms[myCurrentRoom].repaint();
 
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
-        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
+        // Update myCurrentRoom
+        myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
+
+        // Update current room
+        myRooms[myCurrentRoom].setIsPlayerPosition(true);
+        myRooms[myCurrentRoom].repaint();
     }
 
     /**
@@ -311,9 +316,8 @@ public class ViewMockup implements GameView {
     private void updateGameState(GameState loadedState) {
         // Update UI based on the loaded state
         // Reset player position
-        Position oldPosition = myPlayerPosition;
         Position newPosition = loadedState.getMyCurrentPosition();
-        updatePosition(oldPosition, newPosition);
+        updatePosition(newPosition);
 
         // TODO: Update other UI elements based on the loaded state
         // Use myGameState for reference to the current state if needed
@@ -623,13 +627,11 @@ public class ViewMockup implements GameView {
                     doorStates[2] = DOOR_WALL;
                 }
                 if (row == 0) {
-                    doorStates[1] = DOOR_WALL;
-                }
-                if (row == myMazeSize.width - 1) {
                     doorStates[0] = DOOR_WALL;
                 }
-
-                doorStates[3] = DOOR_VISITED;
+                if (row == myMazeSize.width - 1) {
+                    doorStates[1] = DOOR_WALL;
+                }
 
                 final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates);
 
@@ -638,7 +640,7 @@ public class ViewMockup implements GameView {
             }
         }
 
-        updatePosition(new Position(0, 0), new Position(0, 0));
+        updatePosition(new Position(0, 0));
 
         return panel;
     }
@@ -920,7 +922,7 @@ public class ViewMockup implements GameView {
     private void movePlayer(Direction direction) {
         Position newPosition = myPlayerPosition.translate(direction);
 
-        updatePosition(myPlayerPosition, newPosition);
+        updatePosition(newPosition);
         myPlayerPosition = newPosition;
     }
 
@@ -1079,8 +1081,12 @@ public class ViewMockup implements GameView {
             for (Direction dir : Direction.values()) {
                 g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
                 g2d.fillPolygon(DOORTRIANGLES.get(dir));
+
+                g2d.setColor(BACKGROUND_COLOR);
+                g2d.setStroke(new BasicStroke(5));
+                g2d.drawPolygon(DOORTRIANGLES.get(dir));
             }
-            if (myPos.equals(myPlayerPosition) && selectedSprite != null) {
+            if (isPlayerPosition && selectedSprite != null) {
                 Image spriteImg = selectedSprite.getImage();
                 int panelW = getWidth();
                 int panelH = getHeight();
