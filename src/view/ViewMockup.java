@@ -33,6 +33,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import src.model.Direction;
@@ -98,6 +99,9 @@ public class ViewMockup implements GameView {
     private Position myPlayerPosition;
 
     private final GameState myGameState;
+    private JLabel myCurrentQuestionLabel;
+    private JPanel myAnswerInputPanel;
+    private Object myAnswerComponent; 
 
     private static final int DOOR_WALL = 0;
     private static final int DOOR_NOT_VISITED = 1;
@@ -621,12 +625,12 @@ public class ViewMockup implements GameView {
         gbc.gridy = 0;
         panel.add(questionLabel, gbc);
 
-        JLabel currentQuestion = new JLabel("2 + 2 = 5 (T OR F)");
-        currentQuestion.setForeground(Color.WHITE);
-        currentQuestion.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        myCurrentQuestionLabel = new JLabel();
+        myCurrentQuestionLabel.setForeground(Color.WHITE);
+        myCurrentQuestionLabel.setFont(new Font("Monospaced", Font.PLAIN, 14));
         gbc.gridx = 1;
         gbc.gridy = 0;
-        panel.add(currentQuestion, gbc);
+        panel.add(myCurrentQuestionLabel, gbc);
 
         JLabel answerLabel = new JLabel("ANSWER >");
         answerLabel.setForeground(new Color(106, 90, 205));
@@ -635,16 +639,114 @@ public class ViewMockup implements GameView {
         gbc.gridy = 1;
         panel.add(answerLabel, gbc);
 
-        JTextField answerField = new JTextField(20);
-        answerField.setBackground(BACKGROUND_COLOR);
-        answerField.setForeground(Color.GREEN);
-        answerField.setCaretColor(Color.GREEN);
-        answerField.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        myAnswerInputPanel = new JPanel();
+        myAnswerInputPanel.setBackground(panel.getBackground());
         gbc.gridx = 1;
         gbc.gridy = 1;
-        panel.add(answerField, gbc);
+        panel.add(myAnswerInputPanel, gbc);
+
+        JButton submitButton = new JButton("Submit");
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        panel.add(submitButton, gbc);
+
+        submitButton.addActionListener(e -> processAnswer());
+
+    
+        updateQuestionPanel();
 
         return panel;
+    }
+    public void updateQuestionPanel() {
+    // This currently doesn't get the question correctly and says cannot invoke getMaze()
+     /** 
+        Room currentRoom =  myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
+        Door currentDoor = currentRoom.getDoor(myGameState.getMyCurrentDirection());
+        Question q = currentDoor.getQuestion();
+
+        myCurrentQuestionLabel.setText(q.getQuestion());
+        myAnswerInputPanel.removeAll();
+
+        switch (q.getQuestionType().toString()) {
+            case "SHORT_ANSWER":
+                JTextField tf = new JTextField(20);
+                tf.setBackground(Color.BLACK);
+                tf.setForeground(Color.WHITE);
+                tf.setCaretColor(Color.WHITE);
+                tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
+                myAnswerComponent = tf;
+                myAnswerInputPanel.add(tf);
+                tf.addActionListener(e -> processAnswer());
+                break;
+            case "MULTIPLE_CHOICE":
+                ButtonGroup mcGroup = new ButtonGroup();
+                JPanel mcPanel = new JPanel(new GridLayout(0, 1));
+                for (String option : ((MultipleChoiceQuestion)q).getOptions()) {
+                    JRadioButton rb = new JRadioButton(option);
+                    rb.setForeground(Color.WHITE);
+                    rb.setBackground(Color.BLACK);
+                    mcGroup.add(rb);
+                    mcPanel.add(rb);
+            }
+                myAnswerComponent = mcGroup;
+                myAnswerInputPanel.add(mcPanel);
+                break;
+            case "TRUE_FALSE":
+                ButtonGroup tfGroup = new ButtonGroup();
+                JRadioButton trueBtn = new JRadioButton("True");
+                JRadioButton falseBtn = new JRadioButton("False");
+                trueBtn.setForeground(Color.WHITE); trueBtn.setBackground(Color.BLACK);
+                falseBtn.setForeground(Color.WHITE); falseBtn.setBackground(Color.BLACK);
+                tfGroup.add(trueBtn); tfGroup.add(falseBtn);
+                JPanel tfPanel = new JPanel(new GridLayout(1, 2));
+                tfPanel.add(trueBtn); tfPanel.add(falseBtn);
+                myAnswerComponent = tfGroup;
+                myAnswerInputPanel.add(tfPanel);
+                break;
+            default:
+            
+                myAnswerComponent = null;
+                myAnswerInputPanel.add(new JLabel("Unknown question type."));
+                break;
+        }
+        myAnswerInputPanel.revalidate();
+        myAnswerInputPanel.repaint();*/
+    }  
+
+    public void setQuestionText(String text) {
+        myCurrentQuestionLabel.setText(text);
+        answerField.setText(""); // Clear previous answer
+    }
+    private void processAnswer() {
+    
+        Direction dir = myGameState.getMyCurrentDirection();
+        Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
+        Door door = room.getDoor(dir);
+        Question q = door.getQuestion();
+
+        String userAnswer = "";
+        switch (q.getQuestionType().toString()) {
+            case "SHORT_ANSWER":
+                userAnswer = ((JTextField) myAnswerComponent).getText();
+                break;
+            case "MULTIPLE_CHOICE":
+            case "TRUE_FALSE":
+                ButtonGroup group = (ButtonGroup) myAnswerComponent;
+                for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
+                    AbstractButton button = buttons.nextElement();
+                if (button.isSelected()) {
+                    userAnswer = button.getText();
+                    break;
+                }
+            }
+            break;
+    }
+        boolean correct = myGameState.answerDoor(dir, userAnswer);
+        // Optionally update stats
+        if (correct) {
+        // increment logic
+        } else {
+        // increment logic
     }
 
     private JPanel createControlPanel() {
