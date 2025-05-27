@@ -513,11 +513,11 @@ public class ViewMockup implements GameView {
     // Fix the createMapPanel method - coordinate system consistency
     private JPanel createMapPanel() {
         final JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(myMazeSize.width, myMazeSize.height, 5, 5));
+        panel.setLayout(new GridLayout(myMazeSize.height, myMazeSize.width, 5, 5));
         panel.setBackground(Color.BLACK);
 
-        for (int row = 0; row < myMazeSize.width; row++) {
-            for (int col = 0; col < myMazeSize.height; col++) {
+        for (int row = 0; row < myMazeSize.height; row++) {
+            for (int col = 0; col < myMazeSize.width; col++) {
                 // Start every door off at DOOR_NOT_VISITED
                 int[] doorStates = {DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED}; // N, S, E, W
 
