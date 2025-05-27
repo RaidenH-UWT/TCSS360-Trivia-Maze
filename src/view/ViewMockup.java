@@ -183,17 +183,12 @@ public class ViewMockup implements GameView {
     /**
      * Update the position of the player.
      */
-    private void updatePosition(Position newPos) {
-        // Reset old room
-        myRooms[myCurrentRoom].setIsPlayerPosition(false);
-        myRooms[myCurrentRoom].repaint();
+    private void updatePosition(Position oldPos, Position newPos) {
+        // called when the player position changes
+        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
 
-        // Update myCurrentRoom
-        myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
-
-        // Update current room
-        myRooms[myCurrentRoom].setIsPlayerPosition(true);
-        myRooms[myCurrentRoom].repaint();
+        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
+        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
     }
 
     /**
@@ -573,6 +568,12 @@ public class ViewMockup implements GameView {
                 myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()].getDoorState());
 
         return myMinimap;
+    }
+
+    private void updateMinimap() {
+        RoomPanel currentRoomPanel = myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()];
+        myMinimap.setDoorStates(currentRoomPanel.getDoorState());
+        myMinimap.repaint();
     }
 
     private JPanel createStatsPanel(int answered, int failed) {
