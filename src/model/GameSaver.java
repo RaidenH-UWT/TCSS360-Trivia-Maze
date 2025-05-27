@@ -1,7 +1,10 @@
 package src.model;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
@@ -35,6 +38,16 @@ public class GameSaver {
      * @throws FileNotFoundException if the given save file is not found
      */
     public GameState getSave(final String theFilename) {
+         try (
+            FileInputStream fileIn = new FileInputStream(theFilename);
+            ObjectInputStream in = new ObjectInputStream(fileIn)
+        ) {
+            return (GameState) in.readObject();
+        } catch (FileNotFoundException e) {
+            System.err.println("Save file not found: " + e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading game: " + e.getMessage());
+        }
         return null;
     }
 }

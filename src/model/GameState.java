@@ -24,7 +24,14 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Stores the current position of the player.
      */
     private Position myCurrentPosition;
+
+    /**
+     * Stores the current direction of the player. Used for specifying which Door
+     * we're looking at.
+     */
+    private Direction myCurrentDirection;
     // Could calculate these instead of storing them just counting the rooms in the maze
+    // TODO: rework with updated property change events
     /**
      * Stores the number of questions the player has answered.
      */
@@ -125,6 +132,14 @@ public class GameState implements PropertyChangeEnabledGameState {
         return myQuestionsSucceeded;
     }
 
+
+    // TODO: Add a method for selecting the current door, for use in the minimap/question panel, and fire PROPERTY_DOOR_VISITED from there
+    /**
+     * Attempt to answer the door in the given direction.
+     * @param theDir Direction of the door in the current room
+     * @param theAnswer String answer to check
+     * @return true if theAnswer and the door's answer match, false otherwise
+     */
     public boolean answerDoor(final Direction theDir, final String theAnswer) {
         boolean out = myMaze.getRoom(myCurrentPosition).getDoor(theDir).answerQuestion(theAnswer);
 

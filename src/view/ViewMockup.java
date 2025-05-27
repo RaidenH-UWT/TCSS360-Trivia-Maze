@@ -1,11 +1,12 @@
 package src.view;
 
 import java.beans.PropertyChangeEvent;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -16,6 +17,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Polygon;
+import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -67,14 +69,14 @@ public class ViewMockup implements GameView {
     private static final Color[] DOOR_COLORS = {Color.DARK_GRAY, Color.GRAY, Color.BLUE, Color.RED, Color.GREEN};
 
     /**
+     * Constant background color.
+     */
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
+
+    /**
      * Reference to the JFrame for the window
      */
     private final JFrame myFrame;
-
-    /**
-     * Array of rooms in the maze panel.
-     */
-    private RoomPanel[] myRooms;
 
     /**
      * Dimensions of the maze (in rooms)
@@ -82,10 +84,18 @@ public class ViewMockup implements GameView {
     private final Dimension myMazeSize;
 
     /**
+     * Array of rooms in the maze panel.
+     */
+    private RoomPanel[] myRooms;
+
+    /**
      * Stores selected sprite.
      */
     private ImageIcon selectedSprite;
 
+    /**
+     * Current position of the player.
+     */
     private Position myPlayerPosition;
 
     private final GameState myGameState;
@@ -96,6 +106,19 @@ public class ViewMockup implements GameView {
     private static final int DOOR_FAILED = 3;
     private static final int DOOR_SUCCEEDED = 4;
 
+    /**
+     * Stores the index of the current room in the myRooms array
+     */
+    private int myCurrentRoom;
+
+    /**
+     * Minimap panel in the main panel.
+     */
+    private RoomPanel myMinimap;
+
+    /**
+     * Construct a new ViewMockup with the given GameState.
+     */
     public ViewMockup(GameState theState) {
         super();
 
@@ -107,7 +130,11 @@ public class ViewMockup implements GameView {
 
         myPlayerPosition = new Position(0, 0);
 
+        myCurrentRoom = myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX();
+
         myRooms = new RoomPanel[myMazeSize.width * myMazeSize.height];
+
+        myMinimap = new RoomPanel(myPlayerPosition, new int[]{0, 0, 0, 0});
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
@@ -158,27 +185,11 @@ public class ViewMockup implements GameView {
      * Update the position of the player.
      */
     private void updatePosition(Position oldPos, Position newPos) {
-        System.out.println("Moving from (" + oldPos.getX() + "," + oldPos.getY()
-                + ") to (" + newPos.getX() + "," + newPos.getY() + ")");
+        // called when the player position changes
+        ((RoomPanel) myRooms[oldPos.getY() * myMazeSize.width + oldPos.getX()]).resetBackground();
 
-        int oldIndex = oldPos.getY() * myMazeSize.width + oldPos.getX();
-        int newIndex = newPos.getY() * myMazeSize.width + newPos.getX();
-
-        System.out.println("Old index: " + oldIndex + ", New index: " + newIndex);
-        System.out.println("Array length: " + myRooms.length);
-
-        if (oldIndex >= 0 && oldIndex < myRooms.length && myRooms[oldIndex] != null) {
-            myRooms[oldIndex].resetBackground();
-            myRooms[oldIndex].repaint();
-        }
-
-        if (newIndex >= 0 && newIndex < myRooms.length && myRooms[newIndex] != null) {
-            myPlayerPosition = newPos;
-            myRooms[newIndex].setBackground(Color.YELLOW);
-            myRooms[newIndex].repaint();
-        } else {
-            System.out.println("Invalid new position index: " + newIndex);
-        }
+        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].setBackground(Color.YELLOW);
+        myRooms[newPos.getY() * myMazeSize.width + newPos.getX()].repaint();
     }
 
     /**
@@ -210,7 +221,7 @@ public class ViewMockup implements GameView {
     public void propertyChange(PropertyChangeEvent theEvent) {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
-                updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
+                updatePosition((Position) theEvent.getNewValue());
                 break;
             case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
                 updateRooms((Position) theEvent.getNewValue());
@@ -340,6 +351,12 @@ public class ViewMockup implements GameView {
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
 
+    // Debug menu events
+    private void movePlayerEvent(final ActionEvent theEvent) {
+        updatePosition(new Position((myPlayerPosition.getX() + 1) % myMazeSize.width,
+                (myPlayerPosition.getY() + 1) % myMazeSize.height));
+    }
+
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      * 
@@ -361,9 +378,12 @@ public class ViewMockup implements GameView {
 
         JMenu helpMenu = buildHelpMenu();
 
+        JMenu debugMenu = buildDebugMenu();
+
         bar.add(fileMenu);
         bar.add(saveMenu);
         bar.add(helpMenu);
+        bar.add(debugMenu);
 
         return bar;
     }
@@ -425,9 +445,23 @@ public class ViewMockup implements GameView {
         return menu;
     }
 
+    private JMenu buildDebugMenu() {
+        JMenu menu = new JMenu("Debug");
+        menu.setMnemonic(KeyEvent.VK_D);
+
+        final JMenuItem movePlayerItem = new JMenuItem("Move Player");
+        movePlayerItem.addActionListener(this::movePlayerEvent);
+
+        menu.add(movePlayerItem);
+
+        return menu;
+    }
+
+    // TODO: Break off each panel into it's own class (including RoomPanel probably)
     private JPanel createContentPane() {
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(BACKGROUND_COLOR);
 
         // Ok this is kind of stupid and excessively complicated. but.
         // int gridx: x coordinate from top left    int gridy: y coordinate from top left
@@ -441,9 +475,9 @@ public class ViewMockup implements GameView {
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel minimapPanel = createDoorPanel();
+        final JPanel minimapPanel = createMinimapPanel();
         GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
-                GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+                GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(25, 85, 25, 85), 0, 0);
 
         final JPanel statsPanel = createStatsPanel(3, 5);
         GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3,
@@ -573,14 +607,29 @@ public class ViewMockup implements GameView {
     // Fix the createMapPanel method - coordinate system consistency
     private JPanel createMapPanel() {
         final JPanel panel = new JPanel();
-
-        panel.setLayout(new GridLayout(myMazeSize.height, myMazeSize.width, 5, 5));
+        panel.setLayout(new GridLayout(myMazeSize.width, myMazeSize.height, 5, 5));
         panel.setBackground(Color.BLACK);
 
-        for (int row = 0; row < myMazeSize.height; row++) {
-            for (int col = 0; col < myMazeSize.width; col++) {
+        for (int row = 0; row < myMazeSize.width; row++) {
+            for (int col = 0; col < myMazeSize.height; col++) {
+                // Start every door off at DOOR_NOT_VISITED
+                int[] doorStates = {DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED}; // N, S, E, W
 
-                int[] doorStates = getDoorStatesForRoom(col, row);
+                // If this room is on an edge, set the corresponding door to DOOR_WALL
+                if (col == 0) {
+                    doorStates[3] = DOOR_WALL;
+                }
+                if (col == myMazeSize.height - 1) {
+                    doorStates[2] = DOOR_WALL;
+                }
+                if (row == 0) {
+                    doorStates[1] = DOOR_WALL;
+                }
+                if (row == myMazeSize.width - 1) {
+                    doorStates[0] = DOOR_WALL;
+                }
+
+                doorStates[3] = DOOR_VISITED;
 
                 final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates);
 
@@ -590,9 +639,11 @@ public class ViewMockup implements GameView {
         }
 
         updatePosition(new Position(0, 0), new Position(0, 0));
+
         return panel;
     }
 
+    @Deprecated // in favour of createMinimapPanel()
     private JPanel createDoorPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(18, 18, 18));
@@ -604,13 +655,20 @@ public class ViewMockup implements GameView {
         openDoorButton.setBorderPainted(true);
         openDoorButton.setFont(new Font("Monospaced", Font.BOLD, 30));
         openDoorButton.setBackground(new Color(255, 204, 0));
-        openDoorButton.setForeground(Color.BLACK);
+        openDoorButton.setForeground(BACKGROUND_COLOR);
         openDoorButton.setFocusPainted(false);
-        openDoorButton.setBorder(javax.swing.BorderFactory.createLineBorder(Color.BLACK, 2));
+        openDoorButton.setBorder(BorderFactory.createLineBorder(BACKGROUND_COLOR, 2));
         openDoorButton.setPreferredSize(new Dimension(450, 100));
 
         panel.add(openDoorButton);
         return panel;
+    }
+
+    private JPanel createMinimapPanel() {
+        myMinimap = new RoomPanel(myPlayerPosition,
+                myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()].getDoorState());
+
+        return myMinimap;
     }
 
     private JPanel createStatsPanel(int answered, int failed) {
@@ -670,7 +728,7 @@ public class ViewMockup implements GameView {
         panel.add(answerLabel, gbc);
 
         JTextField answerField = new JTextField(20);
-        answerField.setBackground(Color.BLACK);
+        answerField.setBackground(BACKGROUND_COLOR);
         answerField.setForeground(Color.GREEN);
         answerField.setCaretColor(Color.GREEN);
         answerField.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -725,7 +783,7 @@ public class ViewMockup implements GameView {
                 g2d.fill(verticalArm);
                 g2d.fill(horizontalArm);
 
-                g2d.setColor(Color.BLACK);
+                g2d.setColor(BACKGROUND_COLOR);
                 g2d.draw(verticalArm);
                 g2d.draw(horizontalArm);
 
@@ -965,15 +1023,18 @@ public class ViewMockup implements GameView {
 
         private Color myColor;
 
+        private boolean isPlayerPosition;
+
         public RoomPanel(final Position thePos, final int[] theRoomState) {
             super();
 
             myPos = thePos;
             myDoorState = theRoomState;
-            myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
+            myColor = BACKGROUND_COLOR;
             setBackground(myColor);
         }
 
+        @Deprecated
         public void resetBackground() {
             myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
             setBackground(myColor);
@@ -989,6 +1050,24 @@ public class ViewMockup implements GameView {
             repaint();
         }
 
+        public void setDoorStates(final int[] theStates) {
+            for (int state : theStates) {
+                if (state < 0 || state > 4) {
+                    throw new IllegalArgumentException("Door state not defined");
+                }
+            }
+            myDoorState = theStates;
+            repaint();
+        }
+
+        public int[] getDoorState() {
+            return myDoorState;
+        }
+
+        public void setIsPlayerPosition(boolean theIsPosition) {
+            isPlayerPosition = theIsPosition;
+        }
+
         @Override
         public void paintComponent(final Graphics theGraphics) {
             super.paintComponent(theGraphics);
@@ -1002,16 +1081,6 @@ public class ViewMockup implements GameView {
                 g2d.fillPolygon(DOORTRIANGLES.get(dir));
             }
 
-            if (myPos.equals(myPlayerPosition) && selectedSprite != null) {
-                Image spriteImg = selectedSprite.getImage();
-                int panelW = getWidth();
-                int panelH = getHeight();
-                int spriteW = Math.min(panelW, panelH) / 2;
-                int spriteH = Math.min(panelW, panelH) / 2;
-                int x = (panelW - spriteW) / 2;
-                int y = (panelH - spriteH) / 2;
-                g2d.drawImage(spriteImg, x, y, spriteW, spriteH, this);
-            }
         }
 
         private void updateDoorTriangles() {
@@ -1057,7 +1126,7 @@ public class ViewMockup implements GameView {
 
         @Override
         public String toString() {
-            return myPos.getX() + ", " + myPos.getY() + " with " + this.getBackground().toString();
+            return myPos.getX() + ", " + myPos.getY() + " with " + Arrays.toString(myDoorState);
         }
     }
 
