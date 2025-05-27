@@ -17,7 +17,6 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Polygon;
-import java.awt.Stroke;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -507,103 +506,6 @@ public class ViewMockup implements GameView {
         mainPanel.add(infoPanel, infoConstraint);
 
         return mainPanel;
-    }
-
-    /*
-    private JPanel createMapPanel() {
-        // If we're going to do this, it probably shouldn't be an inline class
-        // either break it off into a seperate class
-        // or an internal class
-        final JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                int width = getWidth();
-                int height = getHeight();
-                // TODO: Rework implementation to work with non-square mazes
-                int rows = myMazeSize.height;
-                int cols = myMazeSize.width;
-
-                Color nodeColor = new Color(192, 192, 192);
-                Color arrowColor = new Color(255, 255, 255);
-                Color bgColor = new Color(0, 0, 0);
-
-                setBackground(bgColor);
-
-                int spacingX = width / (cols + 1);
-                int spacingY = height / (rows + 1);
-                int nodeSize = Math.min(spacingX, spacingY) / 2;
-
-                for (int row = 0; row < rows; row++) {
-                    for (int col = 0; col < cols; col++) {
-                        int x = spacingX * (col + 1) - nodeSize / 2;
-                        int y = spacingY * (row + 1) - nodeSize / 2;
-
-                        if (row == rows - 1 && col == cols - 1) {
-                            g.setColor(new Color(255, 0, 0));
-                            g.fillRect(x, y, nodeSize, nodeSize);
-
-                            g.setColor(Color.BLACK);
-                            g.drawRect(x, y, nodeSize, nodeSize);
-
-                            g.setColor(Color.WHITE);
-                            g.setFont(new Font("Monospaced", Font.BOLD, 18));
-                            FontMetrics fm = g.getFontMetrics();
-                            String endText = "END";
-                            int textWidth = fm.stringWidth(endText);
-                            int textHeight = fm.getAscent();
-
-                            g.drawString(endText,
-                                    x + (nodeSize - textWidth) / 2,
-                                    y + (nodeSize + textHeight) / 2 - 2);
-                        } else {
-                            g.setColor(new Color(192, 192, 192));
-                            g.fillRect(x, y, nodeSize, nodeSize);
-
-                            g.setColor(Color.BLACK);
-                            g.drawRect(x, y, nodeSize, nodeSize);
-                        }
-
-                        if (col < cols - 1) {
-                            int midX = x + nodeSize;
-                            int midY = y + nodeSize / 2;
-                            g.setColor(Color.WHITE);
-                            g.fillRect(midX, midY - 2, spacingX - nodeSize, 4);
-                        }
-
-                        if (row < rows - 1) {
-                            int midX = x + nodeSize / 2;
-                            int midY = y + nodeSize;
-                            g.setColor(Color.WHITE);
-                            g.fillRect(midX - 2, midY, 4, spacingY - nodeSize);
-                        }
-                    }
-                }
-
-            }
-        };
-
-        panel.setBackground(Color.BLACK);
-        return panel;
-    }
-     */
-    private int[] getDoorStatesForRoom(int col, int row) {
-        int[] doorStates = new int[4];
-        Maze maze = myGameState.getMaze();
-
-        Room room = maze.getRoom(new Position(col, row));
-
-        for (Direction dir : Direction.values()) {
-            Position neighbor = new Position(col, row).translate(dir);
-            if (!maze.isWithinBounds(neighbor)) {
-                doorStates[dir.ordinal()] = DOOR_WALL;
-            } else {
-                Door door = room.getDoor(dir);
-                doorStates[dir.ordinal()] = getDoorStateForView(door);
-            }
-        }
-
-        return doorStates;
     }
 
     // Reworked createMapPanel() to work with any dimensions and use seperate RoomPanels 
