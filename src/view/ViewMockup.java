@@ -90,7 +90,7 @@ public class ViewMockup implements GameView {
     /**
      * Stores selected sprite.
      */
-    private ImageIcon selectedSprite;
+    private ImageIcon mySelectedSprite;
 
     /**
      * Current position of the player.
@@ -707,7 +707,7 @@ public class ViewMockup implements GameView {
                 drawDirectionalArrow(g2d, centerX + crossSize / 3, centerY, Direction.EAST, arrowSize);
             }
 
-            private void drawDirectionalArrow(java.awt.Graphics2D g, int x, int y, Direction dir, int size) {
+            private void drawDirectionalArrow(Graphics2D g, int x, int y, Direction dir, int size) {
                 int[] xPoints = new int[3];
                 int[] yPoints = new int[3];
 
@@ -785,7 +785,6 @@ public class ViewMockup implements GameView {
         Door door = currentRoom.getDoor(direction);
 
         if (door == null) {
-            System.out.println("There's a wall in that direction!");
             return;
         }
 
@@ -879,7 +878,7 @@ public class ViewMockup implements GameView {
                         label.setBorder(selectedBorder);
                         selectedLabel[0] = label;
 
-                        selectedSprite = ((ImageIcon) label.getIcon());
+                        mySelectedSprite = ((ImageIcon) label.getIcon());
 
                         for (RoomPanel room : myRooms) {
                             if (room != null) {
@@ -887,7 +886,7 @@ public class ViewMockup implements GameView {
                             }
                         }
                     } else {
-                        selectedSprite = null;
+                        mySelectedSprite = null;
                     }
                 }
             });
@@ -910,15 +909,10 @@ public class ViewMockup implements GameView {
     }
 
     private ImageIcon getSelectedSprite() {
-        return selectedSprite;
+        return mySelectedSprite;
     }
 
     private class RoomPanel extends JPanel {
-
-        // Add display for rooms
-        // i'm thinking 4 triangles, 1 for each cardinal direction
-        // and colour coded based on lock state
-        // and mystery colour if they haven't been visited yet.
         private final Position myPos;
 
         private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
@@ -931,7 +925,7 @@ public class ViewMockup implements GameView {
 
         private Color myColor;
 
-        private boolean isPlayerPosition;
+        private boolean isPlayerPosition = false;
 
         public RoomPanel(final Position thePos, final int[] theRoomState) {
             super();
@@ -992,8 +986,8 @@ public class ViewMockup implements GameView {
                 g2d.setStroke(new BasicStroke(5));
                 g2d.drawPolygon(DOORTRIANGLES.get(dir));
             }
-            if (isPlayerPosition && selectedSprite != null) {
-                Image spriteImg = selectedSprite.getImage();
+            if (isPlayerPosition && mySelectedSprite != null) {
+                Image spriteImg = mySelectedSprite.getImage();
                 int panelW = getWidth();
                 int panelH = getHeight();
                 int spriteW = Math.min(panelW, panelH) / 2;
@@ -1050,18 +1044,5 @@ public class ViewMockup implements GameView {
         public String toString() {
             return myPos.getX() + ", " + myPos.getY() + " with " + Arrays.toString(myDoorState);
         }
-    }
-
-    private int getDoorStateForView(Door door) {
-        if (door == null) {
-            return DOOR_WALL;
-        }
-        if (door.isLocked()) {
-            return DOOR_FAILED;
-        }
-        if (door.isOpen()) {
-            return DOOR_SUCCEEDED;
-        }
-        return DOOR_NOT_VISITED;
     }
 }
