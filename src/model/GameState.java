@@ -100,7 +100,13 @@ public class GameState implements PropertyChangeEnabledGameState {
     public Position getMyCurrentPosition() {
         return myCurrentPosition;
     }
-
+    /**
+     * Gets current direction of the player.
+     * @return Direction the play is at.
+     */
+    public Direction getMyCurrentDirection(){
+        return myCurrentDirection;
+    }
     /**
      * Sets the position of the player.
      * @param thePosition Position for the player to be set to
