@@ -83,6 +83,21 @@ public class DatabaseManager {
     }
 
     /**
+     * Gets all questions stored in the database not in the test category.
+     * @return ResultSet of every question in the database except the test category
+     */
+    protected static ResultSet getAllRealQuestions() {
+        try {
+            ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE NOT 'Category'='test'");
+            return results;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Get all questions in the test category.
      * @return ResultSet of every question in the test category
      */

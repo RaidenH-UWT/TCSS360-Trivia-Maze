@@ -52,13 +52,13 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Initialize the state with the given maze.
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
-     * @param theCategory String category to pull questions from
+     * @param theCategories String[] of categories to include
      */
-    public GameState(final int theWidth, final int theHeight, final String theCategory) {
+    public GameState(final int theWidth, final int theHeight, final String[] theCategories) {
         super();
 
         // Maze constructor does parameter checking
-        myMaze = new Maze(theWidth, theHeight, theCategory);
+        myMaze = new Maze(theWidth, theHeight, theCategories);
         myCurrentPosition = myMaze.getEntrance();
         myQuestionsFailed = 0;
         myQuestionsSucceeded = 0;
@@ -82,6 +82,15 @@ public class GameState implements PropertyChangeEnabledGameState {
      */
     public GameState(final int theSideLength) {
         this(theSideLength, theSideLength);
+    }
+
+    /**
+     * Initialize the state with the given maze and question categories.
+     * @param theSideLength int size of the square maze
+     * @param theCategories String[] of categories to include
+     */
+    public GameState(final int theSideLength, final String[] theCategories) {
+        this(theSideLength, theSideLength, theCategories);
     }
 
     /**

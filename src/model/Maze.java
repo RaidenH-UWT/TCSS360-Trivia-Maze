@@ -55,7 +55,7 @@ public class Maze {
      * @param theHeight int height of the new maze
      * @param theCategory String category to pull questions from
      */
-    public Maze(final int theWidth, final int theHeight, final String theCategory) {
+    public Maze(final int theWidth, final int theHeight, final String[] theCategories) {
         super();
         if (theWidth <= 0 || theHeight <= 0) {
             throw new IllegalArgumentException("Dimensions must be greater than 0.");
@@ -71,11 +71,11 @@ public class Maze {
         generateEmptyRooms();
 
         // If a category was passed, generate rooms with the given category.
-        if (theCategory == null) {
+        if (theCategories == null) {
             fillRoomsRandom();
         } else {
-            // Error checking if theCategory exists in the database.
-            fillRoomsRandom(theCategory);
+            // Error checking if theCategories exists in the database.
+            fillRoomsRandom(theCategories);
         }
     }
 
@@ -104,7 +104,7 @@ public class Maze {
      * Fills the generated rooms with random doors.
      */
     public void fillRoomsRandom() {
-        ArrayList<Question> questions = new ArrayList<Question>(QuestionFactory.getAllQuestions());
+        ArrayList<Question> questions = new ArrayList<Question>(QuestionFactory.getAllRealQuestions());
         fillRooms(questions);
     }
 
@@ -115,13 +115,16 @@ public class Maze {
      * @throws IllegalArgumentException if the passed category is not in the
      * database
      */
-    public void fillRoomsRandom(final String theCategory) {
-        if (!DatabaseManager.getCategories().contains(theCategory)) {
-            throw new IllegalArgumentException("Category is not in the database");
-        } else {
-            ArrayList<Question> questions = new ArrayList<Question>(QuestionFactory.getAllQuestionsByCategory(theCategory));
-            fillRooms(questions);
+    public void fillRoomsRandom(final String[] theCategories) {
+        ArrayList<Question> questions = new ArrayList<Question>();
+        for (String category : theCategories) {
+            if (!DatabaseManager.getCategories().contains(category)) {
+                throw new IllegalArgumentException("Category is not in the database");
+            } else {
+                questions.addAll(new ArrayList<Question>(QuestionFactory.getAllQuestionsByCategory(category)));
+            }
         }
+        fillRooms(questions);
     }
 
     /**

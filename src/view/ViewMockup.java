@@ -198,6 +198,8 @@ public class ViewMockup implements GameView {
 
         myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
 
+        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+
         myRooms[myCurrentRoom].setIsPlayerPosition(true);
         myRooms[myCurrentRoom].repaint();
     }
@@ -223,8 +225,8 @@ public class ViewMockup implements GameView {
 
     private void updateDoor(final Direction theDir, final int theDoorState) {
         updateStats(theDoorState == 4);
-        myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()]
-                .setDoorState(theDir, theDoorState);
+        myRooms[myCurrentRoom].setDoorState(theDir, theDoorState);
+        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
     }
 
     @Override

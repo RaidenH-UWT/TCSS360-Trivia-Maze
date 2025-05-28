@@ -103,6 +103,25 @@ public class QuestionFactory {
     }
 
     /**
+     * Gets all questions stored in the database not in the test category.
+     * @return List<Question> of every question in the database except the test category
+     */
+    public static List<Question> getAllRealQuestions() {
+        try {
+            ResultSet results = DatabaseManager.getAllRealQuestions();
+            List<Question> resList = new ArrayList<Question>();
+            
+            while (results.next()) {
+                resList.add(sqlRowToQuestion(results));
+            }
+            return resList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Gets all test questions stored in the database.
      * @return List<Question> of every test question in the database
      */
