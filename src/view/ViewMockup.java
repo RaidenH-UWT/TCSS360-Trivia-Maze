@@ -44,6 +44,7 @@ import src.model.Direction;
 import src.model.Door;
 import src.model.GameState;
 import src.model.Maze;
+import src.model.MultipleChoiceQuestion;
 import src.model.Position;
 import src.model.PropertyChangeEnabledGameState;
 import src.model.Question;
@@ -619,7 +620,7 @@ public class ViewMockup implements GameView {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(30, 30, 30));
         panel.setLayout(new GridBagLayout());
-
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
@@ -664,96 +665,132 @@ public class ViewMockup implements GameView {
         return panel;
     }
     public void updateQuestionPanel() {
-    // This currently doesn't get the question correctly and says cannot invoke getMaze()
-     /** 
-        Room currentRoom =  myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
-        Door currentDoor = currentRoom.getDoor(myGameState.getMyCurrentDirection());
-        Question q = currentDoor.getQuestion();
-
-        myCurrentQuestionLabel.setText(q.getQuestion());
-        myAnswerInputPanel.removeAll();
-
-        switch (q.getQuestionType().toString()) {
-            case "SHORT_ANSWER":
-                JTextField tf = new JTextField(20);
-                tf.setBackground(Color.BLACK);
-                tf.setForeground(Color.WHITE);
-                tf.setCaretColor(Color.WHITE);
-                tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
-                myAnswerComponent = tf;
-                myAnswerInputPanel.add(tf);
-                tf.addActionListener(e -> processAnswer());
-                break;
-            case "MULTIPLE_CHOICE":
-                ButtonGroup mcGroup = new ButtonGroup();
-                JPanel mcPanel = new JPanel(new GridLayout(0, 1));
-                for (String option : ((MultipleChoiceQuestion)q).getOptions()) {
-                    JRadioButton rb = new JRadioButton(option);
-                    rb.setForeground(Color.WHITE);
-                    rb.setBackground(Color.BLACK);
-                    mcGroup.add(rb);
-                    mcPanel.add(rb);
-            }
-                myAnswerComponent = mcGroup;
-                myAnswerInputPanel.add(mcPanel);
-                break;
-            case "TRUE_FALSE":
-                ButtonGroup tfGroup = new ButtonGroup();
-                JRadioButton trueBtn = new JRadioButton("True");
-                JRadioButton falseBtn = new JRadioButton("False");
-                trueBtn.setForeground(Color.WHITE); trueBtn.setBackground(Color.BLACK);
-                falseBtn.setForeground(Color.WHITE); falseBtn.setBackground(Color.BLACK);
-                tfGroup.add(trueBtn); tfGroup.add(falseBtn);
-                JPanel tfPanel = new JPanel(new GridLayout(1, 2));
-                tfPanel.add(trueBtn); tfPanel.add(falseBtn);
-                myAnswerComponent = tfGroup;
-                myAnswerInputPanel.add(tfPanel);
-                break;
-            default:
+        
             
-                myAnswerComponent = null;
-                myAnswerInputPanel.add(new JLabel("Unknown question type."));
-                break;
+        Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
+        Door door = room.getDoor(myGameState.getMyCurrentDirection());
+    
+        myAnswerInputPanel.removeAll();
+            
+        if (door == null) {
+            myCurrentQuestionLabel.setText("No door that way");
+                
         }
+        else if (door.isOpen()) {
+            myCurrentQuestionLabel.setText("Door is open");
+                
+        }
+        else if (door.isLocked()) {
+            myCurrentQuestionLabel.setText("Door is locked");
+               
+        }
+        else {
+                
+            Question q = door.getQuestion();
+            myCurrentQuestionLabel.setText(q.getQuestion());
+        
+            switch (q.getQuestionType()) {
+                case SHORT_ANSWER:
+                    JTextField tf = new JTextField(20);
+                    tf.setBackground(Color.BLACK);
+                    tf.setForeground(Color.WHITE);
+                    tf.setCaretColor(Color.WHITE);
+                    tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
+                    myAnswerComponent = tf;
+                    myAnswerInputPanel.add(tf);
+                    tf.addActionListener(e -> processAnswer());
+                    break;
+                case MULTIPLE_CHOICE:
+                    ButtonGroup mcGroup = new ButtonGroup();
+                    JPanel mcPanel = new JPanel(new GridLayout(0, 1));
+                    mcPanel.setBackground(Color.BLACK);
+                    for (String opt : ((MultipleChoiceQuestion) q).getOptions()) {
+                        JRadioButton rb = new JRadioButton(opt);
+                        rb.setForeground(Color.WHITE);
+                         rb.setBackground(Color.BLACK);
+                        mcGroup.add(rb);
+                        mcPanel.add(rb);
+                    }
+                    myAnswerComponent = mcGroup;
+                     myAnswerInputPanel.add(mcPanel);
+                    break;
+                case TRUE_FALSE:
+                    ButtonGroup tfGroup = new ButtonGroup();
+                    JRadioButton t = new JRadioButton("True");
+                    JRadioButton f = new JRadioButton("False");
+                    for (JRadioButton b : new JRadioButton[]{t,f}) {
+                        b.setForeground(Color.WHITE);
+                        b.setBackground(Color.BLACK);
+                        tfGroup.add(b);
+                    }
+                    JPanel tfp = new JPanel(new GridLayout(1,2));
+                    tfp.setBackground(Color.BLACK);
+                    tfp.add(t);
+                    tfp.add(f);
+                    myAnswerComponent = tfGroup;
+                    myAnswerInputPanel.add(tfp);
+                    break;
+                default:
+                    myAnswerComponent = null;
+                    myAnswerInputPanel.add(new JLabel("Unknown question type."));
+            }
+        }
+        
         myAnswerInputPanel.revalidate();
-        myAnswerInputPanel.repaint();*/
+        myAnswerInputPanel.repaint();
+        
+        
     }  
 
-    public void setQuestionText(String text) {
-        myCurrentQuestionLabel.setText(text);
-        answerField.setText(""); // Clear previous answer
-    }
     private void processAnswer() {
-    
         Direction dir = myGameState.getMyCurrentDirection();
         Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
-        Door door = room.getDoor(dir);
-        Question q = door.getQuestion();
-
+        Door door = room.getDoor(myGameState.getMyCurrentDirection());
+    
+        if (door == null || door.isOpen() || door.isLocked()) {
+            
+            updateQuestionPanel();
+            return;
+        }
+    
+       
         String userAnswer = "";
-        switch (q.getQuestionType().toString()) {
-            case "SHORT_ANSWER":
-                userAnswer = ((JTextField) myAnswerComponent).getText();
-                break;
-            case "MULTIPLE_CHOICE":
-            case "TRUE_FALSE":
-                ButtonGroup group = (ButtonGroup) myAnswerComponent;
-                for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
-                    AbstractButton button = buttons.nextElement();
-                if (button.isSelected()) {
-                    userAnswer = button.getText();
+        if (myAnswerComponent instanceof JTextField) {
+            userAnswer = ((JTextField) myAnswerComponent).getText();
+        } else if (myAnswerComponent instanceof ButtonGroup) {
+            ButtonGroup grp = (ButtonGroup) myAnswerComponent;
+            for (Enumeration<AbstractButton> ez = grp.getElements(); ez.hasMoreElements(); ) {
+                AbstractButton btn = ez.nextElement();
+                if (btn.isSelected()) {
+                    userAnswer = btn.getText();
                     break;
                 }
             }
-            break;
-    }
-        boolean correct = myGameState.answerDoor(dir, userAnswer);
-        // Optionally update stats
-        if (correct) {
-        // increment logic
-        } else {
-        // increment logic
         }
+    
+        boolean correct = myGameState.answerDoor(dir, userAnswer);
+        if (correct) {
+            door.open();
+            updateDoor(dir, DOOR_SUCCEEDED);
+            
+            Position next = myGameState.getMyCurrentPosition().translate(dir);
+            Room nr = myGameState.getMaze().getRoom(next);
+            Door rev = nr.getDoor(dir.getOpposite());
+            if (rev != null) rev.open();
+            movePlayer(dir);
+        } else {
+            door.lock();
+            updateDoor(dir, DOOR_FAILED);
+            JOptionPane.showMessageDialog(
+                myFrame,
+                "Incorrect! That door is now locked.",
+                "Wrong Answer",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    
+        
+        updateQuestionPanel();
     }
 
     private JPanel createControlPanel() {
@@ -889,6 +926,7 @@ public class ViewMockup implements GameView {
     }
 
     private void handleDPadPress(Direction direction) {
+        myGameState.setMyCurrentDirection(direction);
         Maze maze = myGameState.getMaze();
         Room currentRoom = maze.getRoom(myPlayerPosition);
         Door door = currentRoom.getDoor(direction);
@@ -899,11 +937,13 @@ public class ViewMockup implements GameView {
 
         if (door.isOpen()) {
             movePlayer(direction);
+            updateQuestionPanel();
             return;
         }
 
         if (door.isLocked()) {
             JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
+            updateQuestionPanel();
             return;
         }
 
@@ -911,6 +951,7 @@ public class ViewMockup implements GameView {
         String playerAnswer = JOptionPane.showInputDialog(myFrame, question.getQuestion());
 
         if (playerAnswer == null) {
+            updateQuestionPanel();
             return;
         }
 
@@ -925,17 +966,19 @@ public class ViewMockup implements GameView {
                 reverseDoor.open();
             }
             movePlayer(direction);
+            updateQuestionPanel();
 
         } else {
             door.lock();
             updateDoor(direction, DOOR_FAILED);
             JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
+        updateQuestionPanel();
     }
 
     private void movePlayer(Direction direction) {
         Position newPosition = myPlayerPosition.translate(direction);
-
+        myGameState.setMyCurrentPosition(newPosition);
         updatePosition(newPosition);
         myPlayerPosition = newPosition;
     }
