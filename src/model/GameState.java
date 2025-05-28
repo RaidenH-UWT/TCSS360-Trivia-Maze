@@ -234,4 +234,11 @@ public class GameState implements PropertyChangeEnabledGameState {
             && thePosition.getY() <= getMaze().getHeight()
             && thePosition.getY() >= 0;
     }
+    /**
+     * Sets the current direction of player.
+     * @param direction direction to set
+     */
+    public void setMyCurrentDirection(Direction direction) {
+        myCurrentDirection=direction;
+    }
 }
