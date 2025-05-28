@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.Color;
@@ -23,7 +24,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
+
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -747,6 +751,7 @@ public class ViewMockup implements GameView {
         // increment logic
         } else {
         // increment logic
+        }
     }
 
     private JPanel createControlPanel() {
