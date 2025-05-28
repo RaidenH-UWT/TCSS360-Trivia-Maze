@@ -973,7 +973,7 @@ public class ViewMockup implements GameView {
             updateDoor(direction, DOOR_FAILED);
             JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
-        updateQuestionPanel();
+        
     }
 
     private void movePlayer(Direction direction) {
