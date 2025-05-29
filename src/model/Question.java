@@ -26,6 +26,7 @@ public abstract class Question implements java.io.Serializable {
      */
     private int myDifficulty;
 
+    // TODO: Go to package-protected rather than protected, protect from external inheritance
     /**
      * Creates a new Question object.
      *
