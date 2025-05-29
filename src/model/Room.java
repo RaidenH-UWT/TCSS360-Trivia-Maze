@@ -5,10 +5,13 @@ import java.util.Map;
 
 /**
  * Room class to be used inside Maze objects.
+ *
  * @author Raiden H
  * @version May 1, 2025
  */
-public class Room {
+public class Room implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
     // Could these be replaced with a Position?
     /**
      * X coordinate of this Room.
@@ -31,7 +34,8 @@ public class Room {
     private boolean myIsVisited;
 
     /**
-     * Creates a new Room with the given coordinates and creates new doors for the room.
+     * Creates a new Room with the given coordinates and creates new doors for
+     * the room.
      */
     public Room(final int theX, final int theY) {
         super();
@@ -43,9 +47,11 @@ public class Room {
 
     /**
      * Adds a new Door to the given direction.
+     *
      * @param theDir Direction to add the new Door to
      * @param theDoor Door object to add
-     * @throws IllegalArgumentException if this Room already has a Door in the given direction
+     * @throws IllegalArgumentException if this Room already has a Door in the
+     * given direction
      */
     protected void addDoor(final Direction theDir, final Door theDoor) {
         if (hasDoor(theDir)) {
@@ -57,6 +63,7 @@ public class Room {
 
     /**
      * Get the door in the given direction.
+     *
      * @param theDir Direction of the Door to retrieve
      * @return Door in the given direction
      */
@@ -66,6 +73,7 @@ public class Room {
 
     /**
      * Check whether a Door exists at the given direction.
+     *
      * @param theDir Direction to check
      * @return true if that direction has a Door, false otherwise
      */
@@ -96,6 +104,7 @@ public class Room {
 
     /**
      * Set whether the player has visited this Room or not.
+     *
      * @param theVisited boolean if the player has visited or not
      */
     public void setVisited(final boolean theVisited) {
@@ -117,7 +126,7 @@ public class Room {
             } else {
                 val = getDoor(dir).equals(((Room) theRoom).getDoor(dir));
             }
-            
+
             if (!val) {
                 return val;
             }
@@ -142,9 +151,9 @@ public class Room {
             i++;
         }
 
-        String out = String.format("(%d, %d, [NORTH: %s, SOUTH: %s, EAST: %s, WEST: %s])", 
-            myX, myY, doors[0], doors[1], doors[2], doors[3]);
-            
+        String out = String.format("(%d, %d, [NORTH: %s, SOUTH: %s, EAST: %s, WEST: %s])",
+                myX, myY, doors[0], doors[1], doors[2], doors[3]);
+
         return out;
     }
 }

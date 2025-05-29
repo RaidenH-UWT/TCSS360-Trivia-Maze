@@ -7,7 +7,7 @@ package src.model;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-public enum Direction {
+public enum Direction implements java.io.Serializable {
     NORTH,
     SOUTH,
     EAST,

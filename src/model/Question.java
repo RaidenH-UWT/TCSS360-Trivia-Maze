@@ -7,8 +7,10 @@ package src.model;
  * @author Kalen Cha
  * @version May 1, 2025
  */
+public abstract class Question implements java.io.Serializable {
 
-public abstract class Question {
+    private static final long serialVersionUID = 1L;
+
     /**
      * ID of this question, for the database.
      */
@@ -29,8 +31,8 @@ public abstract class Question {
      *
      * @param theId int ID for this question from the database
      * @param theQuestion String question from the database
-     * @param theDifficulty int difficulty of this problem. Must be in the range 1-5 inclusive
-     * range checking on difficulty is done in the database.
+     * @param theDifficulty int difficulty of this problem. Must be in the range
+     * 1-5 inclusive range checking on difficulty is done in the database.
      */
     protected Question(final int theId, final String theQuestion, final int theDifficulty) {
         super();

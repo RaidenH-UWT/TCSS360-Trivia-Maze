@@ -6,7 +6,9 @@ package src.model;
  * @author Raiden H
  * @author Kalen Cha
  */
-public class TrueFalseQuestion extends Question {
+public class TrueFalseQuestion extends Question implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
      * String answer of this question.
      */
@@ -17,11 +19,12 @@ public class TrueFalseQuestion extends Question {
      *
      * @param theId int ID for this question, to be used in the database
      * @param theQuestion String of the question text
-     * @param theAnswer String of the correct answer accepted values are "true" or "false"
+     * @param theAnswer String of the correct answer accepted values are "true"
+     * or "false"
      * @param theDifficulty int difficulty of this question [range]
      */
     protected TrueFalseQuestion(final int theId, final String theQuestion,
-        final String theAnswer, final int theDifficulty) {
+            final String theAnswer, final int theDifficulty) {
         super(theId, theQuestion, theDifficulty);
 
         myAnswer = theAnswer;

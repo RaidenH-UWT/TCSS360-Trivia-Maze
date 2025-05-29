@@ -106,7 +106,7 @@ public class ViewMockup implements GameView {
     private final GameState myGameState;
     private JLabel myCurrentQuestionLabel;
     private JPanel myAnswerInputPanel;
-    private Object myAnswerComponent; 
+    private Object myAnswerComponent;
 
     private static final int DOOR_WALL = 0;
     private static final int DOOR_NOT_VISITED = 1;
@@ -322,17 +322,18 @@ public class ViewMockup implements GameView {
      * @param loadedState The loaded GameState object.
      */
     private void updateGameState(GameState loadedState) {
-        // Update UI based on the loaded state
-        // Reset player position
-        Position newPosition = loadedState.getMyCurrentPosition();
-        updatePosition(newPosition);
+        if (loadedState == null) {
+            JOptionPane.showMessageDialog(myFrame, "Failed to load: Save file is empty or corrupted.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // TODO: Update other UI elements based on the loaded state
-        // Use myGameState for reference to the current state if needed
-        // Update the game state through proper channels (controller)
-        // This is just a placeholder - the actual implementation would depend on your architecture
-        System.out.println("Game state loaded from: " + myGameState.getClass().getName()
-                + " to: " + loadedState.getClass().getName());
+        myGameState.removePropertyChangeListener(this);
+        myGameState.updateFrom(loadedState);
+        myGameState.addPropertyChangeListener(this);
+        myPlayerPosition = myGameState.getMyCurrentPosition();
+        updatePosition(myPlayerPosition);
+        updateQuestionPanel();
+        updateMinimap();
     }
 
     private void manageSavesEvent(final ActionEvent theEvent) {
@@ -620,7 +621,7 @@ public class ViewMockup implements GameView {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(30, 30, 30));
         panel.setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
@@ -659,36 +660,32 @@ public class ViewMockup implements GameView {
 
         submitButton.addActionListener(e -> processAnswer());
 
-    
         updateQuestionPanel();
 
         return panel;
     }
+
     public void updateQuestionPanel() {
-        
-            
+
         Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
         Door door = room.getDoor(myGameState.getMyCurrentDirection());
-    
+
         myAnswerInputPanel.removeAll();
-            
+
         if (door == null) {
             myCurrentQuestionLabel.setText("No door that way");
-                
-        }
-        else if (door.isOpen()) {
+
+        } else if (door.isOpen()) {
             myCurrentQuestionLabel.setText("Door is open");
-                
-        }
-        else if (door.isLocked()) {
+
+        } else if (door.isLocked()) {
             myCurrentQuestionLabel.setText("Door is locked");
-               
-        }
-        else {
-                
+
+        } else {
+
             Question q = door.getQuestion();
             myCurrentQuestionLabel.setText(q.getQuestion());
-        
+
             switch (q.getQuestionType()) {
                 case SHORT_ANSWER:
                     JTextField tf = new JTextField(20);
@@ -707,23 +704,23 @@ public class ViewMockup implements GameView {
                     for (String opt : ((MultipleChoiceQuestion) q).getOptions()) {
                         JRadioButton rb = new JRadioButton(opt);
                         rb.setForeground(Color.WHITE);
-                         rb.setBackground(Color.BLACK);
+                        rb.setBackground(Color.BLACK);
                         mcGroup.add(rb);
                         mcPanel.add(rb);
                     }
                     myAnswerComponent = mcGroup;
-                     myAnswerInputPanel.add(mcPanel);
+                    myAnswerInputPanel.add(mcPanel);
                     break;
                 case TRUE_FALSE:
                     ButtonGroup tfGroup = new ButtonGroup();
                     JRadioButton t = new JRadioButton("True");
                     JRadioButton f = new JRadioButton("False");
-                    for (JRadioButton b : new JRadioButton[]{t,f}) {
+                    for (JRadioButton b : new JRadioButton[]{t, f}) {
                         b.setForeground(Color.WHITE);
                         b.setBackground(Color.BLACK);
                         tfGroup.add(b);
                     }
-                    JPanel tfp = new JPanel(new GridLayout(1,2));
+                    JPanel tfp = new JPanel(new GridLayout(1, 2));
                     tfp.setBackground(Color.BLACK);
                     tfp.add(t);
                     tfp.add(f);
@@ -735,31 +732,29 @@ public class ViewMockup implements GameView {
                     myAnswerInputPanel.add(new JLabel("Unknown question type."));
             }
         }
-        
+
         myAnswerInputPanel.revalidate();
         myAnswerInputPanel.repaint();
-        
-        
-    }  
+
+    }
 
     private void processAnswer() {
         Direction dir = myGameState.getMyCurrentDirection();
         Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
         Door door = room.getDoor(myGameState.getMyCurrentDirection());
-    
+
         if (door == null || door.isOpen() || door.isLocked()) {
-            
+
             updateQuestionPanel();
             return;
         }
-    
-       
+
         String userAnswer = "";
         if (myAnswerComponent instanceof JTextField) {
             userAnswer = ((JTextField) myAnswerComponent).getText();
         } else if (myAnswerComponent instanceof ButtonGroup) {
             ButtonGroup grp = (ButtonGroup) myAnswerComponent;
-            for (Enumeration<AbstractButton> ez = grp.getElements(); ez.hasMoreElements(); ) {
+            for (Enumeration<AbstractButton> ez = grp.getElements(); ez.hasMoreElements();) {
                 AbstractButton btn = ez.nextElement();
                 if (btn.isSelected()) {
                     userAnswer = btn.getText();
@@ -767,29 +762,30 @@ public class ViewMockup implements GameView {
                 }
             }
         }
-    
+
         boolean correct = myGameState.answerDoor(dir, userAnswer);
         if (correct) {
             door.open();
             updateDoor(dir, DOOR_SUCCEEDED);
-            
+
             Position next = myGameState.getMyCurrentPosition().translate(dir);
             Room nr = myGameState.getMaze().getRoom(next);
             Door rev = nr.getDoor(dir.getOpposite());
-            if (rev != null) rev.open();
+            if (rev != null) {
+                rev.open();
+            }
             movePlayer(dir);
         } else {
             door.lock();
             updateDoor(dir, DOOR_FAILED);
             JOptionPane.showMessageDialog(
-                myFrame,
-                "Incorrect! That door is now locked.",
-                "Wrong Answer",
-                JOptionPane.ERROR_MESSAGE
+                    myFrame,
+                    "Incorrect! That door is now locked.",
+                    "Wrong Answer",
+                    JOptionPane.ERROR_MESSAGE
             );
         }
-    
-        
+
         updateQuestionPanel();
     }
 
@@ -973,7 +969,7 @@ public class ViewMockup implements GameView {
             updateDoor(direction, DOOR_FAILED);
             JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
-        
+
     }
 
     private void movePlayer(Direction direction) {
@@ -1065,6 +1061,7 @@ public class ViewMockup implements GameView {
     }
 
     private class RoomPanel extends JPanel {
+
         private final Position myPos;
 
         private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
