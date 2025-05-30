@@ -96,7 +96,7 @@ public class ViewMockup implements GameView {
     /**
      * Stores selected sprite.
      */
-    private ImageIcon mySelectedSprite;
+    private ImageIcon mySelectedSprite = new ImageIcon("src/Sprites/kirby1.png");
 
     /**
      * Current position of the player.
@@ -331,9 +331,36 @@ public class ViewMockup implements GameView {
         myGameState.updateFrom(loadedState);
         myGameState.addPropertyChangeListener(this);
         myPlayerPosition = myGameState.getMyCurrentPosition();
+        syncAllRoomPanelDoorStates();
         updatePosition(myPlayerPosition);
         updateQuestionPanel();
         updateMinimap();
+    }
+
+    private void syncAllRoomPanelDoorStates() {
+        Maze maze = myGameState.getMaze();
+        for (int row = 0; row < myMazeSize.height; row++) {
+            for (int col = 0; col < myMazeSize.width; col++) {
+                Room modelRoom = maze.getRoom(new Position(col, row));
+                RoomPanel panelRoom = myRooms[row * myMazeSize.width + col];
+                int[] doorStates = new int[4]; // N, S, E, W
+                for (Direction dir : Direction.values()) {
+                    if (modelRoom.hasDoor(dir)) {
+                        Door door = modelRoom.getDoor(dir);
+                        if (door.isOpen()) {
+                            doorStates[dir.ordinal()] = DOOR_SUCCEEDED;
+                        } else if (door.isLocked()) {
+                            doorStates[dir.ordinal()] = DOOR_FAILED;
+                        } else {
+                            doorStates[dir.ordinal()] = DOOR_NOT_VISITED;
+                        }
+                    } else {
+                        doorStates[dir.ordinal()] = DOOR_WALL;
+                    }
+                }
+                panelRoom.setDoorStates(doorStates);
+            }
+        }
     }
 
     private void manageSavesEvent(final ActionEvent theEvent) {
@@ -359,7 +386,7 @@ public class ViewMockup implements GameView {
         Answer trivia questions
         Document door colour key
         Document controls
-        Document minimap door selection
+        Document minimap door selection 
         """;
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
@@ -1007,7 +1034,12 @@ public class ViewMockup implements GameView {
             ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
             JLabel label = new JLabel(scaledIcon);
-            label.setBorder(defaultBorder);
+            if (i == 0) {
+                label.setBorder(selectedBorder);
+                selectedLabel[0] = label;
+            } else {
+                label.setBorder(defaultBorder);
+            }
             kirbyLabels[i] = label;
             final int index = i;
             label.addMouseListener(new java.awt.event.MouseAdapter() {
