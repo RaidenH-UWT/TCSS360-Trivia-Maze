@@ -31,6 +31,8 @@ public class RoomPanel extends JPanel {
 
         private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
 
+        private final Map<Direction, ImageIcon[]> DOORSPRITES = new HashMap<Direction, ImageIcon[]>(4);
+
         /**
          * Array of states for a door to be in 0: Wall 1: Not visited 2: Visited
          * 3: Failed 4: Succeeded north, south, east, west
@@ -95,12 +97,13 @@ public class RoomPanel extends JPanel {
             updateDoorTriangles();
 
             for (Direction dir : Direction.values()) {
-                g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
-                g2d.fillPolygon(DOORTRIANGLES.get(dir));
+                // g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
+                // g2d.fillPolygon(DOORTRIANGLES.get(dir));
 
-                g2d.setColor(myBackgroundColor);
-                g2d.setStroke(new BasicStroke(5));
-                g2d.drawPolygon(DOORTRIANGLES.get(dir));
+                // g2d.setColor(myBackgroundColor);
+                // g2d.setStroke(new BasicStroke(5));
+                // g2d.drawPolygon(DOORTRIANGLES.get(dir));
+                g2d.drawImage(DOORSPRITES.get(dir)[myDoorState[dir.ordinal()]].getImage(), 0, 0, getWidth(), getHeight(), this);
             }
             if (isPlayerPosition && mySelectedSprite != null) {
                 Image spriteImg = mySelectedSprite.getImage();
@@ -116,6 +119,44 @@ public class RoomPanel extends JPanel {
         }
 
         private void updateDoorTriangles() {
+            if (DOORSPRITES.isEmpty()) {
+                ImageIcon[] northSprites = {
+                    new ImageIcon("src/sprites/wall-NORTH.png"),
+                    new ImageIcon("src/sprites/unexplored-NORTH.png"),
+                    new ImageIcon("src/sprites/visited-NORTH.png"),
+                    new ImageIcon("src/sprites/locked-NORTH.png"),
+                    new ImageIcon("src/sprites/unlocked-NORTH.png")
+                };
+
+                ImageIcon[] southSprites = {
+                    new ImageIcon("src/sprites/wall-SOUTH.png"),
+                    new ImageIcon("src/sprites/unexplored-SOUTH.png"),
+                    new ImageIcon("src/sprites/visited-SOUTH.png"),
+                    new ImageIcon("src/sprites/locked-SOUTH.png"),
+                    new ImageIcon("src/sprites/unlocked-SOUTH.png")
+                };
+
+                ImageIcon[] eastSprites = {
+                    new ImageIcon("src/sprites/wall-EAST.png"),
+                    new ImageIcon("src/sprites/unexplored-EAST.png"),
+                    new ImageIcon("src/sprites/visited-EAST.png"),
+                    new ImageIcon("src/sprites/locked-EAST.png"),
+                    new ImageIcon("src/sprites/unlocked-EAST.png")
+                };
+
+                ImageIcon[] westSprites = {
+                    new ImageIcon("src/sprites/wall-WEST.png"),
+                    new ImageIcon("src/sprites/unexplored-WEST.png"),
+                    new ImageIcon("src/sprites/visited-WEST.png"),
+                    new ImageIcon("src/sprites/locked-WEST.png"),
+                    new ImageIcon("src/sprites/unlocked-WEST.png")
+                };
+
+                DOORSPRITES.put(Direction.NORTH, northSprites);
+                DOORSPRITES.put(Direction.SOUTH, southSprites);
+                DOORSPRITES.put(Direction.EAST, eastSprites);
+                DOORSPRITES.put(Direction.WEST, westSprites);
+            }
             int width = getWidth();
             int height = getHeight();
 
