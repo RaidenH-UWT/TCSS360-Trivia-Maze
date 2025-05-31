@@ -7,10 +7,13 @@ import java.util.List;
 
 /**
  * Contains all mutable state for the model package
+ *
  * @author Raiden H
  * @version May 1, 2025
  */
-public class GameState implements PropertyChangeEnabledGameState {
+public class GameState implements PropertyChangeEnabledGameState, java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
      * PropertyChangeSupport object for implementing the PropertyChange API.
      */
@@ -19,15 +22,15 @@ public class GameState implements PropertyChangeEnabledGameState {
      * Stores the maze object.
      */
     private Maze myMaze;
-    
+
     /**
      * Stores the current position of the player.
      */
     private Position myCurrentPosition;
 
     /**
-     * Stores the current direction of the player. Used for specifying which Door
-     * we're looking at.
+     * Stores the current direction of the player. Used for specifying which
+     * Door we're looking at.
      */
     private Direction myCurrentDirection;
     // Could calculate these instead of storing them just counting the rooms in the maze
@@ -50,6 +53,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Initialize the state with the given maze.
+     *
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
      * @param theCategories String[] of categories to include
@@ -69,6 +73,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Creates a new maze of the given dimensions.
+     *
      * @param theWidth int width of the new maze
      * @param theHeight int height of the new maze
      */
@@ -78,6 +83,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Initialize the state with the given maze.
+     *
      * @param theSideLength int size of the square maze
      */
     public GameState(final int theSideLength) {
@@ -86,6 +92,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Initialize the state with the given maze and question categories.
+     *
      * @param theSideLength int size of the square maze
      * @param theCategories String[] of categories to include
      */
@@ -95,6 +102,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Get the current position of the player.
+     *
      * @return Position the player is currently at
      */
     public Position getMyCurrentPosition() {
@@ -102,7 +110,17 @@ public class GameState implements PropertyChangeEnabledGameState {
     }
 
     /**
+     * Gets current direction of the player.
+     *
+     * @return Direction the play is at.
+     */
+    public Direction getMyCurrentDirection() {
+        return myCurrentDirection;
+    }
+
+    /**
      * Sets the position of the player.
+     *
      * @param thePosition Position for the player to be set to
      */
     public void setMyCurrentPosition(final Position thePosition) {
@@ -119,6 +137,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Get the maze object for this game.
+     *
      * @return Maze object with the data for this game
      */
     public Maze getMaze() {
@@ -127,6 +146,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Get how many questions the player has answered.
+     *
      * @return int number of questions the player has answered
      */
     public int getMyQuestionsFailed() {
@@ -135,16 +155,17 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Get how many questions the player has gotten correct.
+     *
      * @return int number of questions the player has answered correctly
      */
     public int getMyQuestionsSucceeded() {
         return myQuestionsSucceeded;
     }
 
-
     // TODO: Add a method for selecting the current door, for use in the minimap/question panel, and fire PROPERTY_DOOR_VISITED from there
     /**
      * Attempt to answer the door in the given direction.
+     *
      * @param theDir Direction of the door in the current room
      * @param theAnswer String answer to check
      * @return true if theAnswer and the door's answer match, false otherwise
@@ -163,6 +184,7 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Add a room the player has visited to the list.
+     *
      * @param thePosition Position of the room to be added
      */
     public void addVisitedRoom(final Position thePosition) {
@@ -179,7 +201,9 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Get which rooms the player has visited.
-     * @return List<Position> list of the positions of rooms the player has visited
+     *
+     * @return List<Position> list of the positions of rooms the player has
+     * visited
      */
     public List<Position> getmyVisitedRooms() {
         return myVisitedRooms;
@@ -219,13 +243,46 @@ public class GameState implements PropertyChangeEnabledGameState {
 
     /**
      * Check whether the given position is within the bounds of the maze.
+     *
      * @param thePosition position to check
      * @return true if thePosition is within bounds, false otherwise
      */
     private boolean isWithinBounds(final Position thePosition) {
         return thePosition.getX() <= getMaze().getWidth()
-            && thePosition.getX() >= 0
-            && thePosition.getY() <= getMaze().getHeight()
-            && thePosition.getY() >= 0;
+                && thePosition.getX() >= 0
+                && thePosition.getY() <= getMaze().getHeight()
+                && thePosition.getY() >= 0;
+    }
+
+    /**
+     * Sets the current direction of player.
+     *
+     * @param direction direction to set
+     */
+    public void setMyCurrentDirection(Direction direction) {
+        myCurrentDirection = direction;
+    }
+
+    /**
+     * Updates this GameState's fields from another GameState instance. Useful
+     * for loading a saved state into an existing GameState object. Fires
+     * property change events for position, direction, and visited rooms.
+     *
+     * @param other the GameState to copy from
+     */
+    public void updateFrom(GameState other) {
+        if (other == null) {
+            return;
+        }
+        this.myMaze = other.myMaze;
+        this.myCurrentPosition = other.myCurrentPosition;
+        this.myCurrentDirection = other.myCurrentDirection;
+        this.myQuestionsFailed = other.myQuestionsFailed;
+        this.myQuestionsSucceeded = other.myQuestionsSucceeded;
+        this.myVisitedRooms = new ArrayList<>(other.myVisitedRooms);
+        // Fire property change events so listeners update
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, myCurrentPosition);
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, myCurrentPosition);
+        // You may want to fire more events depending on your UI needs
     }
 }

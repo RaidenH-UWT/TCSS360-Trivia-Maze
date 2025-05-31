@@ -7,7 +7,9 @@ package src.model;
  * @author Kalen Cha
  * @author May 1, 2025
  */
-public class Position {
+public class Position implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * X coordinate

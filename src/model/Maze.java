@@ -10,7 +10,9 @@ import java.util.Collections;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-public class Maze {
+public class Maze implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Flag to allow duplicate questions in the maze. Use during development

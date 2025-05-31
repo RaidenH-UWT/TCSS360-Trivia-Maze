@@ -7,7 +7,9 @@ package src.model;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-public class Door {
+public class Door implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     // could replace these two with one int either 0, 1, or 2
     /**

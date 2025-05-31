@@ -1,15 +1,11 @@
 package src.view;
 
-import java.beans.PropertyChangeEvent;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -22,9 +18,11 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.Font;
-
+import java.beans.PropertyChangeEvent;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -42,13 +40,14 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import src.model.Direction;
 import src.model.Door;
+import src.model.GameSaver;
 import src.model.GameState;
 import src.model.Maze;
+import src.model.MultipleChoiceQuestion;
 import src.model.Position;
 import src.model.PropertyChangeEnabledGameState;
 import src.model.Question;
 import src.model.Room;
-import src.model.GameSaver;
 
 /**
  * Mockup of the GuiView class for experimentation with the GUI. Documentation &
@@ -95,7 +94,7 @@ public class ViewMockup implements GameView {
     /**
      * Stores selected sprite.
      */
-    private ImageIcon mySelectedSprite;
+    private ImageIcon mySelectedSprite = new ImageIcon("src/Sprites/kirby1.png");
 
     /**
      * Current position of the player.
@@ -105,7 +104,7 @@ public class ViewMockup implements GameView {
     private final GameState myGameState;
     private JLabel myCurrentQuestionLabel;
     private JPanel myAnswerInputPanel;
-    private Object myAnswerComponent; 
+    private Object myAnswerComponent;
 
     private static final int DOOR_WALL = 0;
     private static final int DOOR_NOT_VISITED = 1;
@@ -321,17 +320,45 @@ public class ViewMockup implements GameView {
      * @param loadedState The loaded GameState object.
      */
     private void updateGameState(GameState loadedState) {
-        // Update UI based on the loaded state
-        // Reset player position
-        Position newPosition = loadedState.getMyCurrentPosition();
-        updatePosition(newPosition);
+        if (loadedState == null) {
+            JOptionPane.showMessageDialog(myFrame, "Failed to load: Save file is empty or corrupted.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        // TODO: Update other UI elements based on the loaded state
-        // Use myGameState for reference to the current state if needed
-        // Update the game state through proper channels (controller)
-        // This is just a placeholder - the actual implementation would depend on your architecture
-        System.out.println("Game state loaded from: " + myGameState.getClass().getName()
-                + " to: " + loadedState.getClass().getName());
+        myGameState.removePropertyChangeListener(this);
+        myGameState.updateFrom(loadedState);
+        myGameState.addPropertyChangeListener(this);
+        myPlayerPosition = myGameState.getMyCurrentPosition();
+        syncAllRoomPanelDoorStates();
+        updatePosition(myPlayerPosition);
+        updateQuestionPanel();
+        updateMinimap();
+    }
+
+    private void syncAllRoomPanelDoorStates() {
+        Maze maze = myGameState.getMaze();
+        for (int row = 0; row < myMazeSize.height; row++) {
+            for (int col = 0; col < myMazeSize.width; col++) {
+                Room modelRoom = maze.getRoom(new Position(col, row));
+                RoomPanel panelRoom = myRooms[row * myMazeSize.width + col];
+                int[] doorStates = new int[4]; // N, S, E, W
+                for (Direction dir : Direction.values()) {
+                    if (modelRoom.hasDoor(dir)) {
+                        Door door = modelRoom.getDoor(dir);
+                        if (door.isOpen()) {
+                            doorStates[dir.ordinal()] = DOOR_SUCCEEDED;
+                        } else if (door.isLocked()) {
+                            doorStates[dir.ordinal()] = DOOR_FAILED;
+                        } else {
+                            doorStates[dir.ordinal()] = DOOR_NOT_VISITED;
+                        }
+                    } else {
+                        doorStates[dir.ordinal()] = DOOR_WALL;
+                    }
+                }
+                panelRoom.setDoorStates(doorStates);
+            }
+        }
     }
 
     private void manageSavesEvent(final ActionEvent theEvent) {
@@ -357,7 +384,7 @@ public class ViewMockup implements GameView {
         Answer trivia questions
         Document door colour key
         Document controls
-        Document minimap door selection
+        Document minimap door selection 
         """;
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
@@ -658,237 +685,210 @@ public class ViewMockup implements GameView {
 
         submitButton.addActionListener(e -> processAnswer());
 
-    
         updateQuestionPanel();
 
         return panel;
     }
-    public void updateQuestionPanel() {
-    // This currently doesn't get the question correctly and says cannot invoke getMaze()
-     /** 
-        Room currentRoom =  myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
-        Door currentDoor = currentRoom.getDoor(myGameState.getMyCurrentDirection());
-        Question q = currentDoor.getQuestion();
 
-        myCurrentQuestionLabel.setText(q.getQuestion());
+    public void updateQuestionPanel() {
+
+        Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
+        Door door = room.getDoor(myGameState.getMyCurrentDirection());
+
         myAnswerInputPanel.removeAll();
 
-        switch (q.getQuestionType().toString()) {
-            case "SHORT_ANSWER":
-                JTextField tf = new JTextField(20);
-                tf.setBackground(Color.BLACK);
-                tf.setForeground(Color.WHITE);
-                tf.setCaretColor(Color.WHITE);
-                tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
-                myAnswerComponent = tf;
-                myAnswerInputPanel.add(tf);
-                tf.addActionListener(e -> processAnswer());
-                break;
-            case "MULTIPLE_CHOICE":
-                ButtonGroup mcGroup = new ButtonGroup();
-                JPanel mcPanel = new JPanel(new GridLayout(0, 1));
-                for (String option : ((MultipleChoiceQuestion)q).getOptions()) {
-                    JRadioButton rb = new JRadioButton(option);
-                    rb.setForeground(Color.WHITE);
-                    rb.setBackground(Color.BLACK);
-                    mcGroup.add(rb);
-                    mcPanel.add(rb);
-            }
-                myAnswerComponent = mcGroup;
-                myAnswerInputPanel.add(mcPanel);
-                break;
-            case "TRUE_FALSE":
-                ButtonGroup tfGroup = new ButtonGroup();
-                JRadioButton trueBtn = new JRadioButton("True");
-                JRadioButton falseBtn = new JRadioButton("False");
-                trueBtn.setForeground(Color.WHITE); trueBtn.setBackground(Color.BLACK);
-                falseBtn.setForeground(Color.WHITE); falseBtn.setBackground(Color.BLACK);
-                tfGroup.add(trueBtn); tfGroup.add(falseBtn);
-                JPanel tfPanel = new JPanel(new GridLayout(1, 2));
-                tfPanel.add(trueBtn); tfPanel.add(falseBtn);
-                myAnswerComponent = tfGroup;
-                myAnswerInputPanel.add(tfPanel);
-                break;
-            default:
-            
-                myAnswerComponent = null;
-                myAnswerInputPanel.add(new JLabel("Unknown question type."));
-                break;
-        }
-        myAnswerInputPanel.revalidate();
-        myAnswerInputPanel.repaint();*/
-    }  
+        if (door == null) {
+            myCurrentQuestionLabel.setText("No door that way");
 
-    public void setQuestionText(String text) {
-        myCurrentQuestionLabel.setText(text);
-        answerField.setText(""); // Clear previous answer
+        } else if (door.isOpen()) {
+            myCurrentQuestionLabel.setText("Door is open");
+
+        } else if (door.isLocked()) {
+            myCurrentQuestionLabel.setText("Door is locked");
+
+        } else {
+
+            Question q = door.getQuestion();
+            myCurrentQuestionLabel.setText(q.getQuestion());
+
+            switch (q.getQuestionType()) {
+                case SHORT_ANSWER:
+                    JTextField tf = new JTextField(20);
+                    tf.setBackground(Color.BLACK);
+                    tf.setForeground(Color.WHITE);
+                    tf.setCaretColor(Color.WHITE);
+                    tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
+                    myAnswerComponent = tf;
+                    myAnswerInputPanel.add(tf);
+                    tf.addActionListener(e -> processAnswer());
+                    break;
+                case MULTIPLE_CHOICE:
+                    ButtonGroup mcGroup = new ButtonGroup();
+                    JPanel mcPanel = new JPanel(new GridLayout(0, 1));
+                    mcPanel.setBackground(Color.BLACK);
+                    for (String opt : ((MultipleChoiceQuestion) q).getOptions()) {
+                        JRadioButton rb = new JRadioButton(opt);
+                        rb.setForeground(Color.WHITE);
+                        rb.setBackground(Color.BLACK);
+                        mcGroup.add(rb);
+                        mcPanel.add(rb);
+                    }
+                    myAnswerComponent = mcGroup;
+                    myAnswerInputPanel.add(mcPanel);
+                    break;
+                case TRUE_FALSE:
+                    ButtonGroup tfGroup = new ButtonGroup();
+                    JRadioButton t = new JRadioButton("True");
+                    JRadioButton f = new JRadioButton("False");
+                    for (JRadioButton b : new JRadioButton[]{t, f}) {
+                        b.setForeground(Color.WHITE);
+                        b.setBackground(Color.BLACK);
+                        tfGroup.add(b);
+                    }
+                    JPanel tfp = new JPanel(new GridLayout(1, 2));
+                    tfp.setBackground(Color.BLACK);
+                    tfp.add(t);
+                    tfp.add(f);
+                    myAnswerComponent = tfGroup;
+                    myAnswerInputPanel.add(tfp);
+                    break;
+                default:
+                    myAnswerComponent = null;
+                    myAnswerInputPanel.add(new JLabel("Unknown question type."));
+            }
+        }
+
+        myAnswerInputPanel.revalidate();
+        myAnswerInputPanel.repaint();
+
     }
+
     private void processAnswer() {
-    
         Direction dir = myGameState.getMyCurrentDirection();
         Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
-        Door door = room.getDoor(dir);
-        Question q = door.getQuestion();
+        Door door = room.getDoor(myGameState.getMyCurrentDirection());
+
+        if (door == null || door.isOpen() || door.isLocked()) {
+
+            updateQuestionPanel();
+            return;
+        }
 
         String userAnswer = "";
-        switch (q.getQuestionType().toString()) {
-            case "SHORT_ANSWER":
-                userAnswer = ((JTextField) myAnswerComponent).getText();
-                break;
-            case "MULTIPLE_CHOICE":
-            case "TRUE_FALSE":
-                ButtonGroup group = (ButtonGroup) myAnswerComponent;
-                for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
-                    AbstractButton button = buttons.nextElement();
-                if (button.isSelected()) {
-                    userAnswer = button.getText();
+        if (myAnswerComponent instanceof JTextField) {
+            userAnswer = ((JTextField) myAnswerComponent).getText();
+        } else if (myAnswerComponent instanceof ButtonGroup) {
+            ButtonGroup grp = (ButtonGroup) myAnswerComponent;
+            for (Enumeration<AbstractButton> ez = grp.getElements(); ez.hasMoreElements();) {
+                AbstractButton btn = ez.nextElement();
+                if (btn.isSelected()) {
+                    userAnswer = btn.getText();
                     break;
                 }
             }
-            break;
-    }
-        boolean correct = myGameState.answerDoor(dir, userAnswer);
-        // Optionally update stats
-        if (correct) {
-        // increment logic
-        } else {
-        // increment logic
         }
+
+        boolean correct = myGameState.answerDoor(dir, userAnswer);
+        if (correct) {
+            door.open();
+            updateDoor(dir, DOOR_SUCCEEDED);
+
+            Position next = myGameState.getMyCurrentPosition().translate(dir);
+            Room nr = myGameState.getMaze().getRoom(next);
+            Door rev = nr.getDoor(dir.getOpposite());
+            if (rev != null) {
+                rev.open();
+            }
+            movePlayer(dir);
+        } else {
+            door.lock();
+            updateDoor(dir, DOOR_FAILED);
+            JOptionPane.showMessageDialog(
+                    myFrame,
+                    "Incorrect! That door is now locked.",
+                    "Wrong Answer",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+        updateQuestionPanel();
     }
 
     private JPanel createControlPanel() {
 
         final int panelSize = 200;
-        final int crossSize = (int) (panelSize * 0.8);
-        final int armWidth = crossSize / 3;
-        final int centerX = panelSize / 2;
-        final int centerY = panelSize / 2;
-        final JPanel dPadPanel = new JPanel() {
+        JPanel dPadPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                ImageIcon dpadImage = new ImageIcon("src/dpad/dpadTrimmed.png");
+                Image img = dpadImage.getImage();
+                g.drawImage(img, 83, 10, panelSize, panelSize, this);
 
-                int width = getWidth();
-                int height = getHeight();
-                int centerX = width / 2;
-                int centerY = height / 2;
-
-                int crossSize = (int) (Math.min(width, height) * 0.8);
-                int armWidth = crossSize / 3;
-                int circleRadius = armWidth / 2;
-                int arrowSize = armWidth / 2;
-
-                circleRadius = (int) (circleRadius * 0.6);
-
-                java.awt.GradientPaint gradientPaint = new java.awt.GradientPaint(
-                        0, 0, new Color(60, 60, 60),
-                        width, height, new Color(40, 40, 40));
-                ((java.awt.Graphics2D) g).setPaint(gradientPaint);
-
-                java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
-                g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int vX = centerX - armWidth / 2;
-                int vY = centerY - crossSize / 2;
-                int hX = centerX - crossSize / 2;
-                int hY = centerY - armWidth / 2;
-
-                RoundRectangle2D verticalArm = new RoundRectangle2D.Float(vX, vY, armWidth, crossSize, 10, 10);
-                RoundRectangle2D horizontalArm = new RoundRectangle2D.Float(hX, hY, crossSize, armWidth, 10, 10);
-
-                g2d.fill(verticalArm);
-                g2d.fill(horizontalArm);
-
-                g2d.setColor(BACKGROUND_COLOR);
-                g2d.draw(verticalArm);
-                g2d.draw(horizontalArm);
-
-                g.setColor(new Color(26, 26, 26));
-                g.fillOval(centerX - circleRadius, centerY - circleRadius,
-                        circleRadius * 2, circleRadius * 2);
-
-                g.setColor(new Color(26, 26, 26));
-
-                drawDirectionalArrow(g2d, centerX, centerY - crossSize / 3, Direction.NORTH, arrowSize);
-                drawDirectionalArrow(g2d, centerX, centerY + crossSize / 3, Direction.SOUTH, arrowSize);
-                drawDirectionalArrow(g2d, centerX - crossSize / 3, centerY, Direction.WEST, arrowSize);
-                drawDirectionalArrow(g2d, centerX + crossSize / 3, centerY, Direction.EAST, arrowSize);
-            }
-
-            private void drawDirectionalArrow(Graphics2D g, int x, int y, Direction dir, int size) {
-                int[] xPoints = new int[3];
-                int[] yPoints = new int[3];
-
-                switch (dir) {
-                    case NORTH -> {
-                        xPoints = new int[]{x, x - size / 2, x + size / 2};
-                        yPoints = new int[]{y - size / 2, y + size / 2, y + size / 2};
-                    }
-                    case SOUTH -> {
-                        xPoints = new int[]{x, x - size / 2, x + size / 2};
-                        yPoints = new int[]{y + size / 2, y - size / 2, y - size / 2};
-                    }
-                    case EAST -> {
-                        xPoints = new int[]{x + size / 2, x - size / 2, x - size / 2};
-                        yPoints = new int[]{y, y - size / 2, y + size / 2};
-                    }
-                    case WEST -> {
-                        xPoints = new int[]{x - size / 2, x + size / 2, x + size / 2};
-                        yPoints = new int[]{y, y - size / 2, y + size / 2};
-                    }
-                }
-
-                g.fillPolygon(xPoints, yPoints, 3);
             }
         };
 
-        dPadPanel.setPreferredSize(new Dimension(200, 200));
-        dPadPanel.setBackground(new Color(240, 240, 240));
+        ImageIcon upImage = new ImageIcon("src/dpad/upArrow.png");
+        Image upImg = upImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon rightImage = new ImageIcon("src/dpad/rightArrow.png");
+        Image rightImg = rightImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon leftImage = new ImageIcon("src/dpad/leftArrow.png");
+        Image leftImg = leftImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon downImage = new ImageIcon("src/dpad/downArrow.png");
+        Image downImg = downImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon upIcon = new ImageIcon(upImg);
+        ImageIcon rightIcon = new ImageIcon(rightImg);
+        ImageIcon leftIcon = new ImageIcon(leftImg);
+        ImageIcon downIcon = new ImageIcon(downImg);
+
+        JButton upButton = new JButton(upIcon);
+        JButton rightButton = new JButton(rightIcon);
+        JButton leftButton = new JButton(leftIcon);
+        JButton downButton = new JButton(downIcon);
+
+        dPadPanel.setPreferredSize(new Dimension(panelSize, panelSize));
         dPadPanel.setLayout(null);
 
-        JButton upButton = new JButton();
-        JButton downButton = new JButton();
-        JButton leftButton = new JButton();
-        JButton rightButton = new JButton();
-
-        upButton.setBounds(centerX - armWidth / 2, centerY - crossSize / 2, armWidth, armWidth);
-        downButton.setBounds(centerX - armWidth / 2, centerY + crossSize / 2 - armWidth, armWidth, armWidth);
-        leftButton.setBounds(centerX - crossSize / 2, centerY - armWidth / 2, armWidth, armWidth);
-        rightButton.setBounds(centerX + crossSize / 2 - armWidth, centerY - armWidth / 2, armWidth, armWidth);
-
-        upButton.setBounds(156, 23, 66, 66);
-        downButton.setBounds(156, 145, 66, 66);
-        leftButton.setBounds(93, 83, 66, 66);
-        rightButton.setBounds(220, 83, 66, 66);
-
+        upButton.setBounds(151, 23, 66, 66);
         upButton.setOpaque(false);
         upButton.setContentAreaFilled(false);
         upButton.setBorderPainted(false);
-        downButton.setOpaque(false);
-        downButton.setContentAreaFilled(false);
-        downButton.setBorderPainted(false);
-        leftButton.setOpaque(false);
-        leftButton.setContentAreaFilled(false);
-        leftButton.setBorderPainted(false);
+
+        rightButton.setBounds(200, 75, 66, 66);
         rightButton.setOpaque(false);
         rightButton.setContentAreaFilled(false);
         rightButton.setBorderPainted(false);
 
+        leftButton.setBounds(100, 75, 66, 66);
+        leftButton.setOpaque(false);
+        leftButton.setContentAreaFilled(false);
+        leftButton.setBorderPainted(false);
+
+        downButton.setBounds(151, 128, 66, 66);
+        downButton.setOpaque(false);
+        downButton.setContentAreaFilled(false);
+        downButton.setBorderPainted(false);
+
         upButton.addActionListener(e -> handleDPadPress(Direction.NORTH));
-        downButton.addActionListener(e -> handleDPadPress(Direction.SOUTH));
-        leftButton.addActionListener(e -> handleDPadPress(Direction.WEST));
         rightButton.addActionListener(e -> handleDPadPress(Direction.EAST));
+        leftButton.addActionListener(e -> handleDPadPress(Direction.WEST));
+        downButton.addActionListener(e -> handleDPadPress(Direction.SOUTH));
 
         dPadPanel.add(upButton);
-        dPadPanel.add(downButton);
-        dPadPanel.add(leftButton);
         dPadPanel.add(rightButton);
+        dPadPanel.add(leftButton);
+        dPadPanel.add(downButton);
+        dPadPanel.setBackground(new Color(215, 215, 215));
 
         return dPadPanel;
     }
 
     private void handleDPadPress(Direction direction) {
+        myGameState.setMyCurrentDirection(direction);
         Maze maze = myGameState.getMaze();
         Room currentRoom = maze.getRoom(myPlayerPosition);
         Door door = currentRoom.getDoor(direction);
@@ -899,11 +899,13 @@ public class ViewMockup implements GameView {
 
         if (door.isOpen()) {
             movePlayer(direction);
+            updateQuestionPanel();
             return;
         }
 
         if (door.isLocked()) {
             JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
+            updateQuestionPanel();
             return;
         }
 
@@ -911,6 +913,7 @@ public class ViewMockup implements GameView {
         String playerAnswer = JOptionPane.showInputDialog(myFrame, question.getQuestion());
 
         if (playerAnswer == null) {
+            updateQuestionPanel();
             return;
         }
 
@@ -925,17 +928,19 @@ public class ViewMockup implements GameView {
                 reverseDoor.open();
             }
             movePlayer(direction);
+            updateQuestionPanel();
 
         } else {
             door.lock();
             updateDoor(direction, DOOR_FAILED);
             JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 
     private void movePlayer(Direction direction) {
         Position newPosition = myPlayerPosition.translate(direction);
-
+        myGameState.setMyCurrentPosition(newPosition);
         updatePosition(newPosition);
         myPlayerPosition = newPosition;
     }
@@ -968,7 +973,12 @@ public class ViewMockup implements GameView {
             ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
             JLabel label = new JLabel(scaledIcon);
-            label.setBorder(defaultBorder);
+            if (i == 0) {
+                label.setBorder(selectedBorder);
+                selectedLabel[0] = label;
+            } else {
+                label.setBorder(defaultBorder);
+            }
             kirbyLabels[i] = label;
             final int index = i;
             label.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1022,6 +1032,7 @@ public class ViewMockup implements GameView {
     }
 
     private class RoomPanel extends JPanel {
+
         private final Position myPos;
 
         private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);

@@ -10,7 +10,10 @@ import java.util.List;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-public class MultipleChoiceQuestion extends Question {
+public class MultipleChoiceQuestion extends Question implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * String answer of this question.
      */
@@ -25,7 +28,7 @@ public class MultipleChoiceQuestion extends Question {
      * Constructor called only from QuestionFactory.
      */
     protected MultipleChoiceQuestion(final int theId, final String theQuestion,
-        final String theAnswer, final List<String> theOptions, final int theDifficulty) {
+            final String theAnswer, final List<String> theOptions, final int theDifficulty) {
         super(theId, theQuestion, theDifficulty);
 
         if (theOptions == null || theOptions.size() < 2) {

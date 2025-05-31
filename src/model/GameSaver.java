@@ -1,7 +1,6 @@
 package src.model;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,19 +34,20 @@ public class GameSaver {
      *
      * @param theFilename the save file to read
      * @return GameState object containing the state of the game
-     * @throws FileNotFoundException if the given save file is not found
+     * @throws IOException if the file is not found or cannot be read
+     * @throws ClassNotFoundException if the GameState class cannot be found
      */
-    public GameState getSave(final String theFilename) {
-         try (
-            FileInputStream fileIn = new FileInputStream(theFilename);
-            ObjectInputStream in = new ObjectInputStream(fileIn)
-        ) {
-            return (GameState) in.readObject();
-        } catch (FileNotFoundException e) {
-            System.err.println("Save file not found: " + e.getMessage());
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading game: " + e.getMessage());
+    public GameState getSave(final String theFilename) throws IOException, ClassNotFoundException {
+        try (
+                FileInputStream fileIn = new FileInputStream(theFilename); ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            Object obj = in.readObject();
+            if (obj == null) {
+                throw new IOException("Save file is empty.");
+            }
+            if (!(obj instanceof GameState)) {
+                throw new IOException("Save file does not contain a valid game state.");
+            }
+            return (GameState) obj;
         }
-        return null;
     }
 }
