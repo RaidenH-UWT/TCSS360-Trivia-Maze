@@ -878,33 +878,14 @@ public class ViewMockup implements GameView {
             return;
         }
 
-        Question question = door.getQuestion();
-        String playerAnswer = JOptionPane.showInputDialog(myFrame, question.getQuestion());
-
-        if (playerAnswer == null) {
-            updateQuestionPanel();
-            return;
-        }
-
-        if (door.answerQuestion(playerAnswer)) {
-            door.open();
-            updateDoor(direction, DOOR_SUCCEEDED);
-
-            Position nextPosition = myPlayerPosition.translate(direction);
-            Room nextRoom = maze.getRoom(nextPosition);
-            Door reverseDoor = nextRoom.getDoor(direction.getOpposite());
-            if (reverseDoor != null) {
-                reverseDoor.open();
-            }
+        if (door.isOpen()) {
             movePlayer(direction);
-            updateQuestionPanel();
-
+        } else if (door.isLocked()) {
+            JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
         } else {
-            door.lock();
-            updateDoor(direction, DOOR_FAILED);
-            JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
+            myGameState.setMyCurrentDirection(direction);
         }
-
+        updateQuestionPanel();
     }
 
     private void bindWASDKeys(JPanel panel) {
