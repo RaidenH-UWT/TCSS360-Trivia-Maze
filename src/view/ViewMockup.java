@@ -1,13 +1,11 @@
 package src.view;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -18,11 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -37,6 +31,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
@@ -99,7 +94,7 @@ public class ViewMockup implements GameView {
     private Position myPlayerPosition;
 
     private final GameState myGameState;
-    private JLabel myCurrentQuestionLabel;
+    private JTextArea myCurrentQuestionLabel;
     private JPanel myAnswerInputPanel;
     private Object myAnswerComponent;
 
@@ -504,9 +499,9 @@ public class ViewMockup implements GameView {
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        myMinimap = new MinimapPanel(myPlayerPosition, 
-            myRooms[myCurrentRoom].getDoorState(), 
-            BACKGROUND_COLOR);
+        myMinimap = new MinimapPanel(myPlayerPosition,
+                myRooms[myCurrentRoom].getDoorState(),
+                BACKGROUND_COLOR);
         GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
                 GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(25, 85, 25, 85), 0, 0);
 
@@ -644,11 +639,18 @@ public class ViewMockup implements GameView {
         gbc.gridy = 0;
         panel.add(questionLabel, gbc);
 
-        myCurrentQuestionLabel = new JLabel();
-        myCurrentQuestionLabel.setForeground(Color.WHITE);
+        myCurrentQuestionLabel = new JTextArea(2, 20);
+        myCurrentQuestionLabel.setWrapStyleWord(true);
+        myCurrentQuestionLabel.setLineWrap(true);
+        myCurrentQuestionLabel.setEditable(false);
+        myCurrentQuestionLabel.setOpaque(false);
         myCurrentQuestionLabel.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        myCurrentQuestionLabel.setForeground(Color.WHITE);
+        myCurrentQuestionLabel.setFocusable(false);
+
         gbc.gridx = 1;
         gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(myCurrentQuestionLabel, gbc);
 
         JLabel answerLabel = new JLabel("ANSWER >");
