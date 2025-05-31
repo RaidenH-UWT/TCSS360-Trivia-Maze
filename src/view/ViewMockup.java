@@ -948,10 +948,10 @@ public class ViewMockup implements GameView {
         int[] widths = {56, 80, 60, 90};
         int[] heights = {56, 100, 60, 60};
         String[] imagePaths = {
-            "src/Sprites/kirby1.png",
-            "src/Sprites/kirby2.png",
-            "src/Sprites/kirby3.png",
-            "src/Sprites/kirby4.png"
+            "src/sprites/kirby1.png",
+            "src/sprites/kirby2.png",
+            "src/sprites/kirby3.png",
+            "src/sprites/kirby4.png"
         };
 
         JLabel[] kirbyLabels = new JLabel[imagePaths.length];
