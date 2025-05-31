@@ -563,6 +563,8 @@ public class ViewMockup implements GameView {
 
                 myRooms[row * myMazeSize.width + col] = roomPane;
                 panel.add(roomPane);
+                roomPane.setSelectedSprite(mySelectedSprite);
+
             }
         }
 
