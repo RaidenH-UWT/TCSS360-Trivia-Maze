@@ -13,7 +13,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Polygon;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -70,11 +69,6 @@ public class ViewMockup implements GameView {
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
-     * Array of Colors for door state, indexed according to state constants.
-     */
-    private static final Color[] DOOR_COLORS = {Color.DARK_GRAY, Color.GRAY, Color.BLUE, Color.RED, Color.GREEN};
-
-    /**
      * Constant background color.
      */
     private static final Color BACKGROUND_COLOR = Color.BLACK;
@@ -109,12 +103,6 @@ public class ViewMockup implements GameView {
     private JPanel myAnswerInputPanel;
     private Object myAnswerComponent;
 
-    private static final int DOOR_WALL = 0;
-    private static final int DOOR_NOT_VISITED = 1;
-    private static final int DOOR_VISITED = 2;
-    private static final int DOOR_FAILED = 3;
-    private static final int DOOR_SUCCEEDED = 4;
-
     /**
      * Stores the index of the current room in the myRooms array
      */
@@ -123,7 +111,7 @@ public class ViewMockup implements GameView {
     /**
      * Minimap panel in the main panel.
      */
-    private RoomPanel myMinimap;
+    private MinimapPanel myMinimap;
 
     /**
      * Construct a new ViewMockup with the given GameState.
@@ -143,7 +131,7 @@ public class ViewMockup implements GameView {
 
         myRooms = new RoomPanel[myMazeSize.width * myMazeSize.height];
 
-        myMinimap = new RoomPanel(myPlayerPosition, new int[]{0, 0, 0, 0});
+        myMinimap = new MinimapPanel(myPlayerPosition, new int[]{0, 0, 0, 0}, BACKGROUND_COLOR);
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
@@ -516,7 +504,9 @@ public class ViewMockup implements GameView {
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel minimapPanel = createMinimapPanel();
+        myMinimap = new MinimapPanel(myPlayerPosition, 
+            myRooms[myCurrentRoom].getDoorState(), 
+            BACKGROUND_COLOR);
         GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
                 GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(25, 85, 25, 85), 0, 0);
 
@@ -537,7 +527,7 @@ public class ViewMockup implements GameView {
                 GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
         mainPanel.add(mapPanel, mapConstraint);
-        mainPanel.add(minimapPanel, minimapConstraint);
+        mainPanel.add(myMinimap, minimapConstraint);
         mainPanel.add(statsPanel, statsConstraint);
         mainPanel.add(questionPanel, questionConstraint);
         mainPanel.add(controlPanel, controlConstraint);
@@ -574,7 +564,7 @@ public class ViewMockup implements GameView {
                     doorStates[1] = DOOR_WALL;
                 }
 
-                final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates);
+                final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates, BACKGROUND_COLOR);
 
                 myRooms[row * myMazeSize.width + col] = roomPane;
                 panel.add(roomPane);
@@ -607,16 +597,8 @@ public class ViewMockup implements GameView {
         return panel;
     }
 
-    private JPanel createMinimapPanel() {
-        myMinimap = new RoomPanel(myPlayerPosition,
-                myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()].getDoorState());
-
-        return myMinimap;
-    }
-
     private void updateMinimap() {
-        RoomPanel currentRoomPanel = myRooms[myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX()];
-        myMinimap.setDoorStates(currentRoomPanel.getDoorState());
+        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
         myMinimap.repaint();
     }
 
@@ -989,10 +971,10 @@ public class ViewMockup implements GameView {
         int[] widths = {56, 80, 60, 90};
         int[] heights = {56, 100, 60, 60};
         String[] imagePaths = {
-            "src/Sprites/kirby1.png",
-            "src/Sprites/kirby2.png",
-            "src/Sprites/kirby3.png",
-            "src/Sprites/kirby4.png"
+            "src/sprites/kirby1.png",
+            "src/sprites/kirby2.png",
+            "src/sprites/kirby3.png",
+            "src/sprites/kirby4.png"
         };
 
         JLabel[] kirbyLabels = new JLabel[imagePaths.length];
@@ -1065,140 +1047,5 @@ public class ViewMockup implements GameView {
 
     private ImageIcon getSelectedSprite() {
         return mySelectedSprite;
-    }
-
-    private class RoomPanel extends JPanel {
-
-        private final Position myPos;
-
-        private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
-
-        /**
-         * Array of states for a door to be in 0: Wall 1: Not visited 2: Visited
-         * 3: Failed 4: Succeeded north, south, east, west
-         */
-        private int[] myDoorState;
-
-        private Color myColor;
-
-        private boolean isPlayerPosition = false;
-
-        public RoomPanel(final Position thePos, final int[] theRoomState) {
-            super();
-
-            myPos = thePos;
-            myDoorState = theRoomState;
-            myColor = BACKGROUND_COLOR;
-            setBackground(myColor);
-        }
-
-        @Deprecated
-        public void resetBackground() {
-            myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
-            setBackground(myColor);
-            repaint();
-        }
-
-        public void setDoorState(final Direction theDir, final int theState) {
-            if (theState >= 0 && theState <= 4) {
-                // Assign to index based on the ordinal
-                // {NORTH, SOUTH, EAST, WEST}
-                myDoorState[theDir.ordinal()] = theState;
-            }
-            repaint();
-        }
-
-        public void setDoorStates(final int[] theStates) {
-            for (int state : theStates) {
-                if (state < 0 || state > 4) {
-                    throw new IllegalArgumentException("Door state not defined");
-                }
-            }
-            myDoorState = theStates;
-            repaint();
-        }
-
-        public int[] getDoorState() {
-            return myDoorState;
-        }
-
-        public void setIsPlayerPosition(boolean theIsPosition) {
-            isPlayerPosition = theIsPosition;
-        }
-
-        @Override
-        public void paintComponent(final Graphics theGraphics) {
-            super.paintComponent(theGraphics);
-
-            Graphics2D g2d = (Graphics2D) theGraphics;
-
-            updateDoorTriangles();
-
-            for (Direction dir : Direction.values()) {
-                g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
-                g2d.fillPolygon(DOORTRIANGLES.get(dir));
-
-                g2d.setColor(BACKGROUND_COLOR);
-                g2d.setStroke(new BasicStroke(5));
-                g2d.drawPolygon(DOORTRIANGLES.get(dir));
-            }
-            if (isPlayerPosition && mySelectedSprite != null) {
-                Image spriteImg = mySelectedSprite.getImage();
-                int panelW = getWidth();
-                int panelH = getHeight();
-                int spriteW = Math.min(panelW, panelH) / 2;
-                int spriteH = Math.min(panelW, panelH) / 2;
-                int x = (panelW - spriteW) / 2;
-                int y = (panelH - spriteH) / 2;
-                g2d.drawImage(spriteImg, x, y, spriteW, spriteH, this);
-            }
-
-        }
-
-        private void updateDoorTriangles() {
-            int width = getWidth();
-            int height = getHeight();
-
-            if (width > 0 && height > 0) {
-                Polygon northPoly = new Polygon(
-                        new int[]{0, width / 2, width},
-                        new int[]{0, height / 2, 0},
-                        3
-                );
-
-                Polygon southPoly = new Polygon(
-                        new int[]{0, width / 2, width},
-                        new int[]{height, height / 2, height},
-                        3
-                );
-
-                Polygon eastPoly = new Polygon(
-                        new int[]{width, width / 2, width},
-                        new int[]{0, height / 2, height},
-                        3
-                );
-
-                Polygon westPoly = new Polygon(
-                        new int[]{0, width / 2, 0},
-                        new int[]{0, height / 2, height},
-                        3
-                );
-
-                DOORTRIANGLES.put(Direction.NORTH, northPoly);
-                DOORTRIANGLES.put(Direction.SOUTH, southPoly);
-                DOORTRIANGLES.put(Direction.EAST, eastPoly);
-                DOORTRIANGLES.put(Direction.WEST, westPoly);
-            }
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            return new Dimension(400, 400);
-        }
-
-        @Override
-        public String toString() {
-            return myPos.getX() + ", " + myPos.getY() + " with " + Arrays.toString(myDoorState);
-        }
     }
 }
