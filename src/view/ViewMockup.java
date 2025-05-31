@@ -212,6 +212,22 @@ public class ViewMockup implements GameView {
         updateStats(theDoorState == 4);
         myRooms[myCurrentRoom].setDoorState(theDir, theDoorState);
         myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        if (theDoorState != 2) {
+            switch (theDir) {
+            case Direction.NORTH:
+                myRooms[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
+                break;
+            case Direction.SOUTH:
+                myRooms[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
+                break;
+            case Direction.EAST:
+                myRooms[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
+                break;
+            case Direction.WEST:
+                myRooms[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
+                break;
+            }
+        }
     }
 
     @Override
@@ -241,6 +257,7 @@ public class ViewMockup implements GameView {
      */
     // File menu events
     private void newGameEvent(final ActionEvent theEvent) {
+        // TODO: Implement newGameEvent
         JOptionPane.showMessageDialog(myFrame, "Starting a new game! (reset state, choose game parameters, etc.)");
     }
 
@@ -376,10 +393,6 @@ public class ViewMockup implements GameView {
     }
 
     // Debug menu events
-    private void movePlayerEvent(final ActionEvent theEvent) {
-        updatePosition(new Position((myPlayerPosition.getX() + 1) % myMazeSize.width,
-                (myPlayerPosition.getY() + 1) % myMazeSize.height));
-    }
 
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -387,11 +400,6 @@ public class ViewMockup implements GameView {
      * GUI COMPONENTS BELOW
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-    /**
-     * Create a new menu bar for the window.
-     *
-     * @return JMenuBar with necessary elements
      */
     private JMenuBar createMenuBar() {
         JMenuBar bar = new JMenuBar();
@@ -472,11 +480,6 @@ public class ViewMockup implements GameView {
     private JMenu buildDebugMenu() {
         JMenu menu = new JMenu("Debug");
         menu.setMnemonic(KeyEvent.VK_D);
-
-        final JMenuItem movePlayerItem = new JMenuItem("Move Player");
-        movePlayerItem.addActionListener(this::movePlayerEvent);
-
-        menu.add(movePlayerItem);
 
         return menu;
     }
@@ -570,27 +573,6 @@ public class ViewMockup implements GameView {
 
         updatePosition(new Position(0, 0));
 
-        return panel;
-    }
-
-    @Deprecated // in favour of createMinimapPanel()
-    private JPanel createDoorPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(18, 18, 18));
-        panel.setLayout(new GridBagLayout());
-
-        JButton openDoorButton = new JButton("OPEN DOOR");
-        openDoorButton.setOpaque(true);
-        openDoorButton.setContentAreaFilled(true);
-        openDoorButton.setBorderPainted(true);
-        openDoorButton.setFont(new Font("Monospaced", Font.BOLD, 30));
-        openDoorButton.setBackground(new Color(255, 204, 0));
-        openDoorButton.setForeground(BACKGROUND_COLOR);
-        openDoorButton.setFocusPainted(false);
-        openDoorButton.setBorder(BorderFactory.createLineBorder(BACKGROUND_COLOR, 2));
-        openDoorButton.setPreferredSize(new Dimension(450, 100));
-
-        panel.add(openDoorButton);
         return panel;
     }
 
@@ -758,9 +740,9 @@ public class ViewMockup implements GameView {
         Direction dir = myGameState.getMyCurrentDirection();
 
         if (myGameState.tryMove(dir, userAnswer)) {
-            updateDoor(dir, DOOR_SUCCEEDED);
+            // updateDoor(dir, DOOR_SUCCEEDED); // This breaks because the position change happens before this method. You should not be calling this method from outside propertyChange()
         } else {
-            updateDoor(dir, DOOR_FAILED);
+            // updateDoor(dir, DOOR_FAILED);
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
 
@@ -861,6 +843,9 @@ public class ViewMockup implements GameView {
         Maze maze = myGameState.getMaze();
         Room currentRoom = maze.getRoom(myPlayerPosition);
         Door door = currentRoom.getDoor(direction);
+        if (myRooms[myCurrentRoom].getDoorState()[direction.ordinal()] == DOOR_NOT_VISITED) {
+            updateDoor(direction, DOOR_VISITED);
+        }
 
         if (door == null) {
             return;

@@ -34,7 +34,8 @@ public class RoomPanel extends JPanel {
 
         /**
          * Array of states for a door to be in 0: Wall 1: Not visited 2: Visited
-         * 3: Failed 4: Succeeded north, south, east, west
+         * 3: Failed 4: Succeeded 
+         * north, south, east, west
          */
         private int[] myDoorState;
 

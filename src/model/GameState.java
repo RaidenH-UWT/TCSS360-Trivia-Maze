@@ -172,13 +172,6 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
      */
     public boolean answerDoor(final Direction theDir, final String theAnswer) {
         boolean out = myMaze.getRoom(myCurrentPosition).getDoor(theDir).answerQuestion(theAnswer);
-
-        if (out) {
-            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 3, theDir);
-        } else {
-            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 4, theDir);
-        }
-
         return out;
     }
 
@@ -281,8 +274,8 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
         this.myQuestionsSucceeded = other.myQuestionsSucceeded;
         this.myVisitedRooms = new ArrayList<>(other.myVisitedRooms);
         // Fire property change events so listeners update
-        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, myCurrentPosition);
         myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, myCurrentPosition);
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, myCurrentPosition);
         // You may want to fire more events depending on your UI needs
     }
 
@@ -298,9 +291,12 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
         if (!door.isOpen()) {
             if (!door.answerQuestion(answer)) {
                 door.lock();
+                myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 3, direction);
                 return false;
             }
+
             door.open();
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 4, direction);
 
             Position next = pos.translate(direction);
             Room nextRoom = myMaze.getRoom(next);
