@@ -1,15 +1,11 @@
 package src.view;
 
-import java.beans.PropertyChangeEvent;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -22,9 +18,11 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.Font;
-
+import java.beans.PropertyChangeEvent;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -42,6 +40,7 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import src.model.Direction;
 import src.model.Door;
+import src.model.GameSaver;
 import src.model.GameState;
 import src.model.Maze;
 import src.model.MultipleChoiceQuestion;
@@ -49,7 +48,6 @@ import src.model.Position;
 import src.model.PropertyChangeEnabledGameState;
 import src.model.Question;
 import src.model.Room;
-import src.model.GameSaver;
 
 /**
  * Mockup of the GuiView class for experimentation with the GUI. Documentation &
@@ -819,131 +817,72 @@ public class ViewMockup implements GameView {
     private JPanel createControlPanel() {
 
         final int panelSize = 200;
-        final int crossSize = (int) (panelSize * 0.8);
-        final int armWidth = crossSize / 3;
-        final int centerX = panelSize / 2;
-        final int centerY = panelSize / 2;
-        final JPanel dPadPanel = new JPanel() {
+        JPanel dPadPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                ImageIcon dpadImage = new ImageIcon("src/dpad/dpadTrimmed.png");
+                Image img = dpadImage.getImage();
+                g.drawImage(img, 83, 10, panelSize, panelSize, this);
 
-                int width = getWidth();
-                int height = getHeight();
-                int centerX = width / 2;
-                int centerY = height / 2;
-
-                int crossSize = (int) (Math.min(width, height) * 0.8);
-                int armWidth = crossSize / 3;
-                int circleRadius = armWidth / 2;
-                int arrowSize = armWidth / 2;
-
-                circleRadius = (int) (circleRadius * 0.6);
-
-                java.awt.GradientPaint gradientPaint = new java.awt.GradientPaint(
-                        0, 0, new Color(60, 60, 60),
-                        width, height, new Color(40, 40, 40));
-                ((java.awt.Graphics2D) g).setPaint(gradientPaint);
-
-                java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
-                g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int vX = centerX - armWidth / 2;
-                int vY = centerY - crossSize / 2;
-                int hX = centerX - crossSize / 2;
-                int hY = centerY - armWidth / 2;
-
-                RoundRectangle2D verticalArm = new RoundRectangle2D.Float(vX, vY, armWidth, crossSize, 10, 10);
-                RoundRectangle2D horizontalArm = new RoundRectangle2D.Float(hX, hY, crossSize, armWidth, 10, 10);
-
-                g2d.fill(verticalArm);
-                g2d.fill(horizontalArm);
-
-                g2d.setColor(BACKGROUND_COLOR);
-                g2d.draw(verticalArm);
-                g2d.draw(horizontalArm);
-
-                g.setColor(new Color(26, 26, 26));
-                g.fillOval(centerX - circleRadius, centerY - circleRadius,
-                        circleRadius * 2, circleRadius * 2);
-
-                g.setColor(new Color(26, 26, 26));
-
-                drawDirectionalArrow(g2d, centerX, centerY - crossSize / 3, Direction.NORTH, arrowSize);
-                drawDirectionalArrow(g2d, centerX, centerY + crossSize / 3, Direction.SOUTH, arrowSize);
-                drawDirectionalArrow(g2d, centerX - crossSize / 3, centerY, Direction.WEST, arrowSize);
-                drawDirectionalArrow(g2d, centerX + crossSize / 3, centerY, Direction.EAST, arrowSize);
-            }
-
-            private void drawDirectionalArrow(Graphics2D g, int x, int y, Direction dir, int size) {
-                int[] xPoints = new int[3];
-                int[] yPoints = new int[3];
-
-                switch (dir) {
-                    case NORTH -> {
-                        xPoints = new int[]{x, x - size / 2, x + size / 2};
-                        yPoints = new int[]{y - size / 2, y + size / 2, y + size / 2};
-                    }
-                    case SOUTH -> {
-                        xPoints = new int[]{x, x - size / 2, x + size / 2};
-                        yPoints = new int[]{y + size / 2, y - size / 2, y - size / 2};
-                    }
-                    case EAST -> {
-                        xPoints = new int[]{x + size / 2, x - size / 2, x - size / 2};
-                        yPoints = new int[]{y, y - size / 2, y + size / 2};
-                    }
-                    case WEST -> {
-                        xPoints = new int[]{x - size / 2, x + size / 2, x + size / 2};
-                        yPoints = new int[]{y, y - size / 2, y + size / 2};
-                    }
-                }
-
-                g.fillPolygon(xPoints, yPoints, 3);
             }
         };
 
-        dPadPanel.setPreferredSize(new Dimension(200, 200));
-        dPadPanel.setBackground(new Color(240, 240, 240));
+        ImageIcon upImage = new ImageIcon("src/dpad/upArrow.png");
+        Image upImg = upImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon rightImage = new ImageIcon("src/dpad/rightArrow.png");
+        Image rightImg = rightImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon leftImage = new ImageIcon("src/dpad/leftArrow.png");
+        Image leftImg = leftImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon downImage = new ImageIcon("src/dpad/downArrow.png");
+        Image downImg = downImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon upIcon = new ImageIcon(upImg);
+        ImageIcon rightIcon = new ImageIcon(rightImg);
+        ImageIcon leftIcon = new ImageIcon(leftImg);
+        ImageIcon downIcon = new ImageIcon(downImg);
+
+        JButton upButton = new JButton(upIcon);
+        JButton rightButton = new JButton(rightIcon);
+        JButton leftButton = new JButton(leftIcon);
+        JButton downButton = new JButton(downIcon);
+
+        dPadPanel.setPreferredSize(new Dimension(panelSize, panelSize));
         dPadPanel.setLayout(null);
 
-        JButton upButton = new JButton();
-        JButton downButton = new JButton();
-        JButton leftButton = new JButton();
-        JButton rightButton = new JButton();
-
-        upButton.setBounds(centerX - armWidth / 2, centerY - crossSize / 2, armWidth, armWidth);
-        downButton.setBounds(centerX - armWidth / 2, centerY + crossSize / 2 - armWidth, armWidth, armWidth);
-        leftButton.setBounds(centerX - crossSize / 2, centerY - armWidth / 2, armWidth, armWidth);
-        rightButton.setBounds(centerX + crossSize / 2 - armWidth, centerY - armWidth / 2, armWidth, armWidth);
-
-        upButton.setBounds(156, 23, 66, 66);
-        downButton.setBounds(156, 145, 66, 66);
-        leftButton.setBounds(93, 83, 66, 66);
-        rightButton.setBounds(220, 83, 66, 66);
-
+        upButton.setBounds(151, 23, 66, 66);
         upButton.setOpaque(false);
         upButton.setContentAreaFilled(false);
         upButton.setBorderPainted(false);
-        downButton.setOpaque(false);
-        downButton.setContentAreaFilled(false);
-        downButton.setBorderPainted(false);
-        leftButton.setOpaque(false);
-        leftButton.setContentAreaFilled(false);
-        leftButton.setBorderPainted(false);
+
+        rightButton.setBounds(200, 75, 66, 66);
         rightButton.setOpaque(false);
         rightButton.setContentAreaFilled(false);
         rightButton.setBorderPainted(false);
 
+        leftButton.setBounds(100, 75, 66, 66);
+        leftButton.setOpaque(false);
+        leftButton.setContentAreaFilled(false);
+        leftButton.setBorderPainted(false);
+
+        downButton.setBounds(151, 128, 66, 66);
+        downButton.setOpaque(false);
+        downButton.setContentAreaFilled(false);
+        downButton.setBorderPainted(false);
+
         upButton.addActionListener(e -> handleDPadPress(Direction.NORTH));
-        downButton.addActionListener(e -> handleDPadPress(Direction.SOUTH));
-        leftButton.addActionListener(e -> handleDPadPress(Direction.WEST));
         rightButton.addActionListener(e -> handleDPadPress(Direction.EAST));
+        leftButton.addActionListener(e -> handleDPadPress(Direction.WEST));
+        downButton.addActionListener(e -> handleDPadPress(Direction.SOUTH));
 
         dPadPanel.add(upButton);
-        dPadPanel.add(downButton);
-        dPadPanel.add(leftButton);
         dPadPanel.add(rightButton);
+        dPadPanel.add(leftButton);
+        dPadPanel.add(downButton);
+        dPadPanel.setBackground(new Color(215, 215, 215));
 
         return dPadPanel;
     }
