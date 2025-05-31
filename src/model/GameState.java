@@ -285,4 +285,32 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
         myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, myCurrentPosition);
         // You may want to fire more events depending on your UI needs
     }
+
+    public boolean tryMove(Direction direction, String answer) {
+        Position pos = getMyCurrentPosition();
+        Room current = myMaze.getRoom(pos);
+        Door door = current.getDoor(direction);
+
+        if (door == null || door.isLocked()) {
+            return false;
+        }
+
+        if (!door.isOpen()) {
+            if (!door.answerQuestion(answer)) {
+                door.lock();
+                return false;
+            }
+            door.open();
+
+            Position next = pos.translate(direction);
+            Room nextRoom = myMaze.getRoom(next);
+            Door reverse = nextRoom.getDoor(direction.getOpposite());
+            if (reverse != null) {
+                reverse.open();
+            }
+        }
+
+        setMyCurrentPosition(pos.translate(direction));
+        return true;
+    }
 }

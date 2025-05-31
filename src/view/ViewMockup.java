@@ -754,54 +754,33 @@ public class ViewMockup implements GameView {
     }
 
     private void processAnswer() {
+        String userAnswer = getUserAnswer();
         Direction dir = myGameState.getMyCurrentDirection();
-        Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
-        Door door = room.getDoor(myGameState.getMyCurrentDirection());
 
-        if (door == null || door.isOpen() || door.isLocked()) {
-
-            updateQuestionPanel();
-            return;
-        }
-
-        String userAnswer = "";
-        if (myAnswerComponent instanceof JTextField) {
-            userAnswer = ((JTextField) myAnswerComponent).getText();
-        } else if (myAnswerComponent instanceof ButtonGroup) {
-            ButtonGroup grp = (ButtonGroup) myAnswerComponent;
-            for (Enumeration<AbstractButton> ez = grp.getElements(); ez.hasMoreElements();) {
-                AbstractButton btn = ez.nextElement();
-                if (btn.isSelected()) {
-                    userAnswer = btn.getText();
-                    break;
-                }
-            }
-        }
-
-        boolean correct = myGameState.answerDoor(dir, userAnswer);
-        if (correct) {
-            door.open();
+        if (myGameState.tryMove(dir, userAnswer)) {
             updateDoor(dir, DOOR_SUCCEEDED);
-
-            Position next = myGameState.getMyCurrentPosition().translate(dir);
-            Room nr = myGameState.getMaze().getRoom(next);
-            Door rev = nr.getDoor(dir.getOpposite());
-            if (rev != null) {
-                rev.open();
-            }
-            movePlayer(dir);
         } else {
-            door.lock();
             updateDoor(dir, DOOR_FAILED);
-            JOptionPane.showMessageDialog(
-                    myFrame,
-                    "Incorrect! That door is now locked.",
-                    "Wrong Answer",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
 
         updateQuestionPanel();
+
+    }
+
+    private String getUserAnswer() {
+        if (myAnswerComponent instanceof JTextField) {
+            return ((JTextField) myAnswerComponent).getText();
+        } else if (myAnswerComponent instanceof ButtonGroup) {
+            ButtonGroup group = (ButtonGroup) myAnswerComponent;
+            for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
+                AbstractButton button = buttons.nextElement();
+                if (button.isSelected()) {
+                    return button.getText();
+                }
+            }
+        }
+        return "";
     }
 
     private JPanel createControlPanel() {
