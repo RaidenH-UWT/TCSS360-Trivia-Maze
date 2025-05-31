@@ -10,7 +10,7 @@ import java.util.List;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-public class MultipleChoiceQuestion extends Question implements java.io.Serializable {
+public class MultipleChoiceQuestion extends Question {
 
     private static final long serialVersionUID = 1L;
 

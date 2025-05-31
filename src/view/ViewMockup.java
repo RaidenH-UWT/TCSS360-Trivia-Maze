@@ -983,6 +983,7 @@ public class ViewMockup implements GameView {
 
                         for (RoomPanel room : myRooms) {
                             if (room != null) {
+                                room.setSelectedSprite(mySelectedSprite);
                                 room.repaint();
                             }
                         }

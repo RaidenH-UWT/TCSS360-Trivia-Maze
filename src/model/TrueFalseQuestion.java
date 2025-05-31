@@ -6,7 +6,7 @@ package src.model;
  * @author Raiden H
  * @author Kalen Cha
  */
-public class TrueFalseQuestion extends Question implements java.io.Serializable {
+public class TrueFalseQuestion extends Question {
 
     private static final long serialVersionUID = 1L;
     /**

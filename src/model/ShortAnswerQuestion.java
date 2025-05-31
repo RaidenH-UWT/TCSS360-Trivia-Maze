@@ -7,7 +7,7 @@ package src.model;
  * @author Kalen Cha
  * @version May 1, 2025
  */
-public class ShortAnswerQuestion extends Question implements java.io.Serializable {
+public class ShortAnswerQuestion extends Question {
 
     private static final long serialVersionUID = 1L;
 

@@ -12,7 +12,6 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.BasicStroke;
 
 
 
@@ -97,14 +96,9 @@ public class RoomPanel extends JPanel {
             updateDoorTriangles();
 
             for (Direction dir : Direction.values()) {
-                // g2d.setColor(DOOR_COLORS[myDoorState[dir.ordinal()]]);
-                // g2d.fillPolygon(DOORTRIANGLES.get(dir));
-
-                // g2d.setColor(myBackgroundColor);
-                // g2d.setStroke(new BasicStroke(5));
-                // g2d.drawPolygon(DOORTRIANGLES.get(dir));
                 g2d.drawImage(DOORSPRITES.get(dir)[myDoorState[dir.ordinal()]].getImage(), 0, 0, getWidth(), getHeight(), this);
             }
+
             if (isPlayerPosition && mySelectedSprite != null) {
                 Image spriteImg = mySelectedSprite.getImage();
                 int panelW = getWidth();
@@ -115,7 +109,6 @@ public class RoomPanel extends JPanel {
                 int y = (panelH - spriteH) / 2;
                 g2d.drawImage(spriteImg, x, y, spriteW, spriteH, this);
             }
-
         }
 
         private void updateDoorTriangles() {

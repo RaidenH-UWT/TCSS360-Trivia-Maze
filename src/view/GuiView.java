@@ -2,7 +2,6 @@ package src.view;
 
 // General imports
 import java.beans.PropertyChangeEvent;
-import java.util.LinkedList;
 
 // AWT imports
 import java.awt.Color;
