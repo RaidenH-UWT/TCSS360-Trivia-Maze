@@ -88,7 +88,7 @@ public class DatabaseManager {
      */
     protected static ResultSet getAllRealQuestions() {
         try {
-            ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE NOT 'Category'='test'");
+            ResultSet results = QUERY.executeQuery("SELECT * FROM QUESTIONS WHERE NOT Category='test'");
             return results;
 
         } catch (SQLException e) {
