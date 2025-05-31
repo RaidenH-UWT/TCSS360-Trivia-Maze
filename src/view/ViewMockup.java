@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -37,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import src.model.Direction;
 import src.model.Door;
@@ -539,6 +542,7 @@ public class ViewMockup implements GameView {
         mainPanel.add(questionPanel, questionConstraint);
         mainPanel.add(controlPanel, controlConstraint);
         mainPanel.add(infoPanel, infoConstraint);
+        bindWASDKeys(mainPanel);
 
         return mainPanel;
     }
@@ -936,6 +940,38 @@ public class ViewMockup implements GameView {
             JOptionPane.showMessageDialog(myFrame, "Incorrect answer! The door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
 
+    }
+
+    private void bindWASDKeys(JPanel panel) {
+        panel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), "moveUp");
+        panel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
+        panel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), "moveLeft");
+        panel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"), "moveRight");
+
+        panel.getActionMap().put("moveUp", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.NORTH);
+            }
+        });
+        panel.getActionMap().put("moveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.SOUTH);
+            }
+        });
+        panel.getActionMap().put("moveLeft", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.WEST);
+            }
+        });
+        panel.getActionMap().put("moveRight", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.EAST);
+            }
+        });
     }
 
     private void movePlayer(Direction direction) {
