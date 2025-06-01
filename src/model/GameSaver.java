@@ -21,7 +21,7 @@ public class GameSaver {
      * @param theState a GameState object storing the state of the game
      * @param theFilename the file to save as
      */
-    public void saveGame(final GameState theState, final String theFilename) {
+    public static void saveGame(final GameState theState, final String theFilename) {
         try (FileOutputStream fileOut = new FileOutputStream(theFilename); ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(theState);
         } catch (IOException e) {
@@ -37,9 +37,9 @@ public class GameSaver {
      * @throws IOException if the file is not found or cannot be read
      * @throws ClassNotFoundException if the GameState class cannot be found
      */
-    public GameState getSave(final String theFilename) throws IOException, ClassNotFoundException {
+    public static GameState getSave(final String theFilename) throws IOException, ClassNotFoundException {
         try (
-                FileInputStream fileIn = new FileInputStream(theFilename); ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            FileInputStream fileIn = new FileInputStream(theFilename); ObjectInputStream in = new ObjectInputStream(fileIn)) {
             Object obj = in.readObject();
             if (obj == null) {
                 throw new IOException("Save file is empty.");

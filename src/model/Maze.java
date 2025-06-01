@@ -134,6 +134,7 @@ public class Maze implements java.io.Serializable {
      *
      * @param theQuestions ArrayList<Question> of questions to fill with
      */
+    @SuppressWarnings("unused") // Used for debugging/development
     private void fillRooms(final ArrayList<Question> theQuestions) {
         if (!ALLOW_DUPLICATE_QUESTIONS && theQuestions.size() < (myWidth * myHeight) * 4 - (2 * myWidth) - (2 * myHeight)) {
             throw new IndexOutOfBoundsException("Not enough questions to fill the maze");

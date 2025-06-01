@@ -33,17 +33,6 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
      * Door we're looking at.
      */
     private Direction myCurrentDirection;
-    // Could calculate these instead of storing them just counting the rooms in the maze
-    // TODO: rework with updated property change events
-    /**
-     * Stores the number of questions the player has answered.
-     */
-    private int myQuestionsFailed;
-
-    /**
-     * Stores the number of questions the player has answered correctly.
-     */
-    private int myQuestionsSucceeded;
 
     // maybe List<Room> instead, cause rooms already store their position and we could access the data faster?
     /**
@@ -64,8 +53,6 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
         // Maze constructor does parameter checking
         myMaze = new Maze(theWidth, theHeight, theCategories);
         myCurrentPosition = myMaze.getEntrance();
-        myQuestionsFailed = 0;
-        myQuestionsSucceeded = 0;
         myVisitedRooms = new ArrayList<Position>(theWidth * theHeight);
 
         myPCS = new PropertyChangeSupport(this);
@@ -144,24 +131,6 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
         return myMaze;
     }
 
-    /**
-     * Get how many questions the player has answered.
-     *
-     * @return int number of questions the player has answered
-     */
-    public int getMyQuestionsFailed() {
-        return myQuestionsFailed;
-    }
-
-    /**
-     * Get how many questions the player has gotten correct.
-     *
-     * @return int number of questions the player has answered correctly
-     */
-    public int getMyQuestionsSucceeded() {
-        return myQuestionsSucceeded;
-    }
-
     // TODO: Add a method for selecting the current door, for use in the minimap/question panel, and fire PROPERTY_DOOR_VISITED from there
     /**
      * Attempt to answer the door in the given direction.
@@ -200,6 +169,66 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
      */
     public List<Position> getmyVisitedRooms() {
         return myVisitedRooms;
+    }
+
+    /**
+     * Sets the current direction of player.
+     *
+     * @param direction direction to set
+     */
+    public void setMyCurrentDirection(Direction direction) {
+        myCurrentDirection = direction;
+    }
+
+    /**
+     * Updates this GameState's fields from another GameState instance. Useful
+     * for loading a saved state into an existing GameState object. Fires
+     * property change events for position, direction, and visited rooms.
+     *
+     * @param other the GameState to copy from
+     */
+    public void updateFrom(GameState other) {
+        if (other == null) {
+            return;
+        }
+        this.myMaze = other.myMaze;
+        this.myCurrentPosition = other.myCurrentPosition;
+        this.myCurrentDirection = other.myCurrentDirection;
+        this.myVisitedRooms = new ArrayList<>(other.myVisitedRooms);
+        // Fire property change events so listeners update
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, myCurrentPosition);
+        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, myCurrentPosition);
+        // You may want to fire more events depending on your UI needs
+    }
+
+    public boolean tryMove(Direction direction, String answer) {
+        Position pos = getMyCurrentPosition();
+        Room current = myMaze.getRoom(pos);
+        Door door = current.getDoor(direction);
+
+        if (door == null || door.isLocked()) {
+            return false;
+        }
+
+        if (!door.isOpen()) {
+            if (!door.answerQuestion(answer)) {
+                door.lock();
+                myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 3, direction);
+                return false;
+            }
+
+            door.open();
+            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 4, direction);
+
+            Position next = pos.translate(direction);
+            Room nextRoom = myMaze.getRoom(next);
+            Door reverse = nextRoom.getDoor(direction.getOpposite());
+            if (reverse != null) {
+                reverse.open();
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -245,68 +274,5 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
                 && thePosition.getX() >= 0
                 && thePosition.getY() <= getMaze().getHeight()
                 && thePosition.getY() >= 0;
-    }
-
-    /**
-     * Sets the current direction of player.
-     *
-     * @param direction direction to set
-     */
-    public void setMyCurrentDirection(Direction direction) {
-        myCurrentDirection = direction;
-    }
-
-    /**
-     * Updates this GameState's fields from another GameState instance. Useful
-     * for loading a saved state into an existing GameState object. Fires
-     * property change events for position, direction, and visited rooms.
-     *
-     * @param other the GameState to copy from
-     */
-    public void updateFrom(GameState other) {
-        if (other == null) {
-            return;
-        }
-        this.myMaze = other.myMaze;
-        this.myCurrentPosition = other.myCurrentPosition;
-        this.myCurrentDirection = other.myCurrentDirection;
-        this.myQuestionsFailed = other.myQuestionsFailed;
-        this.myQuestionsSucceeded = other.myQuestionsSucceeded;
-        this.myVisitedRooms = new ArrayList<>(other.myVisitedRooms);
-        // Fire property change events so listeners update
-        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED, null, myCurrentPosition);
-        myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_POSITION, null, myCurrentPosition);
-        // You may want to fire more events depending on your UI needs
-    }
-
-    public boolean tryMove(Direction direction, String answer) {
-        Position pos = getMyCurrentPosition();
-        Room current = myMaze.getRoom(pos);
-        Door door = current.getDoor(direction);
-
-        if (door == null || door.isLocked()) {
-            return false;
-        }
-
-        if (!door.isOpen()) {
-            if (!door.answerQuestion(answer)) {
-                door.lock();
-                myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 3, direction);
-                return false;
-            }
-
-            door.open();
-            myPCS.firePropertyChange(PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED, 4, direction);
-
-            Position next = pos.translate(direction);
-            Room nextRoom = myMaze.getRoom(next);
-            Door reverse = nextRoom.getDoor(direction.getOpposite());
-            if (reverse != null) {
-                reverse.open();
-            }
-        }
-
-        setMyCurrentPosition(pos.translate(direction));
-        return true;
     }
 }

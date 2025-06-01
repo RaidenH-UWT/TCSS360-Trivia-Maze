@@ -19,6 +19,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.Font;
 
+import javax.swing.ImageIcon;
 // Swing imports
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,10 +29,12 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 // Local imports
 import src.model.Direction;
+import src.model.Door;
 import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
@@ -60,19 +63,69 @@ public class GuiView implements GameView {
     private static final Dimension WINDOW_SIZE = new Dimension(1024, 1024);
 
     /**
+     * Constant background color.
+     */
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
+
+    /**
      * Reference to the JFrame for the window
      */
     private final JFrame myFrame;
 
     /**
-     * Array of rooms in the maze panel.
-     */
-    private Component[] myRooms;
-
-    /**
      * Dimensions of the maze (in rooms)
      */
     private final Dimension myMazeSize;
+
+    /**
+     * Array of rooms in the maze panel.
+     */
+    private RoomPanel[] myRooms;
+
+    /**
+     * Stores selected sprite.
+     */
+    private ImageIcon mySelectedSprite = new ImageIcon("src/sprites/kirby1.png");
+
+    /**
+     * Current position of the player.
+     */
+    private Position myPlayerPosition;
+
+    /**
+     * GameState state of the game
+     */
+    private final GameState myGameState;
+
+    /**
+     * Label of the current question
+     */
+    private JTextArea myCurrentQuestionLabel;
+
+    /**
+     * Panel for question answer inputs
+     */
+    private JPanel myAnswerInputPanel;
+
+    /**
+     * Answer object, either ButtonGroup or JTextField
+     */
+    private Object myAnswerComponent;
+
+    /**
+     * Stores the index of the current room in the myRooms array
+     */
+    private int myCurrentRoom;
+
+    /**
+     * Minimap panel in the main panel.
+     */
+    private MinimapPanel myMinimap;
+
+    /**
+     * Stats panel in the main panel.
+     */
+    private StatsPanel myStatsPanel;
 
     /**
      * Create a new GuiView watching the given state
@@ -81,16 +134,26 @@ public class GuiView implements GameView {
     public GuiView(final GameState theState) {
         super();
 
-        theState.addPropertyChangeListener(this);
+        myGameState = theState;
 
-        myMazeSize = new Dimension(theState.getMaze().getWidth(), theState.getMaze().getWidth());
+        myGameState.addPropertyChangeListener(this);
+
+        myMazeSize = new Dimension(myGameState.getMaze().getWidth(), myGameState.getMaze().getWidth());
+
+        myPlayerPosition = new Position(0, 0);
+
+        myCurrentRoom = myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX();
+
+        myRooms = new RoomPanel[myMazeSize.width * myMazeSize.height];
+
+        myMinimap = new MinimapPanel(myPlayerPosition, new int[] {0, 0, 0, 0}, BACKGROUND_COLOR);
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
 
         // Setting behaviour
         myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        myFrame.setResizable(true);
+        myFrame.setResizable(false);
         myFrame.setPreferredSize(WINDOW_SIZE);
     }
 
@@ -109,72 +172,73 @@ public class GuiView implements GameView {
         myFrame.setVisible(true);
     }
 
-    // TODO: Potentially rewrite the interface, unsure if these are still necessary.
-    @Override
-    public void displayMaze(Maze theMaze, Position theCurrentPosition) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayMaze'");
-    }
-
-    @Override
-    public void displayRoom(Room theRoom) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayRoom'");
-    }
-
-    @Override
-    public void displayQuestion(Question theQuestion) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayQuestion'");
-    }
-
-    @Override
-    public void displayGameOver(boolean isWon) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayGameOver'");
-    }
-
     /**
      * Update the position of the player.
      * @param theOldPos Position the player was at previously
      * @param theNewPos Position the player is at now
      */
-    private void updatePosition(final Position theOldPos, Position theNewPos) {
+    private void updatePosition(Position newPos) {
         // called when the player position changes
-        ((RoomPanel) myRooms[theOldPos.getY() * myMazeSize.width + theOldPos.getX()]).resetBackground();
+        myRooms[myCurrentRoom].setIsPlayerPosition(false);
+        myRooms[myCurrentRoom].repaint();
 
-        myRooms[theNewPos.getY() * myMazeSize.width + theNewPos.getX()].setBackground(Color.YELLOW);
-        myRooms[theNewPos.getY() * myMazeSize.width + theNewPos.getX()].repaint();
+        myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
+
+        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+
+        myRooms[myCurrentRoom].setIsPlayerPosition(true);
+        myRooms[myCurrentRoom].repaint();
     }
 
     /**
-     * Update displayed question stats for the player.
+     * Update question stats for the player.
      */
-    private void updateStats(final int theAnswered, final int theCorrect) {
-        // called when questionsAnswered or questionsCorrect increments, maybe replace?
+    private void updateStats(final boolean theCorrect) {
+        myStatsPanel.incrementQuestionsAnswered();
+        if (theCorrect) {
+            myStatsPanel.incrementQuestionsCorrect();
+        }
     }
 
     /**
-     * Update displayed rooms.
+     * Update the door in the given direction of the current room with the given state.
+     * @param theDir Direction of the Door being updated.
+     * @param theDoorState int new state of the door. Possibilities described in the GameView interface.
      */
-    private void updateRooms(final Position thePosition) {
-        // called when a new room is visited.
+    private void updateDoor(final Direction theDir, final int theDoorState) {
+        updateStats(theDoorState == 4);
+        myRooms[myCurrentRoom].setDoorState(theDir, theDoorState);
+        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        if (theDoorState != 2) {
+            switch (theDir) {
+            case Direction.NORTH:
+                myRooms[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
+                break;
+            case Direction.SOUTH:
+                myRooms[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
+                break;
+            case Direction.EAST:
+                myRooms[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
+                break;
+            case Direction.WEST:
+                myRooms[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
+                break;
+            }
+        }
     }
 
+    /**
+     * Call methods based on the name of the property event passed.
+     * Should only be called by objects we're listening to.
+     */
     @Override
     public void propertyChange(final PropertyChangeEvent theEvent) {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
-                updatePosition((Position) theEvent.getOldValue(), (Position) theEvent.getNewValue());
+                updatePosition((Position) theEvent.getNewValue());
                 break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_FAILED:
-                updateStats(1, 0);
-                break;
-            case PropertyChangeEnabledGameState.PROPERTY_QUESTION_SUCCEEDED:
-                updateStats(0, 1);
-                break;
-            case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
-                updateRooms((Position) theEvent.getNewValue());
+            case PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED:
+                updateDoor((Direction) theEvent.getNewValue(), (Integer) theEvent.getOldValue());
                 break;
             default:
                 throw new UnsupportedOperationException("Property change not supported");
@@ -191,6 +255,7 @@ public class GuiView implements GameView {
      */
     // File menu events
     private void newGameEvent(final ActionEvent theEvent) {
+        // TODO: Implement newGameEvent
         JOptionPane.showMessageDialog(myFrame, "Starting a new game! (reset state, choose game parameters, etc.)");
     }
 
@@ -208,7 +273,6 @@ public class GuiView implements GameView {
 
     // Save menu events
     private void saveGameEvent(final ActionEvent theEvent) {
-
         javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
         fileChooser.setDialogTitle("Save Game");
 
@@ -218,9 +282,7 @@ public class GuiView implements GameView {
             java.io.File fileToSave = fileChooser.getSelectedFile();
 
             try {
-                GameState currentState = null;
-                GameSaver gameSaver = new GameSaver();
-                gameSaver.saveGame(currentState, fileToSave.getAbsolutePath());
+                GameSaver.saveGame(myGameState, fileToSave.getAbsolutePath());
                 JOptionPane.showMessageDialog(myFrame, "Game saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(myFrame, "Failed to save the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -240,8 +302,7 @@ public class GuiView implements GameView {
             java.io.File fileToLoad = fileChooser.getSelectedFile();
 
             try {
-                GameSaver gameSaver = new GameSaver();
-                GameState loadedState = gameSaver.getSave(fileToLoad.getAbsolutePath());
+                GameState loadedState = GameSaver.getSave(fileToLoad.getAbsolutePath());
 
                 // Assuming we have a method to update the current game state
                 updateGameState(loadedState);
@@ -258,12 +319,48 @@ public class GuiView implements GameView {
      * @param theLoadState The loaded GameState object.
      */
     private void updateGameState(final GameState theLoadState) {
-        // TODO: Implement logic to update the current game state and refresh the UI
-        // maybe just reassign the GameState variable and run all the update methods?
+        if (theLoadState == null) {
+            JOptionPane.showMessageDialog(myFrame, "Failed to load: Save file is empty or corrupted.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        myGameState.removePropertyChangeListener(this);
+        myGameState.updateFrom(theLoadState);
+        myGameState.addPropertyChangeListener(this);
+        myPlayerPosition = myGameState.getMyCurrentPosition();
+        syncAllRoomPanelDoorStates();
+        updatePosition(myPlayerPosition);
+        updateQuestionPanel();
+        updateMinimap();
     }
 
-    private void manageSavesEvent(final ActionEvent theEvent) {
-        JOptionPane.showMessageDialog(myFrame, "Managing Saves! (opened a file explorer!)");
+    /**
+     * Set all the myRoom door state according to the state of the maze.
+     */
+    private void syncAllRoomPanelDoorStates() {
+        Maze maze = myGameState.getMaze();
+        for (int row = 0; row < myMazeSize.height; row++) {
+            for (int col = 0; col < myMazeSize.width; col++) {
+                Room modelRoom = maze.getRoom(new Position(col, row));
+                RoomPanel panelRoom = myRooms[row * myMazeSize.width + col];
+                int[] doorStates = new int[4]; // N, S, E, W
+                for (Direction dir : Direction.values()) {
+                    if (modelRoom.hasDoor(dir)) {
+                        Door door = modelRoom.getDoor(dir);
+                        if (door.isOpen()) {
+                            doorStates[dir.ordinal()] = DOOR_SUCCEEDED;
+                        } else if (door.isLocked()) {
+                            doorStates[dir.ordinal()] = DOOR_FAILED;
+                        } else {
+                            doorStates[dir.ordinal()] = DOOR_NOT_VISITED;
+                        }
+                    } else {
+                        doorStates[dir.ordinal()] = DOOR_WALL;
+                    }
+                }
+                panelRoom.setDoorStates(doorStates);
+            }
+        }
     }
 
     // Help menu events
@@ -281,12 +378,16 @@ public class GuiView implements GameView {
     }
 
     private void howToEvent(final ActionEvent theEvent) {
-        // TODO: Write something here
         String howtoMsg = """
         Answer trivia questions
-        """;
+        Document door colour key
+        Document controls
+        Document minimap door selection 
+        """; // TODO: Write something here
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
+
+    // Debug menu events
 
 
     /* 
@@ -295,11 +396,6 @@ public class GuiView implements GameView {
      * GUI COMPONENTS BELOW
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-    /**
-     * Create a new menu bar for the window.
-     *
-     * @return JMenuBar with necessary elements
      */
     private JMenuBar createMenuBar() {
         JMenuBar bar = new JMenuBar();
@@ -310,9 +406,12 @@ public class GuiView implements GameView {
 
         JMenu helpMenu = buildHelpMenu();
 
+        JMenu debugMenu = buildDebugMenu();
+
         bar.add(fileMenu);
         bar.add(saveMenu);
         bar.add(helpMenu);
+        bar.add(debugMenu);
 
         return bar;
     }
@@ -348,12 +447,8 @@ public class GuiView implements GameView {
         final JMenuItem loadItem = new JMenuItem("Load Game");
         loadItem.addActionListener(this::loadGameEvent);
 
-        final JMenuItem manageItem = new JMenuItem("Manage Saves");
-        manageItem.addActionListener(this::manageSavesEvent);
-
         menu.add(saveItem);
         menu.add(loadItem);
-        menu.add(manageItem);
 
         return menu;
     }
@@ -370,6 +465,13 @@ public class GuiView implements GameView {
 
         menu.add(aboutItem);
         menu.add(howToItem);
+
+        return menu;
+    }
+
+    private JMenu buildDebugMenu() {
+        JMenu menu = new JMenu("Debug");
+        menu.setMnemonic(KeyEvent.VK_D);
 
         return menu;
     }
@@ -618,41 +720,5 @@ public class GuiView implements GameView {
         panel.setBackground(new Color(0, 255, 255));
 
         return panel;
-    }
-
-    private class RoomPanel extends JPanel {
-        // Add display for rooms
-        // i'm thinking 4 triangles, 1 for each cardinal direction
-        // and colour coded based on lock state
-        // and mystery colour if they haven't been visited yet.
-        private final Position myPos;
-
-        private Color myColor;
-
-        public RoomPanel(final Position thePos) {
-            super();
-
-            if (thePos.getX() < 0 || thePos.getY() < 0
-                || thePos.getX() > myMazeSize.getWidth()
-                || thePos.getY() > myMazeSize.getHeight()) {
-
-                throw new IndexOutOfBoundsException("Position out of bounds");
-            }
-
-            myPos = thePos;
-            myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
-            setBackground(myColor);
-        }
-
-        public void resetBackground() {
-            myColor = new Color((myPos.getX() * 32) % 255, 0, (myPos.getY() * 32) % 255);
-            setBackground(myColor);
-            repaint();
-        }
-
-        @Override
-        public String toString() {
-            return myPos.getX() + ", " + myPos.getY() + " with " + this.getBackground().toString();
-        }
     }
 }

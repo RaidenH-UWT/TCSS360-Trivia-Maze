@@ -2,6 +2,7 @@ package src.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -79,14 +80,9 @@ public class ViewMockup implements GameView {
     private final Dimension myMazeSize;
 
     /**
-     * Array of rooms in the maze panel.
-     */
-    private RoomPanel[] myRooms;
-
-    /**
      * Stores selected sprite.
      */
-    private ImageIcon mySelectedSprite = new ImageIcon("src/Sprites/kirby1.png");
+    private ImageIcon mySelectedSprite = new ImageIcon("src/sprites/kirby1.png");
 
     /**
      * Current position of the player.
@@ -94,9 +90,7 @@ public class ViewMockup implements GameView {
     private Position myPlayerPosition;
 
     private final GameState myGameState;
-    private JTextArea myCurrentQuestionLabel;
-    private JPanel myAnswerInputPanel;
-    private Object myAnswerComponent;
+    
 
     /**
      * Stores the index of the current room in the myRooms array
@@ -104,9 +98,34 @@ public class ViewMockup implements GameView {
     private int myCurrentRoom;
 
     /**
+     * Map panel in the main panel.
+     */
+    private MapPanel myMapPanel;
+
+    /**
      * Minimap panel in the main panel.
      */
     private MinimapPanel myMinimap;
+
+    /**
+     * Stats panel in the main panel.
+     */
+    private StatsPanel myStatsPanel;
+
+    /**
+     * Question panel in the main panel.
+     */
+    private QuestionPanel myQuestionPanel;
+
+    /**
+     * Control panel in the main panel.
+     */
+    private JPanel myControlPanel;
+
+    /**
+     * Info panel in the main panel.
+     */
+    private JPanel myInfoPanel;
 
     /**
      * Construct a new ViewMockup with the given GameState.
@@ -123,8 +142,6 @@ public class ViewMockup implements GameView {
         myPlayerPosition = new Position(0, 0);
 
         myCurrentRoom = myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX();
-
-        myRooms = new RoomPanel[myMazeSize.width * myMazeSize.height];
 
         myMinimap = new MinimapPanel(myPlayerPosition, new int[]{0, 0, 0, 0}, BACKGROUND_COLOR);
 
@@ -149,55 +166,29 @@ public class ViewMockup implements GameView {
         myFrame.setVisible(true);
     }
 
-    @Override
-    public void displayMaze(Maze theMaze, Position theCurrentPosition) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayMaze'");
-    }
-
-    @Override
-    public void displayRoom(Room theRoom) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayRoom'");
-    }
-
-    @Override
-    public void displayQuestion(Question theQuestion) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayQuestion'");
-    }
-
-    @Override
-    public void displayGameOver(boolean isWon) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayGameOver'");
-    }
-
     /**
      * Update the position of the player.
      */
     private void updatePosition(Position newPos) {
         // called when the player position changes
-        myRooms[myCurrentRoom].setIsPlayerPosition(false);
-        myRooms[myCurrentRoom].repaint();
+        myMapPanel.getRoomPanels()[myCurrentRoom].setIsPlayerPosition(false);
+        myMapPanel.getRoomPanels()[myCurrentRoom].repaint();
 
         myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
 
-        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
 
-        myRooms[myCurrentRoom].setIsPlayerPosition(true);
-        myRooms[myCurrentRoom].repaint();
+        myMapPanel.getRoomPanels()[myCurrentRoom].setIsPlayerPosition(true);
+        myMapPanel.getRoomPanels()[myCurrentRoom].repaint();
     }
 
     /**
      * Update question stats for the player.
      */
     private void updateStats(final boolean theCorrect) {
-        // called when questionsAnswered or questionsCorrect increments, maybe replace?
-
-        // always increment answered questions
+        myStatsPanel.incrementQuestionsAnswered();
         if (theCorrect) {
-            // increment correct questions if theCorrect is true
+            myStatsPanel.incrementQuestionsCorrect();
         }
     }
 
@@ -210,21 +201,21 @@ public class ViewMockup implements GameView {
 
     private void updateDoor(final Direction theDir, final int theDoorState) {
         updateStats(theDoorState == 4);
-        myRooms[myCurrentRoom].setDoorState(theDir, theDoorState);
-        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        myMapPanel.getRoomPanels()[myCurrentRoom].setDoorState(theDir, theDoorState);
+        myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
         if (theDoorState != 2) {
             switch (theDir) {
             case Direction.NORTH:
-                myRooms[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
+                myMapPanel.getRoomPanels()[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
                 break;
             case Direction.SOUTH:
-                myRooms[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
+                myMapPanel.getRoomPanels()[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
                 break;
             case Direction.EAST:
-                myRooms[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
+                myMapPanel.getRoomPanels()[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
                 break;
             case Direction.WEST:
-                myRooms[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
+                myMapPanel.getRoomPanels()[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
                 break;
             }
         }
@@ -235,9 +226,6 @@ public class ViewMockup implements GameView {
         switch (theEvent.getPropertyName()) {
             case PropertyChangeEnabledGameState.PROPERTY_POSITION:
                 updatePosition((Position) theEvent.getNewValue());
-                break;
-            case PropertyChangeEnabledGameState.PROPERTY_ROOM_VISITED:
-                updateRooms((Position) theEvent.getNewValue());
                 break;
             case PropertyChangeEnabledGameState.PROPERTY_DOOR_VISITED:
                 updateDoor((Direction) theEvent.getNewValue(), (Integer) theEvent.getOldValue());
@@ -284,8 +272,7 @@ public class ViewMockup implements GameView {
             java.io.File fileToSave = fileChooser.getSelectedFile();
 
             try {
-                GameSaver gameSaver = new GameSaver();
-                gameSaver.saveGame(myGameState, fileToSave.getAbsolutePath());
+                GameSaver.saveGame(myGameState, fileToSave.getAbsolutePath());
                 JOptionPane.showMessageDialog(myFrame, "Game saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(myFrame, "Failed to save the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -305,8 +292,7 @@ public class ViewMockup implements GameView {
             java.io.File fileToLoad = fileChooser.getSelectedFile();
 
             try {
-                GameSaver gameSaver = new GameSaver();
-                GameState loadedState = gameSaver.getSave(fileToLoad.getAbsolutePath());
+                GameState loadedState = GameSaver.getSave(fileToLoad.getAbsolutePath());
 
                 // Assuming we have a method to update the current game state
                 updateGameState(loadedState);
@@ -334,7 +320,6 @@ public class ViewMockup implements GameView {
         myPlayerPosition = myGameState.getMyCurrentPosition();
         syncAllRoomPanelDoorStates();
         updatePosition(myPlayerPosition);
-        updateQuestionPanel();
         updateMinimap();
     }
 
@@ -343,7 +328,7 @@ public class ViewMockup implements GameView {
         for (int row = 0; row < myMazeSize.height; row++) {
             for (int col = 0; col < myMazeSize.width; col++) {
                 Room modelRoom = maze.getRoom(new Position(col, row));
-                RoomPanel panelRoom = myRooms[row * myMazeSize.width + col];
+                RoomPanel panelRoom = myMapPanel.getRoomPanels()[row * myMazeSize.width + col];
                 int[] doorStates = new int[4]; // N, S, E, W
                 for (Direction dir : Direction.values()) {
                     if (modelRoom.hasDoor(dir)) {
@@ -498,271 +483,56 @@ public class ViewMockup implements GameView {
         // GridBagConstraints. fill constant if it takes up full height/width?
         // Insets(int top, int left, int bottom, int right) external padding
         // int ipadx: internal x padding   int ipady: internal y padding
-        final JPanel mapPanel = createMapPanel();
+        myMapPanel = new MapPanel(myMazeSize.width, myMazeSize.height, BACKGROUND_COLOR);
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        myMinimap = new MinimapPanel(myPlayerPosition,
-                myRooms[myCurrentRoom].getDoorState(),
-                BACKGROUND_COLOR);
+        updatePosition(new Position(0, 0));
+        myMapPanel.updateSprite(mySelectedSprite);
+
+        myMinimap = new MinimapPanel(myPlayerPosition, myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState(), BACKGROUND_COLOR);
         GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
                 GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(25, 85, 25, 85), 0, 0);
 
-        final JPanel statsPanel = createStatsPanel(3, 5);
+        myStatsPanel = new StatsPanel();
         GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel questionPanel = createQuestionPanel();
+        myQuestionPanel = new QuestionPanel(this::processAnswer);
         GridBagConstraints questionConstraint = new GridBagConstraints(3, 2, 1, 1, 0.3, 0.3,
                 GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel controlPanel = createControlPanel();
+        myControlPanel = createControlPanel();
         GridBagConstraints controlConstraint = new GridBagConstraints(3, 3, 1, 1, 0.3, 0.3,
                 GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 80, 0), 0, 0);
 
-        final JPanel infoPanel = createInfoPanel();
+        myInfoPanel = createInfoPanel();
         GridBagConstraints infoConstraint = new GridBagConstraints(0, 3, 3, 1, 0.3, 0.3,
                 GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        mainPanel.add(mapPanel, mapConstraint);
+        mainPanel.add(myMapPanel, mapConstraint);
         mainPanel.add(myMinimap, minimapConstraint);
-        mainPanel.add(statsPanel, statsConstraint);
-        mainPanel.add(questionPanel, questionConstraint);
-        mainPanel.add(controlPanel, controlConstraint);
-        mainPanel.add(infoPanel, infoConstraint);
+        mainPanel.add(myStatsPanel, statsConstraint);
+        mainPanel.add(myQuestionPanel, questionConstraint);
+        mainPanel.add(myControlPanel, controlConstraint);
+        mainPanel.add(myInfoPanel, infoConstraint);
         bindWASDKeys(mainPanel);
 
         return mainPanel;
     }
 
-    // Reworked createMapPanel() to work with any dimensions and use seperate RoomPanels 
-    // instead of coloured boxes.
-    // Fix the createMapPanel method - coordinate system consistency
-    private JPanel createMapPanel() {
-        final JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(myMazeSize.height, myMazeSize.width, 5, 5));
-        panel.setBackground(Color.BLACK);
-
-        for (int row = 0; row < myMazeSize.height; row++) {
-            for (int col = 0; col < myMazeSize.width; col++) {
-                // Start every door off at DOOR_NOT_VISITED
-                int[] doorStates = {DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED, DOOR_NOT_VISITED}; // N, S, E, W
-
-                // If this room is on an edge, set the corresponding door to DOOR_WALL
-                if (col == 0) {
-                    doorStates[3] = DOOR_WALL;
-                }
-                if (col == myMazeSize.height - 1) {
-                    doorStates[2] = DOOR_WALL;
-                }
-                if (row == 0) {
-                    doorStates[0] = DOOR_WALL;
-                }
-                if (row == myMazeSize.width - 1) {
-                    doorStates[1] = DOOR_WALL;
-                }
-
-                final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates, BACKGROUND_COLOR);
-
-                myRooms[row * myMazeSize.width + col] = roomPane;
-                panel.add(roomPane);
-                roomPane.setSelectedSprite(mySelectedSprite);
-
-            }
-        }
-
-        updatePosition(new Position(0, 0));
-
-        return panel;
-    }
-
     private void updateMinimap() {
-        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
         myMinimap.repaint();
     }
 
-    private JPanel createStatsPanel(int answered, int failed) {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(18, 18, 18));
-        panel.setLayout(new GridBagLayout());
-
-        Font labelFont = new Font("Monospaced", Font.BOLD, 14);
-
-        JLabel answeredLabel = new JLabel("QUESTIONS ANSWERED: " + answered);
-        answeredLabel.setFont(labelFont);
-        answeredLabel.setForeground(Color.GREEN);
-
-        JLabel failedLabel = new JLabel("QUESTIONS FAILED:   " + failed);
-        failedLabel.setFont(labelFont);
-        failedLabel.setForeground(new Color(255, 85, 85));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(answeredLabel, gbc);
-
-        gbc.gridy = 1;
-        panel.add(failedLabel, gbc);
-
-        return panel;
-    }
-
-    private JPanel createQuestionPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(30, 30, 30));
-        panel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        JLabel questionLabel = new JLabel("QUESTION: ");
-        questionLabel.setForeground(new Color(0, 191, 255));
-        questionLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(questionLabel, gbc);
-
-        myCurrentQuestionLabel = new JTextArea(2, 20);
-        myCurrentQuestionLabel.setWrapStyleWord(true);
-        myCurrentQuestionLabel.setLineWrap(true);
-        myCurrentQuestionLabel.setEditable(false);
-        myCurrentQuestionLabel.setOpaque(false);
-        myCurrentQuestionLabel.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        myCurrentQuestionLabel.setForeground(Color.WHITE);
-        myCurrentQuestionLabel.setFocusable(false);
-
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(myCurrentQuestionLabel, gbc);
-
-        JLabel answerLabel = new JLabel("ANSWER >");
-        answerLabel.setForeground(new Color(106, 90, 205));
-        answerLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(answerLabel, gbc);
-
-        myAnswerInputPanel = new JPanel();
-        myAnswerInputPanel.setBackground(panel.getBackground());
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panel.add(myAnswerInputPanel, gbc);
-
-        JButton submitButton = new JButton("Submit");
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        panel.add(submitButton, gbc);
-
-        submitButton.addActionListener(e -> processAnswer());
-
-        updateQuestionPanel();
-
-        return panel;
-    }
-
-    public void updateQuestionPanel() {
-
-        Room room = myGameState.getMaze().getRoom(myGameState.getMyCurrentPosition());
-        Door door = room.getDoor(myGameState.getMyCurrentDirection());
-
-        myAnswerInputPanel.removeAll();
-
-        if (door == null) {
-            myCurrentQuestionLabel.setText("No door that way");
-
-        } else if (door.isOpen()) {
-            myCurrentQuestionLabel.setText("Door is open");
-
-        } else if (door.isLocked()) {
-            myCurrentQuestionLabel.setText("Door is locked");
-
-        } else {
-
-            Question q = door.getQuestion();
-            myCurrentQuestionLabel.setText(q.getQuestion());
-
-            switch (q.getQuestionType()) {
-                case SHORT_ANSWER:
-                    JTextField tf = new JTextField(20);
-                    tf.setBackground(Color.BLACK);
-                    tf.setForeground(Color.WHITE);
-                    tf.setCaretColor(Color.WHITE);
-                    tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
-                    myAnswerComponent = tf;
-                    myAnswerInputPanel.add(tf);
-                    tf.addActionListener(e -> processAnswer());
-                    break;
-                case MULTIPLE_CHOICE:
-                    ButtonGroup mcGroup = new ButtonGroup();
-                    JPanel mcPanel = new JPanel(new GridLayout(0, 1));
-                    mcPanel.setBackground(Color.BLACK);
-                    for (String opt : ((MultipleChoiceQuestion) q).getOptions()) {
-                        JRadioButton rb = new JRadioButton(opt);
-                        rb.setForeground(Color.WHITE);
-                        rb.setBackground(Color.BLACK);
-                        mcGroup.add(rb);
-                        mcPanel.add(rb);
-                    }
-                    myAnswerComponent = mcGroup;
-                    myAnswerInputPanel.add(mcPanel);
-                    break;
-                case TRUE_FALSE:
-                    ButtonGroup tfGroup = new ButtonGroup();
-                    JRadioButton t = new JRadioButton("True");
-                    JRadioButton f = new JRadioButton("False");
-                    for (JRadioButton b : new JRadioButton[]{t, f}) {
-                        b.setForeground(Color.WHITE);
-                        b.setBackground(Color.BLACK);
-                        tfGroup.add(b);
-                    }
-                    JPanel tfp = new JPanel(new GridLayout(1, 2));
-                    tfp.setBackground(Color.BLACK);
-                    tfp.add(t);
-                    tfp.add(f);
-                    myAnswerComponent = tfGroup;
-                    myAnswerInputPanel.add(tfp);
-                    break;
-                default:
-                    myAnswerComponent = null;
-                    myAnswerInputPanel.add(new JLabel("Unknown question type."));
-            }
-        }
-
-        myAnswerInputPanel.revalidate();
-        myAnswerInputPanel.repaint();
-
-    }
-
-    private void processAnswer() {
-        String userAnswer = getUserAnswer();
+    private void processAnswer(final String theAnswer) {
         Direction dir = myGameState.getMyCurrentDirection();
 
-        if (myGameState.tryMove(dir, userAnswer)) {
-            // updateDoor(dir, DOOR_SUCCEEDED); // This breaks because the position change happens before this method. You should not be calling this method from outside propertyChange()
-        } else {
-            // updateDoor(dir, DOOR_FAILED);
+        // calling the update methods from here breaks things. Don't do that.
+        if (!myGameState.tryMove(dir, theAnswer)) {
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
-
-        updateQuestionPanel();
-
-    }
-
-    private String getUserAnswer() {
-        if (myAnswerComponent instanceof JTextField) {
-            return ((JTextField) myAnswerComponent).getText();
-        } else if (myAnswerComponent instanceof ButtonGroup) {
-            ButtonGroup group = (ButtonGroup) myAnswerComponent;
-            for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
-                AbstractButton button = buttons.nextElement();
-                if (button.isSelected()) {
-                    return button.getText();
-                }
-            }
-        }
-        return "";
     }
 
     private JPanel createControlPanel() {
@@ -840,37 +610,27 @@ public class ViewMockup implements GameView {
 
     private void handleDPadPress(Direction direction) {
         myGameState.setMyCurrentDirection(direction);
-        Maze maze = myGameState.getMaze();
-        Room currentRoom = maze.getRoom(myPlayerPosition);
+        Room currentRoom = myGameState.getMaze().getRoom(myPlayerPosition);
         Door door = currentRoom.getDoor(direction);
-        if (myRooms[myCurrentRoom].getDoorState()[direction.ordinal()] == DOOR_NOT_VISITED) {
+        if (myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState()[direction.ordinal()] == DOOR_NOT_VISITED) {
             updateDoor(direction, DOOR_VISITED);
         }
 
         if (door == null) {
+            myQuestionPanel.updateQuestion(null);
             return;
         }
 
         if (door.isOpen()) {
             movePlayer(direction);
-            updateQuestionPanel();
-            return;
-        }
-
-        if (door.isLocked()) {
-            JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
-            updateQuestionPanel();
-            return;
-        }
-
-        if (door.isOpen()) {
-            movePlayer(direction);
+            myQuestionPanel.updateQuestion(null);
         } else if (door.isLocked()) {
             JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
         } else {
             myGameState.setMyCurrentDirection(direction);
+            door = myGameState.getMaze().getRoom(myPlayerPosition).getDoor(direction);
+            myQuestionPanel.updateQuestion(door.getQuestion());
         }
-        updateQuestionPanel();
     }
 
     private void bindWASDKeys(JPanel panel) {
@@ -966,7 +726,7 @@ public class ViewMockup implements GameView {
 
                         mySelectedSprite = ((ImageIcon) label.getIcon());
 
-                        for (RoomPanel room : myRooms) {
+                        for (RoomPanel room : myMapPanel.getRoomPanels()) {
                             if (room != null) {
                                 room.setSelectedSprite(mySelectedSprite);
                                 room.repaint();
@@ -993,9 +753,5 @@ public class ViewMockup implements GameView {
 
         return mainPanel;
 
-    }
-
-    private ImageIcon getSelectedSprite() {
-        return mySelectedSprite;
     }
 }
