@@ -1,6 +1,7 @@
 package src.view;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,6 +11,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.AbstractButton;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -96,6 +98,9 @@ public class QuestionPanel extends JPanel {
 
         myAnswerInputPanel = new JPanel();
         myAnswerInputPanel.setBackground(getBackground());
+        myAnswerInputPanel.setPreferredSize(new Dimension(300, 100));
+        myAnswerInputPanel.setLayout(new BoxLayout(myAnswerInputPanel, BoxLayout.Y_AXIS));
+
         gbc.gridx = 1;
         gbc.gridy = 1;
         add(myAnswerInputPanel, gbc);
