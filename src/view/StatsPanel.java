@@ -124,7 +124,7 @@ public class StatsPanel extends JPanel {
      * Updates both thhe Answered and Failed labels.
      */
     private void updateLabels() {
-        answeredLabel.setText("QUESTIONS ANSWERED: " + myQuestionsAnswered);
+        answeredLabel.setText("QUESTIONS CORRECT:  " + myQuestionsCorrect);
         failedLabel.setText("QUESTIONS FAILED:   " + (myQuestionsAnswered - myQuestionsCorrect));
     }
 }
