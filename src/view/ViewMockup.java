@@ -204,18 +204,47 @@ public class ViewMockup implements GameView {
         myMapPanel.getRoomPanels()[myCurrentRoom].setDoorState(theDir, theDoorState);
         myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
         if (theDoorState != 2) {
+            Door oppDoor;
             switch (theDir) {
             case Direction.NORTH:
                 myMapPanel.getRoomPanels()[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
+                oppDoor = myGameState.getMaze().getRoom(
+                    new Position(myPlayerPosition.getX(), myPlayerPosition.getY() - 1)).getDoor(Direction.SOUTH);
+                if (theDoorState == 4) {
+                    oppDoor.open();
+                } else {
+                    oppDoor.lock();
+                }
                 break;
             case Direction.SOUTH:
                 myMapPanel.getRoomPanels()[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
+                oppDoor = myGameState.getMaze().getRoom(
+                    new Position(myPlayerPosition.getX(), myPlayerPosition.getY() + 1)).getDoor(Direction.NORTH);
+                if (theDoorState == 4) {
+                    oppDoor.open();
+                } else {
+                    oppDoor.lock();
+                }
                 break;
             case Direction.EAST:
                 myMapPanel.getRoomPanels()[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
+                oppDoor = myGameState.getMaze().getRoom(
+                    new Position(myPlayerPosition.getX() + 1, myPlayerPosition.getY())).getDoor(Direction.WEST);
+                if (theDoorState == 4) {
+                    oppDoor.open();
+                } else {
+                    oppDoor.lock();
+                }
                 break;
             case Direction.WEST:
                 myMapPanel.getRoomPanels()[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
+                oppDoor = myGameState.getMaze().getRoom(
+                    new Position(myPlayerPosition.getX() - 1, myPlayerPosition.getY())).getDoor(Direction.EAST);
+                if (theDoorState == 4) {
+                    oppDoor.open();
+                } else {
+                    oppDoor.lock();
+                }
                 break;
             }
         }
