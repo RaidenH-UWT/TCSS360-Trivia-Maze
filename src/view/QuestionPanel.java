@@ -1,0 +1,201 @@
+package src.view;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.function.Consumer;
+
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import src.model.MultipleChoiceQuestion;
+import src.model.Question;
+
+public class QuestionPanel extends JPanel {
+    /**
+     * Label of the current question
+     */
+    private JTextArea myCurrentQuestionLabel;
+
+    /**
+     * Panel for question answer inputs
+     */
+    private JPanel myAnswerInputPanel;
+
+    /**
+     * Answer object, either ButtonGroup or JTextField
+     */
+    private Object myAnswerComponent;
+
+    /**
+     * Method to call to process user answers
+     */
+    private final Consumer<String> myAnswerMethod;
+
+    public QuestionPanel(final Consumer<String> theAnswerMethod) {
+        super();
+
+        myAnswerMethod = theAnswerMethod;
+
+        setBackground(new Color(30, 30, 30));
+        setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JLabel questionLabel = new JLabel("QUESTION: ");
+        questionLabel.setForeground(new Color(0, 191, 255));
+        questionLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(questionLabel, gbc);
+
+        myCurrentQuestionLabel = new JTextArea(2, 20);
+        myCurrentQuestionLabel.setWrapStyleWord(true);
+        myCurrentQuestionLabel.setLineWrap(true);
+        myCurrentQuestionLabel.setEditable(false);
+        myCurrentQuestionLabel.setOpaque(false);
+        myCurrentQuestionLabel.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        myCurrentQuestionLabel.setForeground(Color.WHITE);
+        myCurrentQuestionLabel.setFocusable(false);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(myCurrentQuestionLabel, gbc);
+
+        JLabel answerLabel = new JLabel("ANSWER >");
+        answerLabel.setForeground(new Color(106, 90, 205));
+        answerLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        add(answerLabel, gbc);
+
+        myAnswerInputPanel = new JPanel();
+        myAnswerInputPanel.setBackground(getBackground());
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        add(myAnswerInputPanel, gbc);
+
+        JButton submitButton = new JButton("Submit");
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        add(submitButton, gbc);
+
+        submitButton.addActionListener(e -> processAnswer());
+    }
+
+    /**
+     * Update this panel with the current question.
+     * @param theQuestion Question object to update from
+     */
+    public void updateQuestion(final Question theQuestion) {
+        myAnswerInputPanel.removeAll();
+
+        if (theQuestion == null) {
+            myCurrentQuestionLabel.setText("No door that way");
+        } else {
+            myCurrentQuestionLabel.setText(theQuestion.getQuestion());
+
+            switch (theQuestion.getQuestionType()) {
+                case SHORT_ANSWER:
+                    setShortAnswer();
+                    break;
+                case MULTIPLE_CHOICE:
+                    setMultipleChoice(((MultipleChoiceQuestion) theQuestion).getOptions());
+                    break;
+                case TRUE_FALSE:
+                    setTrueFalse();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown question type");
+            }
+        }
+
+        myAnswerInputPanel.revalidate();
+        myAnswerInputPanel.repaint();
+    }
+
+    private void setShortAnswer() {
+        JTextField tf = new JTextField(20);
+        tf.setBackground(Color.BLACK);
+        tf.setForeground(Color.WHITE);
+        tf.setCaretColor(Color.WHITE);
+        tf.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        myAnswerComponent = tf;
+        myAnswerInputPanel.add(tf);
+        tf.addActionListener(e -> processAnswer());
+    }
+
+    private void setMultipleChoice(final List<String> theOptions) {
+        ButtonGroup mcGroup = new ButtonGroup();
+        JPanel mcPanel = new JPanel(new GridLayout(0, 1));
+        mcPanel.setBackground(Color.BLACK);
+
+        for (String optionText : theOptions) {
+            JRadioButton option = new JRadioButton(optionText);
+            option.setForeground(Color.WHITE);
+            option.setBackground(Color.BLACK);
+            mcGroup.add(option);
+            mcPanel.add(option);
+        }
+
+        myAnswerComponent = mcGroup;
+        myAnswerInputPanel.add(mcPanel);
+    }
+
+    private void setTrueFalse() {
+        ButtonGroup tfGroup = new ButtonGroup();
+        JRadioButton trueButton = new JRadioButton("True");
+        JRadioButton falseButton = new JRadioButton("False");
+
+        for (JRadioButton b : new JRadioButton[]{trueButton, falseButton}) {
+            b.setForeground(Color.WHITE);
+            b.setBackground(Color.BLACK);
+            tfGroup.add(b);
+        }
+
+        JPanel trueFalsePanel = new JPanel(new GridLayout(1, 2));
+        trueFalsePanel.setBackground(Color.BLACK);
+
+        trueFalsePanel.add(trueButton);
+        trueFalsePanel.add(falseButton);
+
+        myAnswerComponent = tfGroup;
+        myAnswerInputPanel.add(trueFalsePanel);
+    }
+
+    private void processAnswer() {
+        myAnswerMethod.accept(getUserAnswer());
+    }
+
+    private String getUserAnswer() {
+        if (myAnswerComponent instanceof JTextField) {
+            return ((JTextField) myAnswerComponent).getText();
+        } else if (myAnswerComponent instanceof ButtonGroup) {
+            ButtonGroup group = (ButtonGroup) myAnswerComponent;
+            for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
+                AbstractButton button = buttons.nextElement();
+                if (button.isSelected()) {
+                    return button.getText();
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported answer component");
+        }
+        return null;
+    }
+}
