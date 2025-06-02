@@ -1,6 +1,7 @@
 package src.view;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,8 +10,8 @@ import java.awt.Insets;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javax.swing.AbstractButton;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,11 +19,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
+import javax.swing.SwingUtilities;
 import src.model.MultipleChoiceQuestion;
 import src.model.Question;
 
 public class QuestionPanel extends JPanel {
+
     /**
      * Label of the current question
      */
@@ -43,6 +45,16 @@ public class QuestionPanel extends JPanel {
      */
     private final Consumer<String> myAnswerMethod;
 
+    /**
+     * Thread to prevent overlapping animations.
+     */
+    private volatile Thread animationThread;
+
+    /**
+     * Lock object to ensure only one animation runs at a time.
+     */
+    private final Object animationLock = new Object();
+
     public QuestionPanel(final Consumer<String> theAnswerMethod) {
         super();
 
@@ -52,7 +64,7 @@ public class QuestionPanel extends JPanel {
         setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        
+
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
 
@@ -86,6 +98,9 @@ public class QuestionPanel extends JPanel {
 
         myAnswerInputPanel = new JPanel();
         myAnswerInputPanel.setBackground(getBackground());
+        myAnswerInputPanel.setPreferredSize(new Dimension(300, 100));
+        myAnswerInputPanel.setLayout(new BoxLayout(myAnswerInputPanel, BoxLayout.Y_AXIS));
+
         gbc.gridx = 1;
         gbc.gridy = 1;
         add(myAnswerInputPanel, gbc);
@@ -100,15 +115,16 @@ public class QuestionPanel extends JPanel {
 
     /**
      * Update this panel with the current question.
+     *
      * @param theQuestion Question object to update from
      */
     public void updateQuestion(final Question theQuestion) {
         myAnswerInputPanel.removeAll();
 
         if (theQuestion == null) {
-            myCurrentQuestionLabel.setText("No door that way");
+            animateQuestionText("No door that way");
         } else {
-            myCurrentQuestionLabel.setText(theQuestion.getQuestion());
+            animateQuestionText(theQuestion.getQuestion());
 
             switch (theQuestion.getQuestionType()) {
                 case SHORT_ANSWER:
@@ -127,6 +143,43 @@ public class QuestionPanel extends JPanel {
 
         myAnswerInputPanel.revalidate();
         myAnswerInputPanel.repaint();
+    }
+
+    /**
+     * Displays the given text word by word with a delay.
+     */
+    private void animateQuestionText(String fullText) {
+        synchronized (animationLock) {
+            if (animationThread != null && animationThread.isAlive()) {
+                animationThread.interrupt();
+            }
+
+            Thread newThread = new Thread(() -> {
+                String[] words = fullText.split(" ");
+                StringBuilder builder = new StringBuilder();
+
+                for (String word : words) {
+                    try {
+                        synchronized (animationLock) {
+                            if (Thread.currentThread() != animationThread) {
+                                return;
+                            }
+                        }
+
+                        builder.append(word).append(" ");
+                        String currentText = builder.toString();
+
+                        SwingUtilities.invokeLater(() -> myCurrentQuestionLabel.setText(currentText));
+                        Thread.sleep(150);
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+            });
+
+            animationThread = newThread;
+            newThread.start();
+        }
     }
 
     private void setShortAnswer() {

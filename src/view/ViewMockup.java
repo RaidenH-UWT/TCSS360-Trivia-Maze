@@ -200,7 +200,8 @@ public class ViewMockup implements GameView {
     }
 
     private void updateDoor(final Direction theDir, final int theDoorState) {
-        updateStats(theDoorState == 4);
+        //updateStats(theDoorState == 4);
+        //calling this here updated stats panel incorrectly.
         myMapPanel.getRoomPanels()[myCurrentRoom].setDoorState(theDir, theDoorState);
         myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
         if (theDoorState != 2) {
@@ -557,10 +558,16 @@ public class ViewMockup implements GameView {
 
     private void processAnswer(final String theAnswer) {
         Direction dir = myGameState.getMyCurrentDirection();
-
+        boolean wasCorrect = myGameState.tryMove(dir, theAnswer);
+        updateStats(wasCorrect);
+        //Calling updateStats in the updateDoor method created a bug where it would increment every time a question popped up, not when it was answered
+        // So i figured calling it here would make sense since this is where answers are processed
+        //Stats panel works as intended on my end please lmk if this created another bug and i'll try to fix
         // calling the update methods from here breaks things. Don't do that.
-        if (!myGameState.tryMove(dir, theAnswer)) {
+        
+        if (!wasCorrect) {
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
+            
         }
     }
 
@@ -659,6 +666,7 @@ public class ViewMockup implements GameView {
             myGameState.setMyCurrentDirection(direction);
             door = myGameState.getMaze().getRoom(myPlayerPosition).getDoor(direction);
             myQuestionPanel.updateQuestion(door.getQuestion());
+            
         }
     }
 

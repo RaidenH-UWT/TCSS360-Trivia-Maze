@@ -23,6 +23,14 @@ public class StatsPanel extends JPanel {
      * Counter for the number of questions the player has gotten correct.
      */
     private int myQuestionsCorrect = 0;
+    /**
+     * Label for answered questions.
+     */
+    private final JLabel answeredLabel;
+    /**
+     * Label for failed questions.
+     */
+    private final JLabel failedLabel;
     
     /**
      * Create a new StatsPanel
@@ -35,11 +43,11 @@ public class StatsPanel extends JPanel {
 
         Font labelFont = new Font("Monospaced", Font.BOLD, 14);
 
-        JLabel answeredLabel = new JLabel("QUESTIONS ANSWERED: " + myQuestionsAnswered);
+        answeredLabel = new JLabel();
         answeredLabel.setFont(labelFont);
         answeredLabel.setForeground(Color.GREEN);
 
-        JLabel failedLabel = new JLabel("QUESTIONS FAILED:   " + (myQuestionsAnswered - myQuestionsCorrect));
+        failedLabel = new JLabel();
         failedLabel.setFont(labelFont);
         failedLabel.setForeground(new Color(255, 85, 85));
 
@@ -50,6 +58,7 @@ public class StatsPanel extends JPanel {
 
         gbc.gridy = 1;
         add(failedLabel, gbc);
+        updateLabels();
     }
 
     /**
@@ -77,6 +86,7 @@ public class StatsPanel extends JPanel {
      */
     public void incrementQuestionsAnswered() {
         myQuestionsAnswered++;
+        updateLabels();
     }
 
     /**
@@ -84,6 +94,7 @@ public class StatsPanel extends JPanel {
      */
     public void incrementQuestionsCorrect() {
         myQuestionsCorrect++;
+        updateLabels();
     }
 
     /**
@@ -91,6 +102,7 @@ public class StatsPanel extends JPanel {
      */
     public int getQuestionsAnswered() {
         return myQuestionsAnswered;
+        
     }
 
     /**
@@ -107,5 +119,12 @@ public class StatsPanel extends JPanel {
         myQuestionsAnswered = 0;
         myQuestionsCorrect = 0;
         repaint();
+    }
+    /**
+     * Updates both thhe Answered and Failed labels.
+     */
+    private void updateLabels() {
+        answeredLabel.setText("QUESTIONS CORRECT:  " + myQuestionsCorrect);
+        failedLabel.setText("QUESTIONS FAILED:   " + (myQuestionsAnswered - myQuestionsCorrect));
     }
 }
