@@ -2,14 +2,12 @@ package src.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -17,11 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
-import java.util.Enumeration;
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,9 +26,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import src.model.Direction;
@@ -41,10 +33,8 @@ import src.model.Door;
 import src.model.GameSaver;
 import src.model.GameState;
 import src.model.Maze;
-import src.model.MultipleChoiceQuestion;
 import src.model.Position;
 import src.model.PropertyChangeEnabledGameState;
-import src.model.Question;
 import src.model.Room;
 
 /**
@@ -90,7 +80,6 @@ public class ViewMockup implements GameView {
     private Position myPlayerPosition;
 
     private final GameState myGameState;
-    
 
     /**
      * Stores the index of the current room in the myRooms array
@@ -126,6 +115,8 @@ public class ViewMockup implements GameView {
      * Info panel in the main panel.
      */
     private JPanel myInfoPanel;
+
+    private MusicPlayer myMusicPlayer;
 
     /**
      * Construct a new ViewMockup with the given GameState.
@@ -164,6 +155,10 @@ public class ViewMockup implements GameView {
         myFrame.setLocation(SCREEN_SIZE.width / 2 - myFrame.getWidth() / 2,
                 SCREEN_SIZE.height / 2 - myFrame.getHeight() / 2);
         myFrame.setVisible(true);
+
+        // start music
+        myMusicPlayer = new MusicPlayer();
+        myMusicPlayer.playMusic("src/music/SundayPicnic.wav");
     }
 
     /**
@@ -207,46 +202,46 @@ public class ViewMockup implements GameView {
         if (theDoorState != 2) {
             Door oppDoor;
             switch (theDir) {
-            case Direction.NORTH:
-                myMapPanel.getRoomPanels()[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
-                oppDoor = myGameState.getMaze().getRoom(
-                    new Position(myPlayerPosition.getX(), myPlayerPosition.getY() - 1)).getDoor(Direction.SOUTH);
-                if (theDoorState == 4) {
-                    oppDoor.open();
-                } else {
-                    oppDoor.lock();
-                }
-                break;
-            case Direction.SOUTH:
-                myMapPanel.getRoomPanels()[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
-                oppDoor = myGameState.getMaze().getRoom(
-                    new Position(myPlayerPosition.getX(), myPlayerPosition.getY() + 1)).getDoor(Direction.NORTH);
-                if (theDoorState == 4) {
-                    oppDoor.open();
-                } else {
-                    oppDoor.lock();
-                }
-                break;
-            case Direction.EAST:
-                myMapPanel.getRoomPanels()[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
-                oppDoor = myGameState.getMaze().getRoom(
-                    new Position(myPlayerPosition.getX() + 1, myPlayerPosition.getY())).getDoor(Direction.WEST);
-                if (theDoorState == 4) {
-                    oppDoor.open();
-                } else {
-                    oppDoor.lock();
-                }
-                break;
-            case Direction.WEST:
-                myMapPanel.getRoomPanels()[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
-                oppDoor = myGameState.getMaze().getRoom(
-                    new Position(myPlayerPosition.getX() - 1, myPlayerPosition.getY())).getDoor(Direction.EAST);
-                if (theDoorState == 4) {
-                    oppDoor.open();
-                } else {
-                    oppDoor.lock();
-                }
-                break;
+                case Direction.NORTH:
+                    myMapPanel.getRoomPanels()[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX(), myPlayerPosition.getY() - 1)).getDoor(Direction.SOUTH);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
+                case Direction.SOUTH:
+                    myMapPanel.getRoomPanels()[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX(), myPlayerPosition.getY() + 1)).getDoor(Direction.NORTH);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
+                case Direction.EAST:
+                    myMapPanel.getRoomPanels()[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX() + 1, myPlayerPosition.getY())).getDoor(Direction.WEST);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
+                case Direction.WEST:
+                    myMapPanel.getRoomPanels()[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX() - 1, myPlayerPosition.getY())).getDoor(Direction.EAST);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
             }
         }
     }
@@ -564,10 +559,10 @@ public class ViewMockup implements GameView {
         // So i figured calling it here would make sense since this is where answers are processed
         //Stats panel works as intended on my end please lmk if this created another bug and i'll try to fix
         // calling the update methods from here breaks things. Don't do that.
-        
+
         if (!wasCorrect) {
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
-            
+
         }
     }
 
@@ -666,7 +661,7 @@ public class ViewMockup implements GameView {
             myGameState.setMyCurrentDirection(direction);
             door = myGameState.getMaze().getRoom(myPlayerPosition).getDoor(direction);
             myQuestionPanel.updateQuestion(door.getQuestion());
-            
+
         }
     }
 
