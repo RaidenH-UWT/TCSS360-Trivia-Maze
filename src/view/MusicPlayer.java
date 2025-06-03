@@ -1,5 +1,7 @@
 package src.view;
 
+import org.xiph.libvorbis.*;
+
 /**
  * Plays music.
  * @author Kalen Cha
