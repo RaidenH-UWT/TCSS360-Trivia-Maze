@@ -222,7 +222,7 @@ public class Maze implements java.io.Serializable {
      */
     public boolean isPathAvailable() {
         // implement recursively, sending a call down every path until all paths are covered or we find a good path.
-
+        // TODO: Implement isPathAvailable()
         return false;
     }
 
