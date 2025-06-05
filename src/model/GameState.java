@@ -131,7 +131,6 @@ public class GameState implements PropertyChangeEnabledGameState, java.io.Serial
         return myMaze;
     }
 
-    // TODO: Add a method for selecting the current door, for use in the minimap/question panel, and fire PROPERTY_DOOR_VISITED from there
     /**
      * Attempt to answer the door in the given direction.
      *

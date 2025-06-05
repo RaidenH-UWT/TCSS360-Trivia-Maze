@@ -19,18 +19,6 @@ public interface PropertyChangeEnabledGameState {
     String PROPERTY_ROOM_VISITED = "roomVisited";
 
     /**
-     * Constant string property name for a question being answered incorrectly.
-     */
-    @Deprecated // TODO: Remove deprecated event
-    String PROPERTY_QUESTION_FAILED = "questionFailed";
-
-    /**
-     * Constant string property name for a question being answered correctly.
-     */
-    @Deprecated // TODO: Remove deprecated event
-    String PROPERTY_QUESTION_SUCCEEDED = "questionSucceeded";
-
-    /**
      * Constant string property name for a door being visited
      */
     String PROPERTY_DOOR_VISITED = "doorVisited";

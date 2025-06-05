@@ -26,7 +26,6 @@ public abstract class Question implements java.io.Serializable {
      */
     private int myDifficulty;
 
-    // TODO: Go to package-protected rather than protected, protect from external inheritance
     /**
      * Creates a new Question object.
      *
@@ -35,7 +34,7 @@ public abstract class Question implements java.io.Serializable {
      * @param theDifficulty int difficulty of this problem. Must be in the range
      * 1-5 inclusive range checking on difficulty is done in the database.
      */
-    protected Question(final int theId, final String theQuestion, final int theDifficulty) {
+    Question(final int theId, final String theQuestion, final int theDifficulty) {
         super();
 
         myId = theId;
