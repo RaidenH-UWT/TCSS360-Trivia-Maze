@@ -7,40 +7,46 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import java.awt.Dimension;
-import java.awt.Polygon;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-
-
-
 import src.model.Direction;
 import src.model.Position;
 
+/**
+ * RoomPanel class for the View representation of a Room.
+ * @author Raiden H
+ * @version Spring 2025
+ */
 public class RoomPanel extends JPanel {
         /**
-         * Array of Colors for door state, indexed according to state constants.
-         * Wall, Unexplored, Visited, Locked, Unlocked
+         * Position of the RoomPanel relative to the Maze.
          */
-        private static final Color[] DOOR_COLORS = {Color.DARK_GRAY, Color.GRAY, Color.BLUE, Color.RED, Color.GREEN};
-
         private final Position myPos;
 
-        private final Map<Direction, Polygon> DOORTRIANGLES = new HashMap<Direction, Polygon>(4);
-
+        /**
+         * Stores sprites of this room in each direction
+         */
         private final Map<Direction, ImageIcon[]> DOORSPRITES = new HashMap<Direction, ImageIcon[]>(4);
 
         /**
-         * Array of states for a door to be in 0: Wall 1: Not visited 2: Visited
-         * 3: Failed 4: Succeeded 
-         * north, south, east, west
+         * Array of states for a door to be in 
+         * 0: Wall 1: Not visited 2: Visited
+         * 3: Failed 4: Succeeded
+         * north, south, east, west (Direction ordinal order)
          */
         private int[] myDoorState;
 
-        private Color myBackgroundColor;
+        /**
+         * Background color of the RoomPanel
+         */
+        private final Color myBackgroundColor;
 
+        /**
+         * Whether or not the player is in this room
+         */
         private boolean isPlayerPosition = false;
 
         /**
@@ -48,6 +54,12 @@ public class RoomPanel extends JPanel {
          */
         private ImageIcon mySelectedSprite;
 
+        /**
+         * Construct a new RoomPanel object.
+         * @param thePos Position of this RoomPanel relative to the Maze
+         * @param theRoomState int[] state of the doors in this room (N,S,E,W)
+         * @param theBackgroundColor Color for the background of this panel
+         */
         RoomPanel(final Position thePos, final int[] theRoomState, final Color theBackgroundColor) {
             super();
 
@@ -57,6 +69,11 @@ public class RoomPanel extends JPanel {
             setBackground(myBackgroundColor);
         }
 
+        /**
+         * Set the state of a door in this RoomPanel.
+         * @param theDir Direction of the Door to set
+         * @param theState int state to set (reference GameView interface for values)
+         */
         public void setDoorState(final Direction theDir, final int theState) {
             if (theState >= 0 && theState <= 4) {
                 // Assign to index based on the ordinal
@@ -66,6 +83,10 @@ public class RoomPanel extends JPanel {
             repaint();
         }
 
+        /**
+         * Set the state of all doors in this RoomPanel.
+         * @param theStates int[] of states in N,S,E,W order
+         */
         public void setDoorStates(final int[] theStates) {
             for (int state : theStates) {
                 if (state < 0 || state > 4) {
@@ -76,15 +97,27 @@ public class RoomPanel extends JPanel {
             repaint();
         }
 
-        public void setSelectedSprite(ImageIcon theSprite) {
+        /**
+         * Set the sprite to display.
+         * @param theSprite ImageIcon sprite to set
+         */
+        public void setSelectedSprite(final ImageIcon theSprite) {
             mySelectedSprite = theSprite;
         }
 
+        /**
+         * Get the state of the doors in this RoomPanel.
+         * @return int[] of the states in N,S,E,W order
+         */
         public int[] getDoorState() {
             return myDoorState;
         }
 
-        public void setIsPlayerPosition(boolean theIsPosition) {
+        /**
+         * Set if the player is in this room.
+         * @param theIsPosition boolean true if the player is in this room, false if not
+         */
+        public void setIsPlayerPosition(final boolean theIsPosition) {
             isPlayerPosition = theIsPosition;
         }
 
@@ -112,6 +145,9 @@ public class RoomPanel extends JPanel {
             }
         }
 
+        /**
+         * Make sure the DOORSPRITES map has its values.
+         */
         private void updateDoorTriangles() {
             if (DOORSPRITES.isEmpty()) {
                 ImageIcon[] northSprites = {
@@ -150,39 +186,6 @@ public class RoomPanel extends JPanel {
                 DOORSPRITES.put(Direction.SOUTH, southSprites);
                 DOORSPRITES.put(Direction.EAST, eastSprites);
                 DOORSPRITES.put(Direction.WEST, westSprites);
-            }
-            int width = getWidth();
-            int height = getHeight();
-
-            if (width > 0 && height > 0) {
-                Polygon northPoly = new Polygon(
-                        new int[]{0, width / 2, width},
-                        new int[]{0, height / 2, 0},
-                        3
-                );
-
-                Polygon southPoly = new Polygon(
-                        new int[]{0, width / 2, width},
-                        new int[]{height, height / 2, height},
-                        3
-                );
-
-                Polygon eastPoly = new Polygon(
-                        new int[]{width, width / 2, width},
-                        new int[]{0, height / 2, height},
-                        3
-                );
-
-                Polygon westPoly = new Polygon(
-                        new int[]{0, width / 2, 0},
-                        new int[]{0, height / 2, height},
-                        3
-                );
-
-                DOORTRIANGLES.put(Direction.NORTH, northPoly);
-                DOORTRIANGLES.put(Direction.SOUTH, southPoly);
-                DOORTRIANGLES.put(Direction.EAST, eastPoly);
-                DOORTRIANGLES.put(Direction.WEST, westPoly);
             }
         }
 
