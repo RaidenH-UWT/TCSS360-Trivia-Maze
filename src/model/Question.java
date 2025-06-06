@@ -11,6 +11,8 @@ public abstract class Question implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final String SKIP = "~*~SKIP_QUESTION~*~";
+
     /**
      * ID of this question, for the database.
      */

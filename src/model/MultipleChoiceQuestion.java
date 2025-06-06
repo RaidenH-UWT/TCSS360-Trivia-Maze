@@ -62,7 +62,8 @@ public class MultipleChoiceQuestion extends Question {
         if (theAnswer == null) {
             return false;
         }
-        return myAnswer.equalsIgnoreCase(theAnswer.trim());
+        
+        return theAnswer.equals(Question.SKIP) || myAnswer.equalsIgnoreCase(theAnswer.trim());
     }
 
     /**

@@ -403,6 +403,18 @@ public class ViewMockup implements GameView {
     }
 
     // Debug menu events
+    private void skipQuestion(final ActionEvent theEvent) {
+        myQuestionPanel.skipQuestion();
+    }
+
+    // Misc events
+    /**
+     * Called when the game is over.
+     * @param theWin true when the game ended in a win, false for a loss
+     */
+    private void gameOverEvent(final boolean theWin) {
+        
+    }
 
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -491,6 +503,11 @@ public class ViewMockup implements GameView {
         JMenu menu = new JMenu("Debug");
         menu.setMnemonic(KeyEvent.VK_D);
 
+        final JMenuItem skipQuestionItem = new JMenuItem("Skip Question");
+        skipQuestionItem.addActionListener(this::skipQuestion);
+
+        menu.add(skipQuestionItem);
+
         return menu;
     }
 
@@ -562,8 +579,12 @@ public class ViewMockup implements GameView {
 
         if (!wasCorrect) {
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
-
         }
+
+        if (myGameState.getMaze().isPathAvailable(myPlayerPosition))
+            gameOverEvent(false);
+        if (myPlayerPosition.equals(myGameState.getMaze().getExit()))
+            gameOverEvent(true);
     }
 
     private JPanel createControlPanel() {

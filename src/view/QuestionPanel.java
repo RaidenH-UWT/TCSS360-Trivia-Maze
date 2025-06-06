@@ -235,6 +235,10 @@ public class QuestionPanel extends JPanel {
         myAnswerMethod.accept(getUserAnswer());
     }
 
+    void skipQuestion() {
+        myAnswerMethod.accept(Question.SKIP);
+    }
+
     private String getUserAnswer() {
         if (myAnswerComponent instanceof JTextField) {
             return ((JTextField) myAnswerComponent).getText();
