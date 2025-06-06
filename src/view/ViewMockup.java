@@ -199,6 +199,7 @@ public class ViewMockup implements GameView {
         //calling this here updated stats panel incorrectly.
         myMapPanel.getRoomPanels()[myCurrentRoom].setDoorState(theDir, theDoorState);
         myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
+
         if (theDoorState != 2) {
             Door oppDoor;
             switch (theDir) {
@@ -413,7 +414,24 @@ public class ViewMockup implements GameView {
      * @param theWin true when the game ended in a win, false for a loss
      */
     private void gameOverEvent(final boolean theWin) {
-        
+        String gameOverMsg;
+        if (theWin) {
+            gameOverMsg = """
+                    Congratulations, you won!
+                    """;
+        } else {
+            gameOverMsg = """
+                    GAME OVER
+                    """;
+        }
+
+        int selection = JOptionPane.showOptionDialog(myFrame, gameOverMsg, "Game Over", JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE, null, new String[] {"Restart", "Quit"}, null);
+        if (selection == 0) {
+            newGameEvent(null);
+        } else {
+            myFrame.dispatchEvent(new WindowEvent(myFrame, WindowEvent.WINDOW_CLOSING));
+        }
     }
 
     /* 
@@ -525,7 +543,7 @@ public class ViewMockup implements GameView {
         // GridBagConstraints. fill constant if it takes up full height/width?
         // Insets(int top, int left, int bottom, int right) external padding
         // int ipadx: internal x padding   int ipady: internal y padding
-        myMapPanel = new MapPanel(myMazeSize.width, myMazeSize.height, BACKGROUND_COLOR);
+        myMapPanel = new MapPanel(myMazeSize.width, myMazeSize.height, BACKGROUND_COLOR, myGameState.getMaze().getExit());
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
@@ -565,6 +583,7 @@ public class ViewMockup implements GameView {
 
     private void updateMinimap() {
         myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
+        myMinimap.setIsExit(myPlayerPosition.equals(myGameState.getMaze().getExit()));
         myMinimap.repaint();
     }
 
@@ -581,10 +600,8 @@ public class ViewMockup implements GameView {
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
 
-        if (myGameState.getMaze().isPathAvailable(myPlayerPosition))
+        if (!myGameState.getMaze().isPathAvailable(myPlayerPosition))
             gameOverEvent(false);
-        if (myPlayerPosition.equals(myGameState.getMaze().getExit()))
-            gameOverEvent(true);
     }
 
     private JPanel createControlPanel() {
@@ -682,8 +699,10 @@ public class ViewMockup implements GameView {
             myGameState.setMyCurrentDirection(direction);
             door = myGameState.getMaze().getRoom(myPlayerPosition).getDoor(direction);
             myQuestionPanel.updateQuestion(door.getQuestion());
-
         }
+
+        if (myPlayerPosition.equals(myGameState.getMaze().getExit()))
+            gameOverEvent(true);
     }
 
     private void bindWASDKeys(JPanel panel) {
