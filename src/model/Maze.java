@@ -222,7 +222,9 @@ public class Maze implements java.io.Serializable {
      * @return true if a path to the exit is possible, false otherwise
      */
     public boolean isPathAvailable(final Position thePosition) {
-        return isPathAvailable(thePosition, new ArrayList<Position>(myWidth * myHeight));
+        boolean out = isPathAvailable(thePosition, new ArrayList<Position>(myWidth * myHeight));
+        System.out.println("Path: " + out);
+        return out;
     }
 
     /**
@@ -239,7 +241,6 @@ public class Maze implements java.io.Serializable {
             return true;
         } else {
             boolean out = false;
-            System.out.println("else");
             for (Direction dir : Direction.values()) {
                 // Recurse if translation is inbounds, not previously visited, and unlocked
                 if (isWithinBounds(thePosition.translate(dir))

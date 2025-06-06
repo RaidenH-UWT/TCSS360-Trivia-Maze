@@ -11,7 +11,7 @@ import src.model.Position;
 public class MapPanel extends JPanel {
     private RoomPanel[] myRooms;
 
-    public MapPanel(final int theWidth, final int theHeight, final Color theBackgroundColor) {
+    public MapPanel(final int theWidth, final int theHeight, final Color theBackgroundColor, final Position theExit) {
         super();
 
         myRooms = new RoomPanel[theWidth * theHeight];
@@ -40,7 +40,9 @@ public class MapPanel extends JPanel {
                 }
 
                 final RoomPanel roomPane = new RoomPanel(new Position(col, row), doorStates, theBackgroundColor);
-
+                if (theExit.equals(new Position(col, row))) {
+                    roomPane.setIsExit(true);
+                }
                 myRooms[row * theHeight + col] = roomPane;
                 add(roomPane);
             }

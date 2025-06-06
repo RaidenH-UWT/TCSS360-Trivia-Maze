@@ -50,6 +50,11 @@ public class RoomPanel extends JPanel {
         private boolean isPlayerPosition = false;
 
         /**
+         * Whether or not this RoomPanel is the exit.
+         */
+        private boolean myIsExit = false;
+
+        /**
          * Stores selected sprite.
          */
         private ImageIcon mySelectedSprite;
@@ -121,17 +126,30 @@ public class RoomPanel extends JPanel {
             isPlayerPosition = theIsPosition;
         }
 
+        /**
+         * Set whether this RoomPanel is the exit or not.
+         * @param theIsExit boolean true if is the exit, false otherwise
+         */
+        public void setIsExit(final boolean theIsExit) {
+            myIsExit = theIsExit;
+        }
+
         @Override
         public void paintComponent(final Graphics theGraphics) {
             super.paintComponent(theGraphics);
 
             Graphics2D g2d = (Graphics2D) theGraphics;
 
-            updateDoorTriangles();
+            if (myIsExit) {
+                g2d.drawImage((new ImageIcon("src/sprites/exit.png")).getImage(), 0, 0, getWidth(), getHeight(), this);
+            } else {
+                updateDoorTriangles();
 
-            for (Direction dir : Direction.values()) {
-                g2d.drawImage(DOORSPRITES.get(dir)[myDoorState[dir.ordinal()]].getImage(), 0, 0, getWidth(), getHeight(), this);
+                for (Direction dir : Direction.values()) {
+                    g2d.drawImage(DOORSPRITES.get(dir)[myDoorState[dir.ordinal()]].getImage(), 0, 0, getWidth(), getHeight(), this);
+                }
             }
+            
 
             if (isPlayerPosition && mySelectedSprite != null) {
                 Image spriteImg = mySelectedSprite.getImage();
