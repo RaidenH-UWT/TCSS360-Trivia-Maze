@@ -47,6 +47,19 @@ public class Position implements java.io.Serializable {
         return myY;
     }
 
+    public Position translate(Direction dir) {
+        return switch (dir) {
+            case NORTH ->
+                new Position(myX, myY - 1);
+            case SOUTH ->
+                new Position(myX, myY + 1);
+            case EAST ->
+                new Position(myX + 1, myY);
+            case WEST ->
+                new Position(myX - 1, myY);
+        };
+    }
+
     /**
      * Checks whether two Positions are equal.
      *
@@ -64,17 +77,8 @@ public class Position implements java.io.Serializable {
         return myX == ((Position) thePosition).getX() && myY == ((Position) thePosition).getY();
     }
 
-    public Position translate(Direction dir) {
-        return switch (dir) {
-            case NORTH ->
-                new Position(myX, myY - 1);
-            case SOUTH ->
-                new Position(myX, myY + 1);
-            case EAST ->
-                new Position(myX + 1, myY);
-            case WEST ->
-                new Position(myX - 1, myY);
-        };
+    @Override
+    public String toString() {
+        return "(" + myX + ", " + myY + ")";
     }
-
 }

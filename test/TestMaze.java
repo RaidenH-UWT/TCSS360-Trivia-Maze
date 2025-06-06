@@ -1,12 +1,15 @@
 package test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import src.model.DatabaseManager;
+import src.model.Direction;
 import src.model.Maze;
 import src.model.Position;
 
@@ -59,7 +62,14 @@ public class TestMaze {
      */
     @Test
     void testIsPathAvailable() {
-        // TODO: Implement test
+        testMaze = new Maze(3, 3);
+        assertTrue(testMaze.isPathAvailable(new Position(0, 0)));
+
+        testMaze.getRoom(new Position(0, 0)).getDoor(Direction.EAST).lock();
+        assertTrue(testMaze.isPathAvailable(new Position(0, 0)));
+
+        testMaze.getRoom(new Position(0, 0)).getDoor(Direction.SOUTH).lock();
+        assertFalse(testMaze.isPathAvailable(new Position(0, 0)));
     }
     
     /**
@@ -84,7 +94,7 @@ public class TestMaze {
         assertEquals(0, testMaze.getEntrance().getX());
         assertEquals(0, testMaze.getEntrance().getY());
 
-        assertEquals(testMaze.getWidth(), testMaze.getExit().getX());
-        assertEquals(testMaze.getHeight(), testMaze.getExit().getX());
+        assertEquals(testMaze.getWidth() - 1, testMaze.getExit().getX());
+        assertEquals(testMaze.getHeight() - 1, testMaze.getExit().getY());
     }
 }

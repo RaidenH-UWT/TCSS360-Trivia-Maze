@@ -2,6 +2,7 @@ package src.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Stores data about the maze and the rooms within it.
@@ -68,7 +69,7 @@ public class Maze implements java.io.Serializable {
         myRooms = new Room[myHeight][myWidth];
 
         myEntrance = new Position(0, 0);
-        myExit = new Position(theWidth, theHeight);
+        myExit = new Position(theWidth - 1, theHeight - 1);
 
         generateEmptyRooms();
 
@@ -217,13 +218,42 @@ public class Maze implements java.io.Serializable {
     /**
      * Check whether a path to the exit is possible from the current player
      * position.
-     *
+     * @param thePosition Position to check from, should be the player position usually
      * @return true if a path to the exit is possible, false otherwise
      */
-    public boolean isPathAvailable() {
-        // implement recursively, sending a call down every path until all paths are covered or we find a good path.
-        // TODO: Implement isPathAvailable()
-        return false;
+    public boolean isPathAvailable(final Position thePosition) {
+        return isPathAvailable(thePosition, new ArrayList<Position>(myWidth * myHeight));
+    }
+
+    /**
+     * Helper for the recursive isPathAvailable method.
+     * 
+     * @param thePosition Position to start at
+     * @param theVisitedPos List of Positions we've already checked, no backtracking!
+     */
+    private boolean isPathAvailable(final Position thePosition, final List<Position> theVisitedPos) {
+        // Keep track of which positions we've checked
+        theVisitedPos.add(thePosition);
+
+        if (myExit.equals(thePosition)) {
+            return true;
+        } else {
+            boolean out = false;
+            System.out.println("else");
+            for (Direction dir : Direction.values()) {
+                // Recurse if translation is inbounds, not previously visited, and unlocked
+                if (isWithinBounds(thePosition.translate(dir))
+                        && !theVisitedPos.contains(thePosition.translate(dir))
+                        && !getRoom(thePosition).getDoor(dir).isLocked()) {
+                    out = out || isPathAvailable(thePosition.translate(dir), theVisitedPos);
+        
+                }
+                
+                // Shortcut exit to avoid unecessary calls
+                if (out) break;
+            }
+            return out;
+        }
     }
 
     /**
