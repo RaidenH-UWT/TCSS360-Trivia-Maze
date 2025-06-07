@@ -223,7 +223,6 @@ public class Maze implements java.io.Serializable {
      */
     public boolean isPathAvailable(final Position thePosition) {
         boolean out = isPathAvailable(thePosition, new ArrayList<Position>(myWidth * myHeight));
-        System.out.println("Path: " + out);
         return out;
     }
 
