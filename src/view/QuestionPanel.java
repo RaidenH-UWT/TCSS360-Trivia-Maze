@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -75,7 +76,21 @@ public class QuestionPanel extends JPanel {
         gbc.gridy = 0;
         add(questionLabel, gbc);
 
-        myCurrentQuestionLabel = new JTextArea(2, 20);
+        myCurrentQuestionLabel = new JTextArea(3, 25);
+        myCurrentQuestionLabel.setLineWrap(true);
+        myCurrentQuestionLabel.setWrapStyleWord(true);
+        myCurrentQuestionLabel.setEditable(false);
+        myCurrentQuestionLabel.setOpaque(false);
+        myCurrentQuestionLabel.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        myCurrentQuestionLabel.setForeground(Color.WHITE);
+        myCurrentQuestionLabel.setFocusable(false);
+
+        JScrollPane questionScrollPane = new JScrollPane(myCurrentQuestionLabel);
+        questionScrollPane.setPreferredSize(new Dimension(250, 60));
+        questionScrollPane.setBorder(null);
+        questionScrollPane.setOpaque(false);
+        questionScrollPane.getViewport().setOpaque(false);
+
         myCurrentQuestionLabel.setWrapStyleWord(true);
         myCurrentQuestionLabel.setLineWrap(true);
         myCurrentQuestionLabel.setEditable(false);
@@ -87,7 +102,7 @@ public class QuestionPanel extends JPanel {
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(myCurrentQuestionLabel, gbc);
+        add(questionScrollPane, gbc);
 
         JLabel answerLabel = new JLabel("ANSWER >");
         answerLabel.setForeground(new Color(106, 90, 205));
@@ -111,6 +126,10 @@ public class QuestionPanel extends JPanel {
         add(submitButton, gbc);
 
         submitButton.addActionListener(e -> processAnswer());
+        setPreferredSize(new Dimension(350, 200));
+        setMaximumSize(new Dimension(350, 200));
+        setMinimumSize(new Dimension(350, 200));
+
     }
 
     /**
