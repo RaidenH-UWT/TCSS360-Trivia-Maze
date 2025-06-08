@@ -271,8 +271,30 @@ public class ViewMockup implements GameView {
      */
     // File menu events
     private void newGameEvent(final ActionEvent theEvent) {
-        // TODO: Implement newGameEvent
-        JOptionPane.showMessageDialog(myFrame, "Starting a new game! (reset state, choose game parameters, etc.)");
+        int confirm = JOptionPane.showConfirmDialog(
+        myFrame,
+        "Are you sure you want to start a new game?",
+        "Confirm New Game",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.WARNING_MESSAGE
+     );
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;  
+        }
+        int width  = myGameState.getMaze().getWidth();
+        int height = myGameState.getMaze().getHeight();
+        GameState freshState = new GameState(width, height);
+        updateGameState(freshState);
+        myStatsPanel.clear();
+        myQuestionPanel.clear();
+
+        JOptionPane.showMessageDialog(
+            myFrame,
+            "Starting a new game!",
+            "New Game",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+            
     }
 
     private void settingsEvent(final ActionEvent theEvent) {
