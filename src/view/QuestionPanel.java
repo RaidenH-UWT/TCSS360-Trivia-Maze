@@ -24,6 +24,13 @@ import javax.swing.SwingUtilities;
 import src.model.MultipleChoiceQuestion;
 import src.model.Question;
 
+/**
+ * Question panel for display in the view
+ * @author Raiden H
+ * @author Kalen Cha
+ * @author Evan Lei
+ * @version Spring 2025
+ */
 public class QuestionPanel extends JPanel {
 
     /**

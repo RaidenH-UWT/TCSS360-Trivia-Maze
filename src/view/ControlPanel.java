@@ -11,7 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import src.model.Direction;
-
+/**
+ * Control panel for display in the view
+ * @author Raiden H
+ * @author Kalen Cha
+ * @version Spring 2025
+ */
+@Deprecated // Broken implementation, unused
 public class ControlPanel extends JPanel {
     ControlPanel(final Consumer<Direction> theInputHandler) {
         super();

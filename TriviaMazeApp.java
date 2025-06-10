@@ -1,7 +1,7 @@
 import src.model.DatabaseManager;
 import src.model.GameState;
 import src.view.GameView;
-import src.view.ViewMockup;
+import src.view.GuiView;
 
 /**
  * Entry point for the Trivia Maze application.
@@ -14,8 +14,8 @@ public class TriviaMazeApp {
         DatabaseManager.connect();
         myState = new GameState(5);
 
-        myView = new ViewMockup(myState);
+        myView = new GuiView(myState);
 
-        ((ViewMockup) myView).initialize();
+        ((GuiView) myView).initialize();
     }
 }

@@ -7,7 +7,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import src.model.Position;
-
+/**
+ * Map panel for display in the view
+ * @author Raiden H
+ * @version Spring 2025
+ */
 public class MapPanel extends JPanel {
     private RoomPanel[] myRooms;
 

@@ -15,10 +15,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
+import java.io.File;
+
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -297,7 +300,6 @@ public class ViewMockup implements GameView {
                 "New Game",
                 JOptionPane.INFORMATION_MESSAGE
         );
-
     }
 
     private void settingsEvent(final ActionEvent theEvent) {
@@ -315,13 +317,13 @@ public class ViewMockup implements GameView {
 
     // Save menu events
     private void saveGameEvent(final ActionEvent theEvent) {
-        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Game");
 
         int userSelection = fileChooser.showSaveDialog(myFrame);
 
-        if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
-            java.io.File fileToSave = fileChooser.getSelectedFile();
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
 
             try {
                 GameSaver.saveGame(myGameState, fileToSave.getAbsolutePath());
@@ -657,6 +659,7 @@ public class ViewMockup implements GameView {
         }
     }
 
+    // This should be broken off into a seperate class if possible.
     private JPanel createControlPanel() {
 
         final int panelSize = 200;
@@ -877,6 +880,5 @@ public class ViewMockup implements GameView {
         mainPanel.add(chooseLabel, BorderLayout.NORTH);
 
         return mainPanel;
-
     }
 }

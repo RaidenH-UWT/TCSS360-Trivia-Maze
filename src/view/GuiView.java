@@ -1,27 +1,31 @@
 package src.view;
 
-// General imports
+// Misc imports
 import java.beans.PropertyChangeEvent;
+import java.io.File;
 
 // AWT imports
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.Font;
 
-import javax.swing.ImageIcon;
 // Swing imports
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -29,19 +33,18 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.border.Border;
 
 // Local imports
 import src.model.Direction;
 import src.model.Door;
+import src.model.GameSaver;
 import src.model.GameState;
 import src.model.Maze;
 import src.model.Position;
 import src.model.PropertyChangeEnabledGameState;
-import src.model.Question;
 import src.model.Room;
-import src.model.GameSaver;
 
 /**
  * GUI view class
@@ -78,9 +81,9 @@ public class GuiView implements GameView {
     private final Dimension myMazeSize;
 
     /**
-     * Array of rooms in the maze panel.
+     * GameState state of the game
      */
-    private RoomPanel[] myRooms;
+    private final GameState myGameState;
 
     /**
      * Stores selected sprite.
@@ -93,29 +96,9 @@ public class GuiView implements GameView {
     private Position myPlayerPosition;
 
     /**
-     * GameState state of the game
+     * Map panel in the main panel.
      */
-    private final GameState myGameState;
-
-    /**
-     * Label of the current question
-     */
-    private JTextArea myCurrentQuestionLabel;
-
-    /**
-     * Panel for question answer inputs
-     */
-    private JPanel myAnswerInputPanel;
-
-    /**
-     * Answer object, either ButtonGroup or JTextField
-     */
-    private Object myAnswerComponent;
-
-    /**
-     * Stores the index of the current room in the myRooms array
-     */
-    private int myCurrentRoom;
+    private MapPanel myMapPanel;
 
     /**
      * Minimap panel in the main panel.
@@ -126,6 +109,31 @@ public class GuiView implements GameView {
      * Stats panel in the main panel.
      */
     private StatsPanel myStatsPanel;
+
+    /**
+     * Question panel in the main panel.
+     */
+    private QuestionPanel myQuestionPanel;
+
+    /**
+     * Control panel in the main panel.
+     */
+    private JPanel myControlPanel;
+
+    /**
+     * Info panel in the main panel.
+     */
+    private JPanel myInfoPanel;
+
+    /**
+     * Music player for the window.
+     */
+    private MusicPlayer myMusicPlayer;
+
+    /**
+     * Stores the index of the current room in the myRooms array
+     */
+    private int myCurrentRoom;
 
     /**
      * Create a new GuiView watching the given state
@@ -144,9 +152,9 @@ public class GuiView implements GameView {
 
         myCurrentRoom = myPlayerPosition.getY() * myMazeSize.width + myPlayerPosition.getX();
 
-        myRooms = new RoomPanel[myMazeSize.width * myMazeSize.height];
+        myMinimap = new MinimapPanel(myPlayerPosition, new int[]{0, 0, 0, 0}, BACKGROUND_COLOR);
 
-        myMinimap = new MinimapPanel(myPlayerPosition, new int[] {0, 0, 0, 0}, BACKGROUND_COLOR);
+        myMusicPlayer = new MusicPlayer();
 
         // Initializing the frame
         myFrame = new JFrame("Trivia Maze");
@@ -170,28 +178,32 @@ public class GuiView implements GameView {
         myFrame.setLocation(SCREEN_SIZE.width / 2 - myFrame.getWidth() / 2,
                 SCREEN_SIZE.height / 2 - myFrame.getHeight() / 2);
         myFrame.setVisible(true);
+
+        // start music
+        myMusicPlayer = new MusicPlayer();
+        myMusicPlayer.playMusic("src/music/SundayPicnic.wav");
     }
 
     /**
      * Update the position of the player.
-     * @param theOldPos Position the player was at previously
-     * @param theNewPos Position the player is at now
+     * @param thePosition Position the player is now at
      */
-    private void updatePosition(Position newPos) {
+    private void updatePosition(final Position thePosition) {
         // called when the player position changes
-        myRooms[myCurrentRoom].setIsPlayerPosition(false);
-        myRooms[myCurrentRoom].repaint();
+        myMapPanel.getRoomPanels()[myCurrentRoom].setIsPlayerPosition(false);
+        myMapPanel.getRoomPanels()[myCurrentRoom].repaint();
 
-        myCurrentRoom = newPos.getY() * myMazeSize.width + newPos.getX();
+        myCurrentRoom = thePosition.getY() * myMazeSize.width + thePosition.getX();
 
-        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
 
-        myRooms[myCurrentRoom].setIsPlayerPosition(true);
-        myRooms[myCurrentRoom].repaint();
+        myMapPanel.getRoomPanels()[myCurrentRoom].setIsPlayerPosition(true);
+        myMapPanel.getRoomPanels()[myCurrentRoom].repaint();
     }
 
     /**
      * Update question stats for the player.
+     * @param theCorrect boolean whether the question was answered correctly or not
      */
     private void updateStats(final boolean theCorrect) {
         myStatsPanel.incrementQuestionsAnswered();
@@ -206,23 +218,52 @@ public class GuiView implements GameView {
      * @param theDoorState int new state of the door. Possibilities described in the GameView interface.
      */
     private void updateDoor(final Direction theDir, final int theDoorState) {
-        updateStats(theDoorState == 4);
-        myRooms[myCurrentRoom].setDoorState(theDir, theDoorState);
-        myMinimap.setDoorStates(myRooms[myCurrentRoom].getDoorState());
+        myMapPanel.getRoomPanels()[myCurrentRoom].setDoorState(theDir, theDoorState);
+        myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
+
         if (theDoorState != 2) {
+            Door oppDoor;
             switch (theDir) {
-            case Direction.NORTH:
-                myRooms[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
-                break;
-            case Direction.SOUTH:
-                myRooms[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
-                break;
-            case Direction.EAST:
-                myRooms[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
-                break;
-            case Direction.WEST:
-                myRooms[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
-                break;
+                case Direction.NORTH:
+                    myMapPanel.getRoomPanels()[myCurrentRoom - myMazeSize.width].setDoorState(Direction.SOUTH, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX(), myPlayerPosition.getY() - 1)).getDoor(Direction.SOUTH);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
+                case Direction.SOUTH:
+                    myMapPanel.getRoomPanels()[myCurrentRoom + myMazeSize.width].setDoorState(Direction.NORTH, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX(), myPlayerPosition.getY() + 1)).getDoor(Direction.NORTH);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
+                case Direction.EAST:
+                    myMapPanel.getRoomPanels()[myCurrentRoom + 1].setDoorState(Direction.WEST, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX() + 1, myPlayerPosition.getY())).getDoor(Direction.WEST);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
+                case Direction.WEST:
+                    myMapPanel.getRoomPanels()[myCurrentRoom - 1].setDoorState(Direction.EAST, theDoorState);
+                    oppDoor = myGameState.getMaze().getRoom(
+                            new Position(myPlayerPosition.getX() - 1, myPlayerPosition.getY())).getDoor(Direction.EAST);
+                    if (theDoorState == 4) {
+                        oppDoor.open();
+                    } else {
+                        oppDoor.lock();
+                    }
+                    break;
             }
         }
     }
@@ -254,15 +295,39 @@ public class GuiView implements GameView {
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      */
     // File menu events
+    /**
+     * Popup when a new game is triggered (game over or menu button source).
+     */
     private void newGameEvent(final ActionEvent theEvent) {
-        // TODO: Implement newGameEvent
-        JOptionPane.showMessageDialog(myFrame, "Starting a new game! (reset state, choose game parameters, etc.)");
+        int confirm = JOptionPane.showConfirmDialog(
+                myFrame,
+                "Are you sure you want to start a new game?",
+                "Confirm New Game",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        int width = myGameState.getMaze().getWidth();
+        int height = myGameState.getMaze().getHeight();
+        GameState freshState = new GameState(width, height);
+        updateGameState(freshState);
+        myStatsPanel.clear();
+        myQuestionPanel.clear();
     }
 
+    /**
+     * Open up the settings window (menu button source).
+     */
     private void settingsEvent(final ActionEvent theEvent) {
-        JOptionPane.showMessageDialog(myFrame, "Opening settings!");
+        SettingsPage settings = new SettingsPage(myFrame, myMusicPlayer);
+        settings.setVisible(true);
     }
 
+    /**
+     * Exit the game with confirmation (menu button source).
+     */
     private void exitEvent(final ActionEvent theEvent) {
         int selection = JOptionPane.showConfirmDialog(myFrame, "Exit without saving?", "Exit?", JOptionPane.YES_NO_OPTION);
         // Exit only if the user confirms.
@@ -272,14 +337,17 @@ public class GuiView implements GameView {
     }
 
     // Save menu events
+    /**
+     * Open up a File Chooser to save the game (menu button).
+     */
     private void saveGameEvent(final ActionEvent theEvent) {
-        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Game");
 
         int userSelection = fileChooser.showSaveDialog(myFrame);
 
-        if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
-            java.io.File fileToSave = fileChooser.getSelectedFile();
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
 
             try {
                 GameSaver.saveGame(myGameState, fileToSave.getAbsolutePath());
@@ -290,16 +358,19 @@ public class GuiView implements GameView {
         }
     }
 
+    /**
+     * Open up a File Chooser to load the game (menu button).
+     */
     private void loadGameEvent(final ActionEvent theEvent) {
         // Create a file chooser to select the save file
-        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Load Game");
 
         // Show the open dialog
         int userSelection = fileChooser.showOpenDialog(myFrame);
 
-        if (userSelection == javax.swing.JFileChooser.APPROVE_OPTION) {
-            java.io.File fileToLoad = fileChooser.getSelectedFile();
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToLoad = fileChooser.getSelectedFile();
 
             try {
                 GameState loadedState = GameSaver.getSave(fileToLoad.getAbsolutePath());
@@ -330,19 +401,18 @@ public class GuiView implements GameView {
         myPlayerPosition = myGameState.getMyCurrentPosition();
         syncAllRoomPanelDoorStates();
         updatePosition(myPlayerPosition);
-        updateQuestionPanel();
         updateMinimap();
     }
 
     /**
-     * Set all the myRoom door state according to the state of the maze.
+     * Set all the RoomPanel door state according to the state of the maze.
      */
     private void syncAllRoomPanelDoorStates() {
         Maze maze = myGameState.getMaze();
         for (int row = 0; row < myMazeSize.height; row++) {
             for (int col = 0; col < myMazeSize.width; col++) {
                 Room modelRoom = maze.getRoom(new Position(col, row));
-                RoomPanel panelRoom = myRooms[row * myMazeSize.width + col];
+                RoomPanel panelRoom = myMapPanel.getRoomPanels()[row * myMazeSize.width + col];
                 int[] doorStates = new int[4]; // N, S, E, W
                 for (Direction dir : Direction.values()) {
                     if (modelRoom.hasDoor(dir)) {
@@ -364,6 +434,9 @@ public class GuiView implements GameView {
     }
 
     // Help menu events
+    /**
+     * Open popup with information about the game (menu button source).
+     */
     private void aboutEvent(final ActionEvent theEvent) {
         String aboutMsg = """
         Trivia Maze Game
@@ -377,18 +450,75 @@ public class GuiView implements GameView {
         JOptionPane.showMessageDialog(myFrame, aboutMsg);
     }
 
+    /**
+     * Open popup with information about how to play the game (menu button source).
+     */
     private void howToEvent(final ActionEvent theEvent) {
         String howtoMsg = """
-        Answer trivia questions
-        Document door colour key
-        Document controls
-        Document minimap door selection 
-        """; // TODO: Write something here
+        Use the arrow keys or controls (in the bottom right) to navigate the maze and rooms.
+
+        Answer questions on the right in multiple choice or short answer format.
+
+        Reach the exit at the yellow square to win.
+
+        If you're locked out and can't make it to the exit, you lose.
+
+        Save, load, and restart the game from the menu bar.
+        """;
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
 
     // Debug menu events
+    /**
+     * Skip the current question
+     */
+    private void skipQuestion(final ActionEvent theEvent) {
+        // This does increase the incorrect counter if done against a wall still
+        myQuestionPanel.skipQuestion();
+    }
 
+    // Misc events
+    /**
+     * Called when the game is over.
+     *
+     * @param theWin true when the game ended in a win, false for a loss
+     */
+    private void gameOverEvent(final boolean theWin) {
+        if (theWin) {
+            myMusicPlayer.playSoundEffect("src/music/win.wav");
+        } else {
+            myMusicPlayer.playSoundEffect("src/music/loss.wav");
+        }
+
+        // Game over message
+        String gameOverMsg;
+        if (theWin) {
+            gameOverMsg = """
+                Congratulations, you won!
+            """;
+        } else {
+            gameOverMsg = """
+                GAME OVER
+            """;
+        }
+
+        int selection = JOptionPane.showOptionDialog(
+                myFrame,
+                gameOverMsg,
+                "Game Over",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Restart", "Quit"},
+                null
+        );
+
+        if (selection == 0) {
+            newGameEvent(null);
+        } else {
+            myFrame.dispatchEvent(new WindowEvent(myFrame, WindowEvent.WINDOW_CLOSING));
+        }
+    }
 
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -396,6 +526,9 @@ public class GuiView implements GameView {
      * GUI COMPONENTS BELOW
      * 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     */
+    /**
+     * Build the main menu bar.
      */
     private JMenuBar createMenuBar() {
         JMenuBar bar = new JMenuBar();
@@ -416,6 +549,9 @@ public class GuiView implements GameView {
         return bar;
     }
 
+    /**
+     * Build the File menu.
+     */
     private JMenu buildFileMenu() {
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
@@ -437,6 +573,9 @@ public class GuiView implements GameView {
         return menu;
     }
 
+    /**
+     * Build the Save menu.
+     */
     private JMenu buildSaveMenu() {
         final JMenu menu = new JMenu("Save");
         menu.setMnemonic(KeyEvent.VK_S);
@@ -453,6 +592,9 @@ public class GuiView implements GameView {
         return menu;
     }
 
+    /**
+     * Build the Help menu.
+     */
     private JMenu buildHelpMenu() {
         JMenu menu = new JMenu("Help");
         menu.setMnemonic(KeyEvent.VK_H);
@@ -469,256 +611,339 @@ public class GuiView implements GameView {
         return menu;
     }
 
+    /**
+     * Build the Debug menu.
+     */
     private JMenu buildDebugMenu() {
         JMenu menu = new JMenu("Debug");
         menu.setMnemonic(KeyEvent.VK_D);
 
+        final JMenuItem skipQuestionItem = new JMenuItem("Skip Question");
+        skipQuestionItem.addActionListener(this::skipQuestion);
+
+        menu.add(skipQuestionItem);
+
         return menu;
     }
 
+    /**
+     * Build the main content panel.
+     */
     private JPanel createContentPane() {
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(BACKGROUND_COLOR);
 
-        // Ok this is kind of stupid and excessively complicated. but.
-        // int gridx: x coordinate from top left    int gridy: y coordinate from top left
-        // int gridwidth: x width    int gridheight: y height
-        // double weightx: percent of parent width taken up   double weighty: percent of parent height taken up
-        // GridBagConstraints. anchor constant for where this shit goes
-        // GridBagConstraints. fill constant if it takes up full height/width?
-        // Insets(int top, int left, int bottom, int right) external padding
-        // int ipadx: internal x padding   int ipady: internal y padding
-        final JPanel mapPanel = createMapPanel();
+        myMapPanel = new MapPanel(myMazeSize.width, myMazeSize.height, BACKGROUND_COLOR, myGameState.getMaze().getExit());
         GridBagConstraints mapConstraint = new GridBagConstraints(0, 0, 3, 3, 0.7, 0.7,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel minimapPanel = createDoorPanel();
-        GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
-                GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+        updatePosition(new Position(0, 0));
+        myMapPanel.updateSprite(mySelectedSprite);
 
-        final JPanel statsPanel = createStatsPanel(3, 5);
+        myMinimap = new MinimapPanel(myPlayerPosition, myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState(), BACKGROUND_COLOR);
+        GridBagConstraints minimapConstraint = new GridBagConstraints(3, 0, 1, 1, 0.3, 0.3,
+                GridBagConstraints.NORTHEAST, GridBagConstraints.BOTH, new Insets(25, 85, 25, 85), 0, 0);
+
+        myStatsPanel = new StatsPanel();
         GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel questionPanel = createQuestionPanel();
+        myQuestionPanel = new QuestionPanel(this::processAnswer, myMusicPlayer);
         GridBagConstraints questionConstraint = new GridBagConstraints(3, 2, 1, 1, 0.3, 0.3,
                 GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        final JPanel controlPanel = createControlPanel();
+        myControlPanel = createControlPanel();
         GridBagConstraints controlConstraint = new GridBagConstraints(3, 3, 1, 1, 0.3, 0.3,
-                GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+                GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 80, 0), 0, 0);
 
-        final JPanel infoPanel = createInfoPanel();
+        myInfoPanel = createInfoPanel();
         GridBagConstraints infoConstraint = new GridBagConstraints(0, 3, 3, 1, 0.3, 0.3,
                 GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        mainPanel.add(mapPanel, mapConstraint);
-        mainPanel.add(minimapPanel, minimapConstraint);
-        mainPanel.add(statsPanel, statsConstraint);
-        mainPanel.add(questionPanel, questionConstraint);
-        mainPanel.add(controlPanel, controlConstraint);
-        mainPanel.add(infoPanel, infoConstraint);
+        mainPanel.add(myMapPanel, mapConstraint);
+        mainPanel.add(myMinimap, minimapConstraint);
+        mainPanel.add(myStatsPanel, statsConstraint);
+        mainPanel.add(myQuestionPanel, questionConstraint);
+        mainPanel.add(myControlPanel, controlConstraint);
+        mainPanel.add(myInfoPanel, infoConstraint);
+        bindWASDKeys(mainPanel);
 
         return mainPanel;
     }
 
-    private JPanel createMapPanel() {
-        final JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(myMazeSize.width, myMazeSize.height, 5, 5));
-        panel.setBackground(Color.BLACK);
+    /**
+     * Update the minimap panel with the current room.
+     */
+    private void updateMinimap() {
+        myMinimap.setDoorStates(myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState());
+        myMinimap.setIsExit(myPlayerPosition.equals(myGameState.getMaze().getExit()));
+        myMinimap.repaint();
+    }
 
-        for (int row = 0; row < myMazeSize.width; row++) {
-            for (int col = 0; col < myMazeSize.height; col++) {
-                final JPanel roomPane = new RoomPanel(new Position(row, col));
-                panel.add(roomPane, row,  col);
-            }
+    /**
+     * Process the user answer
+     */
+    private void processAnswer(final String theAnswer) {
+        if (theAnswer == null) {
+            JOptionPane.showMessageDialog(myFrame, "No door there!", "No door", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        Direction dir = myGameState.getMyCurrentDirection();
+        boolean wasCorrect = myGameState.tryMove(dir, theAnswer);
+        updateStats(wasCorrect);
+
+        if (wasCorrect) {
+            myMusicPlayer.playSoundEffect("src/music/correct.wav");
+        } else {
+            myMusicPlayer.playSoundEffect("src/music/incorrect.wav");
+            JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
 
-        myRooms = panel.getComponents();
-
-        updatePosition(new Position(0,0), new Position(0, 0));
-
-        return panel;
+        if (!myGameState.getMaze().isPathAvailable(myPlayerPosition)) {
+            gameOverEvent(false);
+        }
     }
 
-    private JPanel createDoorPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(18, 18, 18));
-        panel.setLayout(new GridBagLayout());
-
-        JButton openDoorButton = new JButton("OPEN DOOR");
-        openDoorButton.setOpaque(true);
-        openDoorButton.setContentAreaFilled(true);
-        openDoorButton.setBorderPainted(true);
-        openDoorButton.setFont(new Font("Monospaced", Font.BOLD, 30));
-        openDoorButton.setBackground(new Color(255, 204, 0));
-        openDoorButton.setForeground(Color.BLACK);
-        openDoorButton.setFocusPainted(false);
-        openDoorButton.setBorder(javax.swing.BorderFactory.createLineBorder(Color.BLACK, 2));
-        openDoorButton.setPreferredSize(new Dimension(450, 100));
-
-        panel.add(openDoorButton);
-        return panel;
-    }
-
-    private JPanel createStatsPanel(final int theAnswered, final int theFailed) {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(18, 18, 18));
-        panel.setLayout(new GridBagLayout());
-
-        Font labelFont = new Font("Monospaced", Font.BOLD, 14);
-
-        JLabel answeredLabel = new JLabel("QUESTIONS ANSWERED: " + theAnswered);
-        answeredLabel.setFont(labelFont);
-        answeredLabel.setForeground(Color.GREEN);
-
-        JLabel failedLabel = new JLabel("QUESTIONS FAILED:   " + theFailed);
-        failedLabel.setFont(labelFont);
-        failedLabel.setForeground(new Color(255, 85, 85));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(answeredLabel, gbc);
-
-        gbc.gridy = 1;
-        panel.add(failedLabel, gbc);
-
-        return panel;
-    }
-
-    private JPanel createQuestionPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(new Color(30, 30, 30));
-        panel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        JLabel questionLabel = new JLabel("QUESTION: ");
-        questionLabel.setForeground(new Color(0, 191, 255));
-        questionLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(questionLabel, gbc);
-
-        JLabel currentQuestion = new JLabel("2 + 2 = 5 (T OR F)");
-        currentQuestion.setForeground(Color.WHITE);
-        currentQuestion.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        panel.add(currentQuestion, gbc);
-
-        JLabel answerLabel = new JLabel("ANSWER >");
-        answerLabel.setForeground(new Color(106, 90, 205));
-        answerLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(answerLabel, gbc);
-
-        JTextField answerField = new JTextField(20);
-        answerField.setBackground(Color.BLACK);
-        answerField.setForeground(Color.GREEN);
-        answerField.setCaretColor(Color.GREEN);
-        answerField.setFont(new Font("Monospaced", Font.PLAIN, 14));
-        gbc.gridx = 1;
-
-        return panel;
-    }
-
-    // TODO: This method should probably be broken up, especially that inline class.
+    /**
+     * Build the panel displaying controls.
+     */
     private JPanel createControlPanel() {
-        final JPanel panel = new JPanel() {
+        final int panelSize = 200;
+        JPanel dPadPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-
-                int width = getWidth();
-                int height = getHeight();
-                int centerX = width / 2;
-                int centerY = height / 2;
-
-                int crossSize = Math.min(width, height) / 2;
-                int armWidth = crossSize / 3;
-                int circleRadius = armWidth / 2;
-                int arrowSize = armWidth / 2;
-
-                circleRadius = (int) (circleRadius * 0.6);
-
-                java.awt.GradientPaint gradientPaint = new java.awt.GradientPaint(
-                        0, 0, new Color(60, 60, 60),
-                        width, height, new Color(40, 40, 40));
-                ((java.awt.Graphics2D) g).setPaint(gradientPaint);
-
-                java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
-                g2d.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-
-                int vX = centerX - armWidth / 2;
-                int vY = centerY - crossSize / 2;
-                int hX = centerX - crossSize / 2;
-                int hY = centerY - armWidth / 2;
-
-                RoundRectangle2D verticalArm = new RoundRectangle2D.Float(vX, vY, armWidth, crossSize, 10, 10);
-                RoundRectangle2D horizontalArm = new RoundRectangle2D.Float(hX, hY, crossSize, armWidth, 10, 10);
-
-                g2d.fill(verticalArm);
-                g2d.fill(horizontalArm);
-
-                g2d.setColor(Color.BLACK);
-                g2d.draw(verticalArm);
-                g2d.draw(horizontalArm);
-
-                g.setColor(new Color(26, 26, 26));
-                g.fillOval(centerX - circleRadius, centerY - circleRadius,
-                        circleRadius * 2, circleRadius * 2);
-
-                g.setColor(new Color(26, 26, 26));
-
-                drawDirectionalArrow(g2d, centerX, centerY - crossSize / 3, Direction.NORTH, arrowSize);
-                drawDirectionalArrow(g2d, centerX, centerY + crossSize / 3, Direction.SOUTH, arrowSize);
-                drawDirectionalArrow(g2d, centerX - crossSize / 3, centerY, Direction.WEST, arrowSize);
-                drawDirectionalArrow(g2d, centerX + crossSize / 3, centerY, Direction.EAST, arrowSize);
-            }
-
-            private void drawDirectionalArrow(java.awt.Graphics2D g, int x, int y, Direction dir, int size) {
-                int[] xPoints = new int[3];
-                int[] yPoints = new int[3];
-
-                switch (dir) {
-                    case NORTH -> {
-                        xPoints = new int[]{x, x - size / 2, x + size / 2};
-                        yPoints = new int[]{y - size / 2, y + size / 2, y + size / 2};
-                    }
-                    case SOUTH -> {
-                        xPoints = new int[]{x, x - size / 2, x + size / 2};
-                        yPoints = new int[]{y + size / 2, y - size / 2, y - size / 2};
-                    }
-                    case EAST -> {
-                        xPoints = new int[]{x + size / 2, x - size / 2, x - size / 2};
-                        yPoints = new int[]{y, y - size / 2, y + size / 2};
-                    }
-                    case WEST -> {
-                        xPoints = new int[]{x - size / 2, x + size / 2, x + size / 2};
-                        yPoints = new int[]{y, y - size / 2, y + size / 2};
-                    }
-                }
-
-                g.fillPolygon(xPoints, yPoints, 3);
+                ImageIcon dpadImage = new ImageIcon("src/sprites/dpadTrimmed.png");
+                Image img = dpadImage.getImage();
+                g.drawImage(img, 83, 10, panelSize, panelSize, this);
             }
         };
 
-        panel.setPreferredSize(new Dimension(200, 200));
-        panel.setBackground(new Color(240, 240, 240));
+        ImageIcon upImage = new ImageIcon("src/sprites/upArrow.png");
+        Image upImg = upImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
 
-        return panel;
+        ImageIcon rightImage = new ImageIcon("src/sprites/rightArrow.png");
+        Image rightImg = rightImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon leftImage = new ImageIcon("src/sprites/leftArrow.png");
+        Image leftImg = leftImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon downImage = new ImageIcon("src/sprites/downArrow.png");
+        Image downImg = downImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        ImageIcon upIcon = new ImageIcon(upImg);
+        ImageIcon rightIcon = new ImageIcon(rightImg);
+        ImageIcon leftIcon = new ImageIcon(leftImg);
+        ImageIcon downIcon = new ImageIcon(downImg);
+
+        JButton upButton = new JButton(upIcon);
+        JButton rightButton = new JButton(rightIcon);
+        JButton leftButton = new JButton(leftIcon);
+        JButton downButton = new JButton(downIcon);
+
+        dPadPanel.setPreferredSize(new Dimension(panelSize, panelSize));
+        dPadPanel.setLayout(null);
+
+        upButton.setBounds(151, 23, 66, 66);
+        upButton.setOpaque(false);
+        upButton.setContentAreaFilled(false);
+        upButton.setBorderPainted(false);
+
+        rightButton.setBounds(200, 75, 66, 66);
+        rightButton.setOpaque(false);
+        rightButton.setContentAreaFilled(false);
+        rightButton.setBorderPainted(false);
+
+        leftButton.setBounds(100, 75, 66, 66);
+        leftButton.setOpaque(false);
+        leftButton.setContentAreaFilled(false);
+        leftButton.setBorderPainted(false);
+
+        downButton.setBounds(151, 128, 66, 66);
+        downButton.setOpaque(false);
+        downButton.setContentAreaFilled(false);
+        downButton.setBorderPainted(false);
+
+        upButton.addActionListener(e -> handleDPadPress(Direction.NORTH));
+        rightButton.addActionListener(e -> handleDPadPress(Direction.EAST));
+        leftButton.addActionListener(e -> handleDPadPress(Direction.WEST));
+        downButton.addActionListener(e -> handleDPadPress(Direction.SOUTH));
+
+        dPadPanel.add(upButton);
+        dPadPanel.add(rightButton);
+        dPadPanel.add(leftButton);
+        dPadPanel.add(downButton);
+        dPadPanel.setBackground(new Color(215, 215, 215));
+
+        return dPadPanel;
     }
 
+    /**
+     * Handle the user pressing a dpad button on the control panel.
+     * 
+     * @param theDirection Direction pressed
+     */
+    private void handleDPadPress(final Direction theDirection) {
+        myGameState.setMyCurrentDirection(theDirection);
+        Room currentRoom = myGameState.getMaze().getRoom(myPlayerPosition);
+        Door door = currentRoom.getDoor(theDirection);
+        if (myMapPanel.getRoomPanels()[myCurrentRoom].getDoorState()[theDirection.ordinal()] == DOOR_NOT_VISITED) {
+            updateDoor(theDirection, DOOR_VISITED);
+        }
+
+        if (door == null) {
+            myQuestionPanel.updateQuestion(null);
+            return;
+        }
+
+        if (door.isOpen()) {
+            movePlayer(theDirection);
+            myQuestionPanel.updateQuestion(null);
+        } else if (door.isLocked()) {
+            JOptionPane.showMessageDialog(myFrame, "That door is locked!", "Locked", JOptionPane.WARNING_MESSAGE);
+        } else {
+            myGameState.setMyCurrentDirection(theDirection);
+            door = myGameState.getMaze().getRoom(myPlayerPosition).getDoor(theDirection);
+            myQuestionPanel.updateQuestion(door.getQuestion());
+        }
+
+        if (myPlayerPosition.equals(myGameState.getMaze().getExit())) {
+            gameOverEvent(true);
+        }
+    }
+
+    /**
+     * Bind the arrow keys to the window.
+     * 
+     * @param thePanel JPanel the keys are bound to
+     */
+    private void bindWASDKeys(final JPanel thePanel) {
+        thePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), "moveUp");
+        thePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
+        thePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), "moveLeft");
+        thePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"), "moveRight");
+
+        thePanel.getActionMap().put("moveUp", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.NORTH);
+            }
+        });
+        thePanel.getActionMap().put("moveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.SOUTH);
+            }
+        });
+        thePanel.getActionMap().put("moveLeft", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.WEST);
+            }
+        });
+        thePanel.getActionMap().put("moveRight", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleDPadPress(Direction.EAST);
+            }
+        });
+    }
+
+    /**
+     * Move the player in the given direction.
+     * 
+     * @param theDirection Direction to move the player in
+     */
+    private void movePlayer(final Direction theDirection) {
+        Position newPosition = myPlayerPosition.translate(theDirection);
+        myGameState.setMyCurrentPosition(newPosition);
+        updatePosition(newPosition);
+        myPlayerPosition = newPosition;
+    }
+
+    /**
+     * Build the info panel for character selection
+     */
     private JPanel createInfoPanel() {
         final JPanel panel = new JPanel();
-        panel.setBackground(new Color(0, 255, 255));
+        panel.setBackground(new Color(0, 0, 0));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-        return panel;
+        int[] widths = {56, 80, 60, 90};
+        int[] heights = {56, 100, 60, 60};
+        String[] imagePaths = {
+            "src/sprites/kirby1.png",
+            "src/sprites/kirby2.png",
+            "src/sprites/kirby3.png",
+            "src/sprites/kirby4.png"
+        };
+
+        JLabel[] kirbyLabels = new JLabel[imagePaths.length];
+
+        final Border selectedBorder = BorderFactory.createLineBorder(Color.YELLOW, 3);
+        final Border defaultBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+
+        final JLabel[] selectedLabel = {null};
+
+        for (int i = 0; i < imagePaths.length; i++) {
+            ImageIcon originalIcon = new ImageIcon(imagePaths[i]);
+
+            Image scaledImage = originalIcon.getImage().getScaledInstance(widths[i], heights[i], Image.SCALE_SMOOTH);
+            ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+            JLabel label = new JLabel(scaledIcon);
+            if (i == 0) {
+                label.setBorder(selectedBorder);
+                selectedLabel[0] = label;
+            } else {
+                label.setBorder(defaultBorder);
+            }
+            kirbyLabels[i] = label;
+            final int index = i;
+            label.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    int choice = JOptionPane.showConfirmDialog(
+                            panel,
+                            "Confirm selection of character" + (index + 1) + "?",
+                            "Confirm Selection",
+                            JOptionPane.YES_NO_OPTION
+                    );
+
+                    if (choice == JOptionPane.YES_OPTION) {
+                        if (selectedLabel[0] != null) {
+                            selectedLabel[0].setBorder(defaultBorder);
+                        }
+                        label.setBorder(selectedBorder);
+                        selectedLabel[0] = label;
+
+                        mySelectedSprite = ((ImageIcon) label.getIcon());
+
+                        for (RoomPanel room : myMapPanel.getRoomPanels()) {
+                            if (room != null) {
+                                room.setSelectedSprite(mySelectedSprite);
+                                room.repaint();
+                            }
+                        }
+                    } else {
+                        mySelectedSprite = null;
+                    }
+                }
+            });
+
+            panel.add(label);
+        }
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.BLACK);
+
+        mainPanel.add(panel, BorderLayout.CENTER);
+
+        JLabel chooseLabel = new JLabel("CHOOSE YOUR CHARACTER");
+        chooseLabel.setForeground(Color.YELLOW);
+        chooseLabel.setHorizontalAlignment(JLabel.CENTER);
+        chooseLabel.setFont(new Font("Monospaced", Font.BOLD, 15));
+        mainPanel.add(chooseLabel, BorderLayout.NORTH);
+
+        return mainPanel;
     }
 }
