@@ -421,10 +421,15 @@ public class ViewMockup implements GameView {
 
     private void howToEvent(final ActionEvent theEvent) {
         String howtoMsg = """
-        Answer trivia questions
-        Document door colour key
-        Document controls
-        Document minimap door selection 
+        Use the arrow keys or controls (in the bottom right) to navigate the maze and rooms.
+
+        Answer questions on the right in multiple choice or short answer format.
+
+        Reach the exit at the yellow square to win.
+
+        If you're locked out and can't make it to the exit, you lose.
+        
+        Save, load, and restart the game from the menu bar.
         """;
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
     }
