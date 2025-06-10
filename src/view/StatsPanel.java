@@ -118,7 +118,7 @@ public class StatsPanel extends JPanel {
     public void clear() {
         myQuestionsAnswered = 0;
         myQuestionsCorrect = 0;
-        repaint();
+        updateLabels();
     }
     /**
      * Updates both thhe Answered and Failed labels.

@@ -274,4 +274,19 @@ public class QuestionPanel extends JPanel {
         }
         return null;
     }
+    public void clear() {
+      
+        synchronized (animationLock) {
+            if (animationThread != null && animationThread.isAlive()) {
+                animationThread.interrupt();
+            }
+            animationThread = null;
+        }
+        myCurrentQuestionLabel.setText("");
+        myAnswerInputPanel.removeAll();
+        myAnswerInputPanel.revalidate();
+        myAnswerInputPanel.repaint();
+        myAnswerComponent = null;
+    }
+    
 }

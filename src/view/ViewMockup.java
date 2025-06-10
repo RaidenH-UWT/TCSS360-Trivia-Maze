@@ -271,12 +271,35 @@ public class ViewMockup implements GameView {
      */
     // File menu events
     private void newGameEvent(final ActionEvent theEvent) {
-        // TODO: Implement newGameEvent
-        JOptionPane.showMessageDialog(myFrame, "Starting a new game! (reset state, choose game parameters, etc.)");
+        int confirm = JOptionPane.showConfirmDialog(
+                myFrame,
+                "Are you sure you want to start a new game?",
+                "Confirm New Game",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        int width = myGameState.getMaze().getWidth();
+        int height = myGameState.getMaze().getHeight();
+        GameState freshState = new GameState(width, height);
+        updateGameState(freshState);
+        myStatsPanel.clear();
+        myQuestionPanel.clear();
+
+        JOptionPane.showMessageDialog(
+                myFrame,
+                "Starting a new game!",
+                "New Game",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
     }
 
     private void settingsEvent(final ActionEvent theEvent) {
-        JOptionPane.showMessageDialog(myFrame, "Opening settings!");
+        SettingsPage settings = new SettingsPage(myFrame, myMusicPlayer);
+        settings.setVisible(true);
     }
 
     private void exitEvent(final ActionEvent theEvent) {
@@ -411,28 +434,46 @@ public class ViewMockup implements GameView {
     // Misc events
     /**
      * Called when the game is over.
+     *
      * @param theWin true when the game ended in a win, false for a loss
      */
     private void gameOverEvent(final boolean theWin) {
+        if (theWin) {
+            myMusicPlayer.playSoundEffect("src/music/win.wav");
+        } else {
+            myMusicPlayer.playSoundEffect("src/music/loss.wav");
+        }
+
+        // Game over message
         String gameOverMsg;
         if (theWin) {
             gameOverMsg = """
-                    Congratulations, you won!
-                    """;
+                Congratulations, you won!
+            """;
         } else {
             gameOverMsg = """
-                    GAME OVER
-                    """;
+                GAME OVER
+            """;
         }
 
-        int selection = JOptionPane.showOptionDialog(myFrame, gameOverMsg, "Game Over", JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE, null, new String[] {"Restart", "Quit"}, null);
+        int selection = JOptionPane.showOptionDialog(
+                myFrame,
+                gameOverMsg,
+                "Game Over",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Restart", "Quit"},
+                null
+        );
+
         if (selection == 0) {
             newGameEvent(null);
         } else {
             myFrame.dispatchEvent(new WindowEvent(myFrame, WindowEvent.WINDOW_CLOSING));
         }
     }
+
 
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -591,17 +632,17 @@ public class ViewMockup implements GameView {
         Direction dir = myGameState.getMyCurrentDirection();
         boolean wasCorrect = myGameState.tryMove(dir, theAnswer);
         updateStats(wasCorrect);
-        //Calling updateStats in the updateDoor method created a bug where it would increment every time a question popped up, not when it was answered
-        // So i figured calling it here would make sense since this is where answers are processed
-        //Stats panel works as intended on my end please lmk if this created another bug and i'll try to fix
-        // calling the update methods from here breaks things. Don't do that.
 
-        if (!wasCorrect) {
+        if (wasCorrect) {
+            myMusicPlayer.playSoundEffect("src/music/correct.wav");
+        } else {
+            myMusicPlayer.playSoundEffect("src/music/incorrect.wav");
             JOptionPane.showMessageDialog(myFrame, "Incorrect! That door is now locked.", "Wrong Answer", JOptionPane.ERROR_MESSAGE);
         }
 
-        if (!myGameState.getMaze().isPathAvailable(myPlayerPosition))
+        if (!myGameState.getMaze().isPathAvailable(myPlayerPosition)) {
             gameOverEvent(false);
+        }
     }
 
     private JPanel createControlPanel() {
@@ -701,8 +742,9 @@ public class ViewMockup implements GameView {
             myQuestionPanel.updateQuestion(door.getQuestion());
         }
 
-        if (myPlayerPosition.equals(myGameState.getMaze().getExit()))
+        if (myPlayerPosition.equals(myGameState.getMaze().getExit())) {
             gameOverEvent(true);
+        }
     }
 
     private void bindWASDKeys(JPanel panel) {

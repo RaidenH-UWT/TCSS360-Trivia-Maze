@@ -58,4 +58,21 @@ public class MusicPlayer {
     public boolean isPlaying() {
         return backgroundClip != null && backgroundClip.isRunning();
     }
+
+    public void playSoundEffect(String soundFilePath) {
+        try {
+            File soundFile = new File(soundFilePath);
+            if (!soundFile.exists()) {
+                System.err.println("Sound effect not found: " + soundFilePath);
+                return;
+            }
+
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
 }
