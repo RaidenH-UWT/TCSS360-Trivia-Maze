@@ -1,32 +1,36 @@
 package src.view;
 
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import java.awt.*;
-import javax.swing.JDialog;
+import java.awt.event.ItemEvent;
+import javax.swing.*;
 
 /**
- * Settings for the Trivia Maze game.
- * Allows users to toggle game settings such as music.
- * @author Kalen Cha
+ * A settings window for the Trivia Maze game. Lets the user control background
+ * music and sound effects. Includes toggles and sliders for volume.
+ *
+ * @author Kalen
  * @version Spring 2025
  */
 public class SettingsPage extends JDialog {
-     public SettingsPage(JFrame parentFrame, MusicPlayer musicPlayer) {
+
+    /**
+     * Creates the settings page with music and sound settings.
+     *
+     * @param parentFrame the main game window
+     * @param musicPlayer the music player controlling sounds
+     */
+    public SettingsPage(JFrame parentFrame, MusicPlayer musicPlayer) {
         super(parentFrame, "Settings", true);
-        
+
         setLayout(new BorderLayout());
-        
+
         JPanel panel = new JPanel();
-        panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setLayout(new GridLayout(0, 1, 0, 10));
 
         JCheckBox musicToggle = new JCheckBox("Turn off music");
         musicToggle.setSelected(!musicPlayer.isPlaying());
         musicToggle.setFocusPainted(false);
-
         musicToggle.addItemListener(e -> {
             if (musicToggle.isSelected()) {
                 musicPlayer.stopMusic();
@@ -34,22 +38,51 @@ public class SettingsPage extends JDialog {
                 musicPlayer.playMusic("src/music/SundayPicnic.wav");
             }
         });
-
         panel.add(musicToggle);
-        
-        // Add more settings options here as needed
-        
-        add(panel, BorderLayout.CENTER);
-        
+
+        JLabel musicVolumeLabel = new JLabel("Music Volume:");
+        JSlider musicSlider = new JSlider(0, 100, (int) (musicPlayer.getMusicVolume() * 100));
+        musicSlider.setMajorTickSpacing(25);
+        musicSlider.setPaintTicks(true);
+        musicSlider.setPaintLabels(true);
+        musicSlider.addChangeListener(e -> {
+            float newMusicVolume = musicSlider.getValue() / 100f;
+            musicPlayer.setMusicVolume(newMusicVolume);
+        });
+        panel.add(musicVolumeLabel);
+        panel.add(musicSlider);
+
+        JCheckBox sfxToggle = new JCheckBox("Enable sound effects");
+        sfxToggle.setSelected(musicPlayer.isSoundEffectsEnabled());
+        sfxToggle.setFocusPainted(false);
+        sfxToggle.addItemListener(e -> {
+            boolean enabled = e.getStateChange() == ItemEvent.SELECTED;
+            musicPlayer.setSoundEffectsEnabled(enabled);
+        });
+        panel.add(sfxToggle);
+
+        JLabel sfxVolumeLabel = new JLabel("Sound Effect Volume:");
+        JSlider volumeSlider = new JSlider(0, 100, (int) (musicPlayer.getSoundEffectsVolume() * 100));
+        volumeSlider.setMajorTickSpacing(25);
+        volumeSlider.setPaintTicks(true);
+        volumeSlider.setPaintLabels(true);
+        volumeSlider.addChangeListener(e -> {
+            float newVolume = volumeSlider.getValue() / 100f;
+            musicPlayer.setSoundEffectsVolume(newVolume);
+        });
+        panel.add(sfxVolumeLabel);
+        panel.add(volumeSlider);
+
         JPanel buttonPanel = new JPanel();
-        javax.swing.JButton closeButton = new javax.swing.JButton("Close");
+        JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
         buttonPanel.add(closeButton);
+
+        add(panel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        pack(); 
-        setSize(300, 150); 
+        pack();
+        setSize(350, 350);
         setLocationRelativeTo(parentFrame);
     }
 }
-

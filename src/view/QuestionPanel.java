@@ -24,6 +24,16 @@ import javax.swing.SwingUtilities;
 import src.model.MultipleChoiceQuestion;
 import src.model.Question;
 
+/**
+ * Panel for displaying a trivia question and capturing the user's answer.
+ * Supports multiple question types, animated question text, and sound effects.
+ *
+ * Used in the main game UI.
+ *
+ * @author Kalen Cha
+ * @author Raiden H.
+ * @version Spring 2025
+ */
 public class QuestionPanel extends JPanel {
 
     /**
@@ -56,8 +66,17 @@ public class QuestionPanel extends JPanel {
      */
     private final Object animationLock = new Object();
 
+    /**
+     * Reference to the music player for playing typing sound effects.
+     */
     private final MusicPlayer myMusicPlayer;
 
+    /**
+     * Constructs the question panel with a submit button and input area.
+     *
+     * @param theAnswerMethod Method to call when an answer is submitted
+     * @param theMusicPlayer MusicPlayer for sound effects
+     */
     public QuestionPanel(final Consumer<String> theAnswerMethod, final MusicPlayer theMusicPlayer) {
         super();
 
@@ -192,7 +211,7 @@ public class QuestionPanel extends JPanel {
                         String currentText = builder.toString();
 
                         SwingUtilities.invokeLater(() -> myCurrentQuestionLabel.setText(currentText));
-                        if (myMusicPlayer != null) {
+                        if (myMusicPlayer != null && myMusicPlayer.isSoundEffectsEnabled()) {
                             try {
                                 myMusicPlayer.playSoundEffect("src/music/textSoundv1.wav");
                             } catch (Exception e) {
@@ -211,6 +230,9 @@ public class QuestionPanel extends JPanel {
         }
     }
 
+    /**
+     * Sets a short answer text field for open-ended questions.
+     */
     private void setShortAnswer() {
         JTextField tf = new JTextField(20);
         tf.setBackground(Color.BLACK);
@@ -239,6 +261,9 @@ public class QuestionPanel extends JPanel {
         myAnswerInputPanel.add(mcPanel);
     }
 
+    /**
+     * Displays True/False options.
+     */
     private void setTrueFalse() {
         ButtonGroup tfGroup = new ButtonGroup();
         JRadioButton trueButton = new JRadioButton("True");
@@ -260,14 +285,25 @@ public class QuestionPanel extends JPanel {
         myAnswerInputPanel.add(trueFalsePanel);
     }
 
+    /**
+     * Submits the user's answer using the provided answer method.
+     */
     private void processAnswer() {
         myAnswerMethod.accept(getUserAnswer());
     }
 
+    /**
+     * Skips the current question.
+     */
     void skipQuestion() {
         myAnswerMethod.accept(Question.SKIP);
     }
 
+    /**
+     * Retrieves the user's selected or typed answer.
+     *
+     * @return the selected answer, or null if none
+     */
     private String getUserAnswer() {
         if (myAnswerComponent instanceof JTextField) {
             return ((JTextField) myAnswerComponent).getText();
@@ -279,14 +315,15 @@ public class QuestionPanel extends JPanel {
                     return button.getText();
                 }
             }
-        } else if (myAnswerComponent == null) {
-            return null;
         } else {
-            throw new IllegalArgumentException("Unsupported answer component " + myAnswerComponent.getClass());
+            throw new IllegalArgumentException("Unsupported answer component");
         }
         return null;
     }
 
+    /**
+     * Clears the question and input area. Stops any running animations.
+     */
     public void clear() {
 
         synchronized (animationLock) {
