@@ -279,8 +279,10 @@ public class QuestionPanel extends JPanel {
                     return button.getText();
                 }
             }
+        } else if (myAnswerComponent == null) {
+            return null;
         } else {
-            throw new IllegalArgumentException("Unsupported answer component");
+            throw new IllegalArgumentException("Unsupported answer component " + myAnswerComponent.getClass());
         }
         return null;
     }

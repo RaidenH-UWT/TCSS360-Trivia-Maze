@@ -21,6 +21,7 @@ public class ControlPanel extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+
                 ImageIcon dpadImage = new ImageIcon("src/sprites/dpadTrimmed.png");
                 Image img = dpadImage.getImage();
                 g.drawImage(img, 83, 10, panelSize, panelSize, this);
