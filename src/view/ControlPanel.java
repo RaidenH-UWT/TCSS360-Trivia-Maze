@@ -21,23 +21,23 @@ public class ControlPanel extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                ImageIcon dpadImage = new ImageIcon("src/dpad/dpadTrimmed.png");
+                ImageIcon dpadImage = new ImageIcon("src/sprites/dpadTrimmed.png");
                 Image img = dpadImage.getImage();
                 g.drawImage(img, 83, 10, panelSize, panelSize, this);
 
             }
         };
 
-        ImageIcon upImage = new ImageIcon("src/dpad/upArrow.png");
+        ImageIcon upImage = new ImageIcon("src/sprites/upArrow.png");
         Image upImg = upImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
 
-        ImageIcon rightImage = new ImageIcon("src/dpad/rightArrow.png");
+        ImageIcon rightImage = new ImageIcon("src/sprites/rightArrow.png");
         Image rightImg = rightImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
 
-        ImageIcon leftImage = new ImageIcon("src/dpad/leftArrow.png");
+        ImageIcon leftImage = new ImageIcon("src/sprites/leftArrow.png");
         Image leftImg = leftImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
 
-        ImageIcon downImage = new ImageIcon("src/dpad/downArrow.png");
+        ImageIcon downImage = new ImageIcon("src/sprites/downArrow.png");
         Image downImg = downImage.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
 
         ImageIcon upIcon = new ImageIcon(upImg);
