@@ -56,10 +56,13 @@ public class QuestionPanel extends JPanel {
      */
     private final Object animationLock = new Object();
 
-    public QuestionPanel(final Consumer<String> theAnswerMethod) {
+    private final MusicPlayer myMusicPlayer;
+
+    public QuestionPanel(final Consumer<String> theAnswerMethod, final MusicPlayer theMusicPlayer) {
         super();
 
         myAnswerMethod = theAnswerMethod;
+        myMusicPlayer = theMusicPlayer;
 
         setBackground(new Color(30, 30, 30));
         setLayout(new GridBagLayout());
@@ -189,6 +192,13 @@ public class QuestionPanel extends JPanel {
                         String currentText = builder.toString();
 
                         SwingUtilities.invokeLater(() -> myCurrentQuestionLabel.setText(currentText));
+                        if (myMusicPlayer != null) {
+                            try {
+                                myMusicPlayer.playSoundEffect("src/music/textSoundv1.wav");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         Thread.sleep(150);
                     } catch (InterruptedException e) {
                         return;
@@ -274,8 +284,9 @@ public class QuestionPanel extends JPanel {
         }
         return null;
     }
+
     public void clear() {
-      
+
         synchronized (animationLock) {
             if (animationThread != null && animationThread.isAlive()) {
                 animationThread.interrupt();
@@ -288,5 +299,5 @@ public class QuestionPanel extends JPanel {
         myAnswerInputPanel.repaint();
         myAnswerComponent = null;
     }
-    
+
 }

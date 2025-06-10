@@ -146,6 +146,9 @@ public class ViewMockup implements GameView {
     }
 
     public void initialize() {
+
+        myMusicPlayer = new MusicPlayer();
+
         // Adding GUI components
         myFrame.setJMenuBar(createMenuBar());
         myFrame.setContentPane(createContentPane());
@@ -599,7 +602,7 @@ public class ViewMockup implements GameView {
         GridBagConstraints statsConstraint = new GridBagConstraints(3, 1, 1, 1, 0.3, 0.3,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
-        myQuestionPanel = new QuestionPanel(this::processAnswer);
+        myQuestionPanel = new QuestionPanel(this::processAnswer, myMusicPlayer);
         GridBagConstraints questionConstraint = new GridBagConstraints(3, 2, 1, 1, 0.3, 0.3,
                 GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
 
