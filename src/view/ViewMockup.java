@@ -127,6 +127,8 @@ public class ViewMockup implements GameView {
     public ViewMockup(GameState theState) {
         super();
 
+        myMusicPlayer = new MusicPlayer();
+
         myGameState = theState;
 
         theState.addPropertyChangeListener(this);
@@ -150,8 +152,6 @@ public class ViewMockup implements GameView {
 
     public void initialize() {
 
-        myMusicPlayer = new MusicPlayer();
-
         // Adding GUI components
         myFrame.setJMenuBar(createMenuBar());
         myFrame.setContentPane(createContentPane());
@@ -163,7 +163,6 @@ public class ViewMockup implements GameView {
         myFrame.setVisible(true);
 
         // start music
-        myMusicPlayer = new MusicPlayer();
         myMusicPlayer.playMusic("src/music/SundayPicnic.wav");
     }
 
@@ -430,7 +429,7 @@ public class ViewMockup implements GameView {
         Reach the exit at the yellow square to win.
 
         If you're locked out and can't make it to the exit, you lose.
-
+        
         Save, load, and restart the game from the menu bar.
         """;
         JOptionPane.showMessageDialog(myFrame, howtoMsg);
@@ -639,10 +638,6 @@ public class ViewMockup implements GameView {
     }
 
     private void processAnswer(final String theAnswer) {
-        if (theAnswer == null) {
-            JOptionPane.showMessageDialog(myFrame, "No door there!", "No door", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
         Direction dir = myGameState.getMyCurrentDirection();
         boolean wasCorrect = myGameState.tryMove(dir, theAnswer);
         updateStats(wasCorrect);
@@ -670,6 +665,7 @@ public class ViewMockup implements GameView {
                 ImageIcon dpadImage = new ImageIcon("src/sprites/dpadTrimmed.png");
                 Image img = dpadImage.getImage();
                 g.drawImage(img, 83, 10, panelSize, panelSize, this);
+
             }
         };
 
