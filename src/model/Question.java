@@ -11,8 +11,6 @@ public abstract class Question implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String SKIP = "~*~SKIP_QUESTION~*~";
-
     /**
      * ID of this question, for the database.
      */
@@ -27,6 +25,11 @@ public abstract class Question implements java.io.Serializable {
      * 1-5 int difficulty of this question.
      */
     private int myDifficulty;
+    
+    /**
+     * Constant for the skip question cheat.
+     */
+    public static final String SKIP = "~*~SKIP_QUESTION~*~";
 
     /**
      * Creates a new Question object.
