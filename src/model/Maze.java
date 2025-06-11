@@ -93,17 +93,6 @@ public class Maze implements java.io.Serializable {
     }
 
     /**
-     * Initialize the maze, creating new empty rooms to be changed manually.
-     */
-    private void generateEmptyRooms() {
-        for (int i = 0; i < myHeight; i++) {
-            for (int j = 0; j < myWidth; j++) {
-                myRooms[i][j] = new Room(j, i);
-            }
-        }
-    }
-
-    /**
      * Fills the generated rooms with random doors.
      */
     public void fillRoomsRandom() {
@@ -128,47 +117,6 @@ public class Maze implements java.io.Serializable {
             }
         }
         fillRooms(questions);
-    }
-
-    /**
-     * Fills all rooms of the maze with the given list of questions.
-     *
-     * @param theQuestions ArrayList<Question> of questions to fill with
-     */
-    @SuppressWarnings("unused") // Used for debugging/development
-    private void fillRooms(final ArrayList<Question> theQuestions) {
-        if (!ALLOW_DUPLICATE_QUESTIONS && theQuestions.size() < (myWidth * myHeight) * 4 - (2 * myWidth) - (2 * myHeight)) {
-            throw new IndexOutOfBoundsException("Not enough questions to fill the maze");
-        }
-
-        Collections.shuffle(theQuestions);
-
-        int i = 0;
-        for (Room[] roomArr : myRooms) {
-            for (Room room : roomArr) {
-                // Only add doors if they don't lead to a wall
-                if (!(room.getX() == 0)) {
-                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
-                    room.addDoor(Direction.WEST, door);
-                    i++;
-                }
-                if (!(room.getX() == myWidth - 1)) {
-                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
-                    room.addDoor(Direction.EAST, door);
-                    i++;
-                }
-                if (!(room.getY() == 0)) {
-                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
-                    room.addDoor(Direction.NORTH, door);
-                    i++;
-                }
-                if (!(room.getY() == myHeight - 1)) {
-                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
-                    room.addDoor(Direction.SOUTH, door);
-                    i++;
-                }
-            }
-        }
     }
 
     /**
@@ -227,6 +175,35 @@ public class Maze implements java.io.Serializable {
     }
 
     /**
+     * @return Position of the entrance to this maze
+     */
+    public Position getEntrance() {
+        return myEntrance;
+    }
+
+    /**
+     * @return Position of the exit from this maze
+     */
+    public Position getExit() {
+        return myExit;
+    }
+
+    /**
+     * Check whether this maze is completed or not.
+     *
+     * @return true if this maze is completed, false otherwise
+     */
+    public boolean isCompleted() {
+        return myCompleted;
+    }
+
+    public boolean isWithinBounds(final Position thePosition) {
+        int x = thePosition.getX();
+        int y = thePosition.getY();
+        return x >= 0 && x < myWidth && y >= 0 && y < myHeight;
+    }
+
+    /**
      * Helper for the recursive isPathAvailable method.
      * 
      * @param thePosition Position to start at
@@ -257,32 +234,54 @@ public class Maze implements java.io.Serializable {
     }
 
     /**
-     * @return Position of the entrance to this maze
+     * Initialize the maze, creating new empty rooms to be changed manually.
      */
-    public Position getEntrance() {
-        return myEntrance;
+    private void generateEmptyRooms() {
+        for (int i = 0; i < myHeight; i++) {
+            for (int j = 0; j < myWidth; j++) {
+                myRooms[i][j] = new Room(j, i);
+            }
+        }
     }
 
     /**
-     * @return Position of the exit from this maze
-     */
-    public Position getExit() {
-        return myExit;
-    }
-
-    /**
-     * Check whether this maze is completed or not.
+     * Fills all rooms of the maze with the given list of questions.
      *
-     * @return true if this maze is completed, false otherwise
+     * @param theQuestions ArrayList<Question> of questions to fill with
      */
-    public boolean isCompleted() {
-        return myCompleted;
-    }
+    @SuppressWarnings("unused") // Used for debugging/development
+    private void fillRooms(final ArrayList<Question> theQuestions) {
+        if (!ALLOW_DUPLICATE_QUESTIONS && theQuestions.size() < (myWidth * myHeight) * 4 - (2 * myWidth) - (2 * myHeight)) {
+            throw new IndexOutOfBoundsException("Not enough questions to fill the maze");
+        }
 
-    public boolean isWithinBounds(Position pos) {
-        int x = pos.getX();
-        int y = pos.getY();
-        return x >= 0 && x < myWidth && y >= 0 && y < myHeight;
-    }
+        Collections.shuffle(theQuestions);
 
+        int i = 0;
+        for (Room[] roomArr : myRooms) {
+            for (Room room : roomArr) {
+                // Only add doors if they don't lead to a wall
+                if (!(room.getX() == 0)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.WEST, door);
+                    i++;
+                }
+                if (!(room.getX() == myWidth - 1)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.EAST, door);
+                    i++;
+                }
+                if (!(room.getY() == 0)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.NORTH, door);
+                    i++;
+                }
+                if (!(room.getY() == myHeight - 1)) {
+                    Door door = new Door(theQuestions.get(i % theQuestions.size()));
+                    room.addDoor(Direction.SOUTH, door);
+                    i++;
+                }
+            }
+        }
+    }
 }
