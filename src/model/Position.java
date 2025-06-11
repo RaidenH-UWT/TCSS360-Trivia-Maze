@@ -47,8 +47,8 @@ public class Position implements java.io.Serializable {
         return myY;
     }
 
-    public Position translate(Direction dir) {
-        return switch (dir) {
+    public Position translate(final Direction theDirection) {
+        return switch (theDirection) {
             case NORTH ->
                 new Position(myX, myY - 1);
             case SOUTH ->
