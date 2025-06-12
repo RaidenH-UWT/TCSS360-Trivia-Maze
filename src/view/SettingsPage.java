@@ -19,7 +19,7 @@ public class SettingsPage extends JDialog {
      * @param parentFrame the main game window
      * @param musicPlayer the music player controlling sounds
      */
-    public SettingsPage(JFrame parentFrame, MusicPlayer musicPlayer) {
+    SettingsPage(JFrame parentFrame, MusicPlayer musicPlayer) {
         super(parentFrame, "Settings", true);
 
         setLayout(new BorderLayout());
