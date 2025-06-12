@@ -15,6 +15,11 @@ import java.util.List;
  */
 public class DatabaseManager {
     /**
+     * Filepath to the SQLite database.
+     */
+    private final static String DB_PATH = "jdbc:sqlite:src/model/mazedb.db";
+    
+    /**
      * Connection to the SQLite database for the game.
      */
     private static Connection CONNECT;
@@ -23,11 +28,6 @@ public class DatabaseManager {
      * Statement for sending write queries to the database.
      */
     private static Statement QUERY;
-
-    /**
-     * Filepath to the SQLite database.
-     */
-    private final static String DB_PATH = "jdbc:sqlite:src/model/mazedb.db";
 
     /**
      * Connect to the database.
