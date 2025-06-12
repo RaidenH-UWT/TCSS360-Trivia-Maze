@@ -74,7 +74,7 @@ public class QuestionPanel extends JPanel {
      * @param theAnswerMethod Method to call when an answer is submitted
      * @param theMusicPlayer MusicPlayer for sound effects
      */
-    public QuestionPanel(final Consumer<String> theAnswerMethod, final MusicPlayer theMusicPlayer) {
+    QuestionPanel(final Consumer<String> theAnswerMethod, final MusicPlayer theMusicPlayer) {
         super();
 
         myAnswerMethod = theAnswerMethod;
@@ -156,7 +156,7 @@ public class QuestionPanel extends JPanel {
      *
      * @param theQuestion Question object to update from
      */
-    public void updateQuestion(final Question theQuestion) {
+    void updateQuestion(final Question theQuestion) {
         myAnswerInputPanel.removeAll();
 
         if (theQuestion == null) {
@@ -321,7 +321,7 @@ public class QuestionPanel extends JPanel {
     /**
      * Clears the question and input area. Stops any running animations.
      */
-    public void clear() {
+    void clear() {
 
         synchronized (animationLock) {
             if (animationThread != null && animationThread.isAlive()) {
