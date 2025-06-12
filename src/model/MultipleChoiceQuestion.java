@@ -58,7 +58,7 @@ public class MultipleChoiceQuestion extends Question {
      * otherwise
      */
     @Override
-    public boolean checkAnswer(String theAnswer) {
+    public boolean checkAnswer(final String theAnswer) {
         if (theAnswer == null) {
             return false;
         }
