@@ -15,7 +15,7 @@ import src.model.Position;
 public class MapPanel extends JPanel {
     private RoomPanel[] myRooms;
 
-    public MapPanel(final int theWidth, final int theHeight, final Color theBackgroundColor, final Position theExit) {
+    MapPanel(final int theWidth, final int theHeight, final Color theBackgroundColor, final Position theExit) {
         super();
 
         myRooms = new RoomPanel[theWidth * theHeight];
@@ -57,7 +57,7 @@ public class MapPanel extends JPanel {
      * Set the sprite of all rooms to the given sprite.
      * @param theSprite ImageIcon sprite to set
      */
-    public void updateSprite(final ImageIcon theSprite) {
+    void updateSprite(final ImageIcon theSprite) {
         for(RoomPanel room : myRooms) {
             room.setSelectedSprite(theSprite);
         }
@@ -66,7 +66,7 @@ public class MapPanel extends JPanel {
     /**
      * @return RoomPanel[] in this map.
      */
-    public RoomPanel[] getRoomPanels() {
+    RoomPanel[] getRoomPanels() {
         return myRooms;
     }
 }
