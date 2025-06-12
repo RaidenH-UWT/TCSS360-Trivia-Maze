@@ -12,7 +12,7 @@ public class TriviaMazeApp {
     private static GameView myView;
     public static void main(String[] args) {
         DatabaseManager.connect();
-        myState = new GameState(5);
+        myState = new GameState(3);
 
         myView = new GuiView(myState);
 
