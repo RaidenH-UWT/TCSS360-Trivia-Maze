@@ -79,7 +79,7 @@ public class RoomPanel extends JPanel {
          * @param theDir Direction of the Door to set
          * @param theState int state to set (reference GameView interface for values)
          */
-        public void setDoorState(final Direction theDir, final int theState) {
+        void setDoorState(final Direction theDir, final int theState) {
             if (theState >= 0 && theState <= 4) {
                 // Assign to index based on the ordinal
                 // {NORTH, SOUTH, EAST, WEST}
@@ -92,7 +92,7 @@ public class RoomPanel extends JPanel {
          * Set the state of all doors in this RoomPanel.
          * @param theStates int[] of states in N,S,E,W order
          */
-        public void setDoorStates(final int[] theStates) {
+        void setDoorStates(final int[] theStates) {
             for (int state : theStates) {
                 if (state < 0 || state > 4) {
                     throw new IllegalArgumentException("Door state not defined");
@@ -106,7 +106,7 @@ public class RoomPanel extends JPanel {
          * Set the sprite to display.
          * @param theSprite ImageIcon sprite to set
          */
-        public void setSelectedSprite(final ImageIcon theSprite) {
+        void setSelectedSprite(final ImageIcon theSprite) {
             mySelectedSprite = theSprite;
         }
 
@@ -114,7 +114,7 @@ public class RoomPanel extends JPanel {
          * Get the state of the doors in this RoomPanel.
          * @return int[] of the states in N,S,E,W order
          */
-        public int[] getDoorState() {
+        int[] getDoorState() {
             return myDoorState;
         }
 
@@ -122,7 +122,7 @@ public class RoomPanel extends JPanel {
          * Set if the player is in this room.
          * @param theIsPosition boolean true if the player is in this room, false if not
          */
-        public void setIsPlayerPosition(final boolean theIsPosition) {
+        void setIsPlayerPosition(final boolean theIsPosition) {
             isPlayerPosition = theIsPosition;
         }
 
@@ -130,7 +130,7 @@ public class RoomPanel extends JPanel {
          * Set whether this RoomPanel is the exit or not.
          * @param theIsExit boolean true if is the exit, false otherwise
          */
-        public void setIsExit(final boolean theIsExit) {
+        void setIsExit(final boolean theIsExit) {
             myIsExit = theIsExit;
         }
 
