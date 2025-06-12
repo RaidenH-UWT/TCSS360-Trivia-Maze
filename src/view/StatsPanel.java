@@ -35,7 +35,7 @@ public class StatsPanel extends JPanel {
     /**
      * Create a new StatsPanel
      */
-    public StatsPanel() {
+    StatsPanel() {
         super();
 
         setBackground(new Color(18, 18, 18));
@@ -66,7 +66,7 @@ public class StatsPanel extends JPanel {
      * @param theQuestionsAnswered int number of questions answered
      * @param theQuestionsCorrect int number of questions correct
      */
-    public StatsPanel(final int theQuestionsAnswered, final int theQuestionsCorrect) {
+    StatsPanel(final int theQuestionsAnswered, final int theQuestionsCorrect) {
         this();
         if (theQuestionsAnswered >= 0) {
             myQuestionsAnswered = theQuestionsAnswered;
@@ -84,7 +84,7 @@ public class StatsPanel extends JPanel {
     /**
      * Increment the questions answered counter by 1.
      */
-    public void incrementQuestionsAnswered() {
+    void incrementQuestionsAnswered() {
         myQuestionsAnswered++;
         updateLabels();
     }
@@ -92,7 +92,7 @@ public class StatsPanel extends JPanel {
     /**
      * Increment the questions correct counter by 1.
      */
-    public void incrementQuestionsCorrect() {
+    void incrementQuestionsCorrect() {
         myQuestionsCorrect++;
         updateLabels();
     }
@@ -100,7 +100,7 @@ public class StatsPanel extends JPanel {
     /**
      * @return int number of questions answered.
      */
-    public int getQuestionsAnswered() {
+    int getQuestionsAnswered() {
         return myQuestionsAnswered;
         
     }
@@ -108,18 +108,19 @@ public class StatsPanel extends JPanel {
     /**
      * @return int number of questions correct.
      */
-    public int getQuestionsCorrect() {
+    int getQuestionsCorrect() {
         return myQuestionsCorrect;
     }
 
     /**
      * Reset the questions answered and questions correct counters to 0.
      */
-    public void clear() {
+    void clear() {
         myQuestionsAnswered = 0;
         myQuestionsCorrect = 0;
         updateLabels();
     }
+    
     /**
      * Updates both thhe Answered and Failed labels.
      */
