@@ -1,3 +1,9 @@
+/*
+ * Copyright 2025 Kalen Cha, Evan Lei, Raiden H
+ * 
+ * All rights reserved. This software made available under the terms of
+ * the GNU General Public License v3 or later
+ */
 package src.view;
 
 // Misc imports
@@ -285,7 +291,6 @@ public class GuiView implements GameView {
                 throw new UnsupportedOperationException("Property change not supported");
         }
     }
-
 
     /* 
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

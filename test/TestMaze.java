@@ -1,3 +1,12 @@
+/*
+ * Copyright 2025 Kalen Cha, Evan Lei, Raiden H
+ * 
+ * All rights reserved. This software made available under the terms of
+ * the GNU General Public License v3 or later
+ * 
+ * The JUnit 5 library is distributed under the terms of the Eclipse Public License v2.0
+ * More information can be found in /lib/LICENSE.md
+ */
 package test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
